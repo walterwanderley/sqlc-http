@@ -1,0 +1,29 @@
+openapi: 3.0.3
+info:
+  description: {{ .GoModule}} Services
+  title: {{ .GoModule}}
+  version: 1.0.0
+  contact:
+    name: sqlc-http
+    url: https://github.com/walterwanderley/sqlc-http
+tags:
+  {{range .Packages}}- {{.Package}}
+  {{end}}
+paths:
+  {{range .Packages}}{{$pkg := .Package}}{{range $key, $val := . | GroupByPath}}{{$key}}:
+    {{range $val}}{{.HttpMethod}}:
+      tags:
+        - {{$pkg}}
+      {{range . | ApiParameters}}{{.}}
+      {{end}}
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    {{end}}
+  {{end}}{{end}}
+components:
+  schemas:  

@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  description: authors Services
+  title: authors
+  version: 1.0.0
+  contact:
+    name: sqlc-http
+    url: https://github.com/walterwanderley/sqlc-http
+tags:
+  - authors
+  
+paths:
+  /authors/author:
+    post:
+      tags:
+        - authors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /authors/author/{id}:
+    delete:
+      tags:
+        - authors
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    get:
+      tags:
+        - authors
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /authors/authors:
+    get:
+      tags:
+        - authors
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  
+components:
+  schemas:  

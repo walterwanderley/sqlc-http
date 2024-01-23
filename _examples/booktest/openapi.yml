@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  description: booktest Services
+  title: booktest
+  version: 1.0.0
+  contact:
+    name: sqlc-http
+    url: https://github.com/walterwanderley/sqlc-http
+tags:
+  - books
+  
+paths:
+  /books/author:
+    post:
+      tags:
+        - books
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /books/author/{author_id}:
+    get:
+      tags:
+        - books
+      parameters:
+        - name: author_id
+          in: path
+          schema:
+            type: integer
+            format: int32
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /books/book:
+    post:
+      tags:
+        - books
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                author_id:
+                  type: integer
+                  format: int32
+                isbn:
+                  type: string
+                book_type:
+                  type: string
+                title:
+                  type: string
+                year:
+                  type: integer
+                  format: int32
+                available:
+                  type: string
+                  format: date-time
+                tags:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    put:
+      tags:
+        - books
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                tags:
+                  type: string
+                book_type:
+                  type: string
+                book_id:
+                  type: integer
+                  format: int32
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /books/book-isbn:
+    put:
+      tags:
+        - books
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                tags:
+                  type: string
+                book_id:
+                  type: integer
+                  format: int32
+                isbn:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /books/book/{book_id}:
+    delete:
+      tags:
+        - books
+      parameters:
+        - name: book_id
+          in: path
+          schema:
+            type: integer
+            format: int32
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    get:
+      tags:
+        - books
+      parameters:
+        - name: book_id
+          in: path
+          schema:
+            type: integer
+            format: int32
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /books/books-by-tags:
+    post:
+      tags:
+        - books
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dollar_1:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  /books/books-by-title-year:
+    get:
+      tags:
+        - books
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
+            format: int32
+      
+      responses:
+        "200":
+          description: OK
+        "422":    
+          description: Invalid request
+        "500":
+          description: Internal server error    
+    
+  
+components:
+  schemas:  
