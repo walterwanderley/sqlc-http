@@ -19,6 +19,7 @@ import (
 
 	"github.com/XSAM/otelsql"
 	"github.com/flowchartsman/swaggerui"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.uber.org/automaxprocs/maxprocs"
 
@@ -97,9 +98,13 @@ func run() error {
 	registerHandlers(mux, db)
 	mux.Handle("/swagger/", http.StripPrefix("/swagger", swaggerui.Handler(openAPISpec)))
 
+	var handler http.Handler = mux
+	if otlpEndpoint != "" {
+		handler = otelhttp.NewHandler(handler, serviceName)
+	}
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
+		Handler: handler,
 		// Please, configure timeouts!
 	}
 

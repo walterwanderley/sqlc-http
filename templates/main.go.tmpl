@@ -20,6 +20,7 @@ import (
 
 	"github.com/XSAM/otelsql"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"github.com/flowchartsman/swaggerui"	
 	"go.uber.org/automaxprocs/maxprocs"
 	// database driver
@@ -171,16 +172,30 @@ func run() error {
 		handler = liteFS.ForwardToLeader(forwardTimeout, "POST", "PUT", "PATCH", "DELETE")(handler)
 		handler = liteFS.ConsistentReader(forwardTimeout, "GET")(handler)
 	}
+	{{if .DistributedTracing}}
+	if otlpEndpoint != "" {
+		handler = otelhttp.NewHandler(handler, serviceName)
+	}{{end}}
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: handler,
 		// Please, configure timeouts!
 	}{{else}}
+	{{if .DistributedTracing}}var handler http.Handler = mux
+	if otlpEndpoint != "" {
+		handler = otelhttp.NewHandler(handler, serviceName)
+	}
+	server := &http.Server{
+    	Addr: fmt.Sprintf(":%d", port),
+    	Handler: handler,
+    	// Please, configure timeouts!
+  	}{{else}}
 	server := &http.Server{
     	Addr: fmt.Sprintf(":%d", port),
     	Handler: mux,
     	// Please, configure timeouts!
   	}
+	{{end}}	
 	{{end}}
 	if prometheusPort > 0 {
 		err := metric.Init(prometheusPort, serviceName)

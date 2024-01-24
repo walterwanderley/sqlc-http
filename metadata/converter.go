@@ -73,6 +73,165 @@ func originalAndElementType(typ string) (original, element string) {
 	return t[0], strings.Join(t[1:], ".")
 }
 
+func BindStringToSerializable(src, dst, attrName, attrType string) []string {
+	res := make([]string, 0)
+	switch attrType {
+	case "bool":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseBool(str); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = v }", dst, attrName))
+		res = append(res, "}")
+	case "sql.NullBool", "pgtype.Bool":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseBool(str); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = &v }", dst, attrName))
+		res = append(res, "}")
+	case "pgtype.Int2":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 16); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, "vInt16 = int16(v)")
+		res = append(res, fmt.Sprintf("%s.%s = &vInt16 }", dst, attrName))
+		res = append(res, "}")
+	case "pgtype.Uint32":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseUint(str, 10, 32); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, "vUint32 = uint32(v)")
+		res = append(res, fmt.Sprintf("%s.%s = &vUint32 }", dst, attrName))
+		res = append(res, "}")
+	case "sql.NullInt32", "pgtype.Int4":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 32); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, "vInt32 = int32(v)")
+		res = append(res, fmt.Sprintf("%s.%s = &vInt32 }", dst, attrName))
+		res = append(res, "}")
+	case "sql.NullInt64", "pgtype.Int8":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 64); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = &v }", dst, attrName))
+		res = append(res, "}")
+	case "pgtype.Float4":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseFloat(str, 32); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, "vFloat32 = float32(v)")
+		res = append(res, fmt.Sprintf("%s.%s = &vFloat32 }", dst, attrName))
+		res = append(res, "}")
+	case "sql.NullFloat64", "pgtype.Float8":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseFloat(str, 64); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = &v }", dst, attrName))
+		res = append(res, "}")
+	case "sql.NullString", "pgtype.Text", "pgtype.UUID":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, fmt.Sprintf("%s.%s = &str }", dst, attrName))
+	case "sql.NullTime", "pgtype.Timestamp", "pgtype.Timestampz":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := time.Parse(time.RFC3339, str); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = &v }", dst, attrName))
+		res = append(res, "}")
+	case "time.Time":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := time.Parse(time.RFC3339, str); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = v }", dst, attrName))
+		res = append(res, "}")
+	case "pgtype.Date":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := time.Parse(time.DateOnly, str); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = &v }", dst, attrName))
+		res = append(res, "}")
+	case "uuid.UUID", "net.HardwareAddr", "net.IP":
+		res = append(res, fmt.Sprintf("%s.%s = %s(\"%s\")", dst, attrName, src, converter.ToSnakeCase(attrName)))
+	case "int16":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 16); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = int16(v) }", dst, attrName))
+		res = append(res, "}")
+	case "int32":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 32); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = int32(v) }", dst, attrName))
+		res = append(res, "}")
+	case "int64":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 64); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = v }", dst, attrName))
+		res = append(res, "}")
+	case "int":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.Atoi(str); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = v }", dst, attrName))
+		res = append(res, "}")
+	case "float32":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseFloat(str, 32); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = float32(v) }", dst, attrName))
+		res = append(res, "}")
+	case "float64":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseFloat(str, 64); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = v }", dst, attrName))
+		res = append(res, "}")
+	default:
+		_, elementType := originalAndElementType(attrType)
+		if elementType != "" {
+			res = append(res, fmt.Sprintf("%s.%s = %s(%s(\"%s\")", dst, attrName, elementType, src, converter.ToSnakeCase(attrName)))
+		} else {
+			res = append(res, fmt.Sprintf("%s.%s = %s(\"%s\")", dst, attrName, src, converter.ToSnakeCase(attrName)))
+		}
+	}
+	return res
+}
+
 func BindToSerializable(src, dst, attrName, attrType string) []string {
 	res := make([]string, 0)
 	switch attrType {

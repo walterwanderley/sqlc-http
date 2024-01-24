@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 type Service struct {
@@ -61,9 +62,13 @@ func (s *Service) handleDeleteAuthor() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
+		if str := r.PathValue("id"); str != "" {
+			if v, err := strconv.ParseInt(str, 10, 64); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			} else {
+				req.Id = v
+			}
 		}
 		id := req.Id
 
@@ -88,9 +93,13 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
+		if str := r.PathValue("id"); str != "" {
+			if v, err := strconv.ParseInt(str, 10, 64); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			} else {
+				req.Id = v
+			}
 		}
 		id := req.Id
 

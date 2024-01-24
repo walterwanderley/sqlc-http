@@ -14,8 +14,6 @@ import (
 var Files embed.FS
 
 var Funcs = template.FuncMap{
-	"PascalCase":          converter.ToPascalCase,
-	"SnakeCase":           converter.ToSnakeCase,
 	"UpperFirstCharacter": converter.UpperFirstCharacter,
 	"HandlerTypes":        metadata.HandlerTypes,
 	"Input":               metadata.InputHttp,

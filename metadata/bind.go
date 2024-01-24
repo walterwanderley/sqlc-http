@@ -55,8 +55,24 @@ func InputHttp(s *metadata.Service) []string {
 		return res
 	}
 	res = append(res, "var req request")
-	res = append(res, "if err := json.NewDecoder(r.Body).Decode(&req); err != nil { http.Error(w, err.Error(), http.StatusUnprocessableEntity)")
-	res = append(res, "return }")
+
+	method := s.HttpMethod()
+
+	if method == "get" || method == "delete" {
+		if len(s.InputNames) == 1 && !s.HasCustomParams() && !s.HasArrayParams() {
+			res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(s.InputNames[0]), s.InputTypes[0])...)
+		} else {
+			for _, typ := range s.InputTypes {
+				m := s.Messages[converter.CanonicalName(typ)]
+				for _, f := range m.Fields {
+					res = append(res, BindStringToSerializable("r.URL.Query().Get", "req", converter.UpperFirstCharacter(f.Name), f.Type)...)
+				}
+			}
+		}
+	} else {
+		res = append(res, "if err := json.NewDecoder(r.Body).Decode(&req); err != nil { http.Error(w, err.Error(), http.StatusUnprocessableEntity)")
+		res = append(res, "return }")
+	}
 
 	if s.HasCustomParams() {
 		typ := s.InputTypes[0]

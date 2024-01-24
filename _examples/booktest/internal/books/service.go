@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -77,9 +78,14 @@ func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
+		req.Title = r.URL.Query().Get("title")
+		if str := r.URL.Query().Get("year"); str != "" {
+			if v, err := strconv.ParseInt(str, 10, 32); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			} else {
+				req.Year = int32(v)
+			}
 		}
 		var arg BooksByTitleYearParams
 		arg.Title = req.Title
@@ -200,9 +206,13 @@ func (s *Service) handleDeleteBook() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
+		if str := r.PathValue("book_id"); str != "" {
+			if v, err := strconv.ParseInt(str, 10, 32); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			} else {
+				req.BookID = int32(v)
+			}
 		}
 		bookID := req.BookID
 
@@ -226,9 +236,13 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
+		if str := r.PathValue("author_id"); str != "" {
+			if v, err := strconv.ParseInt(str, 10, 32); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			} else {
+				req.AuthorID = int32(v)
+			}
 		}
 		authorID := req.AuthorID
 
@@ -262,9 +276,13 @@ func (s *Service) handleGetBook() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
+		if str := r.PathValue("book_id"); str != "" {
+			if v, err := strconv.ParseInt(str, 10, 32); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			} else {
+				req.BookID = int32(v)
+			}
 		}
 		bookID := req.BookID
 

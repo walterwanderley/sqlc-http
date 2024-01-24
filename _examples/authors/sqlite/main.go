@@ -117,6 +117,7 @@ func run() error {
 		handler = liteFS.ForwardToLeader(forwardTimeout, "POST", "PUT", "PATCH", "DELETE")(handler)
 		handler = liteFS.ConsistentReader(forwardTimeout, "GET")(handler)
 	}
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: handler,
