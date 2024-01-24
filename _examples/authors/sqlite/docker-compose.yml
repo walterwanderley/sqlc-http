@@ -10,6 +10,7 @@ services:
       - "LITESTREAM_ENDPOINT=minio:9000"
       - "LITESTREAM_FORCE_PATH_STYLE=true"
       - "LITESTREAM_SCHEME=http"
+      - "GODEBUG=httpmuxgo121=0"
     volumes:
       - .:/app
     depends_on:

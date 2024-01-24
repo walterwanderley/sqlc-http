@@ -8,6 +8,8 @@ services:
       - .:/app
     depends_on:
       - postgres
+    environment:
+      - GODEBUG=httpmuxgo121=0
 
   postgres:
     image: postgres
