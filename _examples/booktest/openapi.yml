@@ -14,6 +14,7 @@ paths:
     post:
       tags:
         - books
+      summary: CreateAuthor
       requestBody:
         content:
           application/json:
@@ -26,8 +27,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -35,6 +36,7 @@ paths:
     get:
       tags:
         - books
+      summary: GetAuthor
       parameters:
         - name: author_id
           in: path
@@ -45,8 +47,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -54,6 +56,7 @@ paths:
     post:
       tags:
         - books
+      summary: CreateBook
       requestBody:
         content:
           application/json:
@@ -81,13 +84,14 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     put:
       tags:
         - books
+      summary: UpdateBook
       requestBody:
         content:
           application/json:
@@ -107,8 +111,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -116,6 +120,7 @@ paths:
     put:
       tags:
         - books
+      summary: UpdateBookISBN
       requestBody:
         content:
           application/json:
@@ -135,8 +140,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -144,6 +149,7 @@ paths:
     delete:
       tags:
         - books
+      summary: DeleteBook
       parameters:
         - name: book_id
           in: path
@@ -154,13 +160,14 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     get:
       tags:
         - books
+      summary: GetBook
       parameters:
         - name: book_id
           in: path
@@ -171,8 +178,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -180,6 +187,7 @@ paths:
     post:
       tags:
         - books
+      summary: BooksByTags
       requestBody:
         content:
           application/json:
@@ -192,8 +200,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -201,6 +209,7 @@ paths:
     get:
       tags:
         - books
+      summary: BooksByTitleYear
       parameters:
         - name: title
           in: query
@@ -215,8 +224,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     

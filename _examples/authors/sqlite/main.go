@@ -24,7 +24,6 @@ import (
 	// database driver
 	_ "github.com/mattn/go-sqlite3"
 
-	"authors/internal/server/instrumentation/metric"
 	"authors/internal/server/litefs"
 	"authors/internal/server/litestream"
 )
@@ -37,9 +36,9 @@ const (
 )
 
 var (
-	dbURL                string
-	port, prometheusPort int
-	replicationURL       string
+	dbURL          string
+	port           int
+	replicationURL string
 
 	litefsConfig litefs.Config
 	liteFS       *litefs.LiteFS
@@ -51,7 +50,7 @@ func main() {
 	var dev bool
 	flag.StringVar(&dbURL, "db", "", "The Database connection URL")
 	flag.IntVar(&port, "port", 5000, "The server port")
-	flag.IntVar(&prometheusPort, "prometheus-port", 0, "The metrics server port")
+
 	flag.BoolVar(&dev, "dev", false, "Set logger to development mode")
 
 	flag.StringVar(&replicationURL, "replication", "", "S3 replication URL")
@@ -122,12 +121,6 @@ func run() error {
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: handler,
 		// Please, configure timeouts!
-	}
-	if prometheusPort > 0 {
-		err := metric.Init(prometheusPort, serviceName)
-		if err != nil {
-			return err
-		}
 	}
 
 	done := make(chan os.Signal, 1)

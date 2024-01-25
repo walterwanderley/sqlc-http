@@ -21,8 +21,10 @@ var (
 	module             string
 	ignoreQueries      string
 	migrationPath      string
+	migrationLib       string
 	liteFS             bool
 	litestream         bool
+	metric             bool
 	distributedTracing bool
 	appendMode         bool
 	showVersion        bool
@@ -36,9 +38,11 @@ func main() {
 	flag.StringVar(&module, "m", "my-project", "Go module name if there are no go.mod")
 	flag.StringVar(&ignoreQueries, "i", "", "Comma separated list (regex) of queries to ignore")
 	flag.StringVar(&migrationPath, "migration-path", "", "Path to migration directory")
+	flag.StringVar(&migrationLib, "migration-lib", "goose", "The migration library. goose or migrate")
 	flag.BoolVar(&liteFS, "litefs", false, "Enable support to LiteFS")
 	flag.BoolVar(&litestream, "litestream", false, "Enable support to Litestream")
-	flag.BoolVar(&distributedTracing, "tracing", false, "Enable support to distributed tracing with Open Telemetry")
+	flag.BoolVar(&distributedTracing, "tracing", false, "Enable support to distributed tracing")
+	flag.BoolVar(&metric, "metric", false, "Enable support to metrics")
 	flag.Parse()
 
 	if help {
@@ -90,10 +94,12 @@ func main() {
 		Args:               args,
 		GoModule:           module,
 		MigrationPath:      migrationPath,
+		MigrationLib:       migrationLib,
 		Packages:           make([]*metadata.Package, 0),
 		LiteFS:             liteFS,
 		Litestream:         litestream,
 		DistributedTracing: distributedTracing,
+		Metric:             metric,
 	}
 
 	for _, p := range cfg.Packages {

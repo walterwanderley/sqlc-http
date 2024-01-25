@@ -24,17 +24,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
-
-	"authors/internal/server/instrumentation/metric"
 )
 
-//go:generate sqlc-http -m authors -migration-path sql/migrations -append
+//go:generate sqlc-http -m authors -migration-path sql/migrations -migration-lib migrate -append
 
 const serviceName = "authors"
 
 var (
-	dbURL                string
-	port, prometheusPort int
+	dbURL string
+	port  int
 
 	//go:embed openapi.yml
 	openAPISpec []byte
@@ -44,7 +42,7 @@ func main() {
 	var dev bool
 	flag.StringVar(&dbURL, "db", "", "The Database connection URL")
 	flag.IntVar(&port, "port", 5000, "The server port")
-	flag.IntVar(&prometheusPort, "prometheus-port", 0, "The metrics server port")
+
 	flag.BoolVar(&dev, "dev", false, "Set logger to development mode")
 
 	flag.Parse()
@@ -88,13 +86,6 @@ func run() error {
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 		// Please, configure timeouts!
-	}
-
-	if prometheusPort > 0 {
-		err := metric.Init(prometheusPort, serviceName)
-		if err != nil {
-			return err
-		}
 	}
 
 	done := make(chan os.Signal, 1)

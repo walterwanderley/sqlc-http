@@ -14,6 +14,7 @@ paths:
     post:
       tags:
         - authors
+      summary: CreateAuthor
       requestBody:
         content:
           application/json:
@@ -28,8 +29,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -37,6 +38,7 @@ paths:
     delete:
       tags:
         - authors
+      summary: DeleteAuthor
       parameters:
         - name: id
           in: path
@@ -47,13 +49,14 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     get:
       tags:
         - authors
+      summary: GetAuthor
       parameters:
         - name: id
           in: path
@@ -64,8 +67,8 @@ paths:
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     
@@ -73,12 +76,13 @@ paths:
     get:
       tags:
         - authors
+      summary: ListAuthors
       
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     

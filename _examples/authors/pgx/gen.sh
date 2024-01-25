@@ -8,4 +8,4 @@ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 rm -rf internal proto api go.mod go.sum main.go registry.go buf*
 
 sqlc generate
-sqlc-http -m authors -migration-path sql/migrations
+sqlc-http -m authors -migration-path sql/migrations -migration-lib migrate

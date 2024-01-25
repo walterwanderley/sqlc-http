@@ -30,7 +30,7 @@ import (
 	"booktest/internal/server/instrumentation/trace"
 )
 
-//go:generate sqlc-http -m booktest -tracing -append
+//go:generate sqlc-http -m booktest -tracing -metric -append
 
 const serviceName = "booktest"
 

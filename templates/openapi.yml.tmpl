@@ -14,13 +14,14 @@ paths:
     {{range $val}}{{.HttpMethod}}:
       tags:
         - {{$pkg}}
+      summary: {{.Name}}
       {{range . | ApiParameters}}{{.}}
       {{end}}
       responses:
         "200":
           description: OK
-        "422":    
-          description: Invalid request
+        "400":    
+          description: Bad request
         "500":
           description: Internal server error    
     {{end}}
