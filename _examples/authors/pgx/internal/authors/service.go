@@ -27,9 +27,9 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		Bio  *string `json:"bio"`
 	}
 	type response struct {
-		ID   int64   `json:"id"`
-		Name string  `json:"name"`
-		Bio  *string `json:"bio"`
+		ID   int64   `json:"id,omitempty"`
+		Name string  `json:"name,omitempty"`
+		Bio  *string `json:"bio,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -91,9 +91,9 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		Id int64 `json:"id"`
 	}
 	type response struct {
-		ID   int64   `json:"id"`
-		Name string  `json:"name"`
-		Bio  *string `json:"bio"`
+		ID   int64   `json:"id,omitempty"`
+		Name string  `json:"name,omitempty"`
+		Bio  *string `json:"bio,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -126,9 +126,9 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 
 func (s *Service) handleListAuthors() http.HandlerFunc {
 	type response struct {
-		ID   int64   `json:"id"`
-		Name string  `json:"name"`
-		Bio  *string `json:"bio"`
+		ID   int64   `json:"id,omitempty"`
+		Name string  `json:"name,omitempty"`
+		Bio  *string `json:"bio,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {

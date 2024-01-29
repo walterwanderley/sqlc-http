@@ -19,6 +19,10 @@ var Funcs = template.FuncMap{
 	"Input":               metadata.InputHttp,
 	"Output":              metadata.OutputHttp,
 	"UpperCase":           strings.ToUpper,
+	"LowerCase":           strings.ToLower,
 	"GroupByPath":         metadata.GroupByPath,
 	"ApiParameters":       metadata.ApiParameters,
+	"ApiResponse":         metadata.ApiResponse,
+	"HttpMethod":          metadata.HttpMethod,
+	"HttpPath":            metadata.HttpPath,
 }

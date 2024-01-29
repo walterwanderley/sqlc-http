@@ -23,11 +23,11 @@ func (s *Service) handleBooksByTags() http.HandlerFunc {
 		Dollar_1 []string `json:"dollar_1"`
 	}
 	type response struct {
-		BookID int32    `json:"book_id"`
-		Title  string   `json:"title"`
-		Name   *string  `json:"name"`
-		Isbn   string   `json:"isbn"`
-		Tags   []string `json:"tags"`
+		BookID int32    `json:"book_id,omitempty"`
+		Title  string   `json:"title,omitempty"`
+		Name   *string  `json:"name,omitempty"`
+		Isbn   string   `json:"isbn,omitempty"`
+		Tags   []string `json:"tags,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -66,14 +66,14 @@ func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 		Year  int32  `json:"year"`
 	}
 	type response struct {
-		BookID    int32     `json:"book_id"`
-		AuthorID  int32     `json:"author_id"`
-		Isbn      string    `json:"isbn"`
-		BookType  string    `json:"book_type"`
-		Title     string    `json:"title"`
-		Year      int32     `json:"year"`
-		Available time.Time `json:"available"`
-		Tags      []string  `json:"tags"`
+		BookID    int32     `json:"book_id,omitempty"`
+		AuthorID  int32     `json:"author_id,omitempty"`
+		Isbn      string    `json:"isbn,omitempty"`
+		BookType  string    `json:"book_type,omitempty"`
+		Title     string    `json:"title,omitempty"`
+		Year      int32     `json:"year,omitempty"`
+		Available time.Time `json:"available,omitempty"`
+		Tags      []string  `json:"tags,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -119,8 +119,8 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		Name string `json:"name"`
 	}
 	type response struct {
-		AuthorID int32  `json:"author_id"`
-		Name     string `json:"name"`
+		AuthorID int32  `json:"author_id,omitempty"`
+		Name     string `json:"name,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -155,14 +155,14 @@ func (s *Service) handleCreateBook() http.HandlerFunc {
 		Tags      []string  `json:"tags"`
 	}
 	type response struct {
-		BookID    int32     `json:"book_id"`
-		AuthorID  int32     `json:"author_id"`
-		Isbn      string    `json:"isbn"`
-		BookType  string    `json:"book_type"`
-		Title     string    `json:"title"`
-		Year      int32     `json:"year"`
-		Available time.Time `json:"available"`
-		Tags      []string  `json:"tags"`
+		BookID    int32     `json:"book_id,omitempty"`
+		AuthorID  int32     `json:"author_id,omitempty"`
+		Isbn      string    `json:"isbn,omitempty"`
+		BookType  string    `json:"book_type,omitempty"`
+		Title     string    `json:"title,omitempty"`
+		Year      int32     `json:"year,omitempty"`
+		Available time.Time `json:"available,omitempty"`
+		Tags      []string  `json:"tags,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -230,8 +230,8 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		AuthorID int32 `json:"author_id"`
 	}
 	type response struct {
-		AuthorID int32  `json:"author_id"`
-		Name     string `json:"name"`
+		AuthorID int32  `json:"author_id,omitempty"`
+		Name     string `json:"name,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -264,14 +264,14 @@ func (s *Service) handleGetBook() http.HandlerFunc {
 		BookID int32 `json:"book_id"`
 	}
 	type response struct {
-		BookID    int32     `json:"book_id"`
-		AuthorID  int32     `json:"author_id"`
-		Isbn      string    `json:"isbn"`
-		BookType  string    `json:"book_type"`
-		Title     string    `json:"title"`
-		Year      int32     `json:"year"`
-		Available time.Time `json:"available"`
-		Tags      []string  `json:"tags"`
+		BookID    int32     `json:"book_id,omitempty"`
+		AuthorID  int32     `json:"author_id,omitempty"`
+		Isbn      string    `json:"isbn,omitempty"`
+		BookType  string    `json:"book_type,omitempty"`
+		Title     string    `json:"title,omitempty"`
+		Year      int32     `json:"year,omitempty"`
+		Available time.Time `json:"available,omitempty"`
+		Tags      []string  `json:"tags,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {

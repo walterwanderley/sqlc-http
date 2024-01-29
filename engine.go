@@ -28,6 +28,9 @@ func process(def *metadata.Definition, outPath string, appendMode bool) error {
 		newPath := strings.TrimSuffix(path, ".tmpl")
 
 		if d.IsDir() {
+			if strings.HasSuffix(newPath, "server") {
+				return nil
+			}
 			if strings.HasSuffix(newPath, "instrumentation") && (!def.DistributedTracing && !def.Metric) {
 				return nil
 			}

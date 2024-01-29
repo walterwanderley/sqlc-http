@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   description: {{ .GoModule}} Services
   title: {{ .GoModule}}
-  version: 1.0.0
+  version: 0.0.1
   contact:
     name: sqlc-http
     url: https://github.com/walterwanderley/sqlc-http
@@ -11,7 +11,7 @@ tags:
   {{end}}
 paths:
   {{range .Packages}}{{$pkg := .Package}}{{range $key, $val := . | GroupByPath}}{{$key}}:
-    {{range $val}}{{.HttpMethod}}:
+    {{range $val}}{{. | HttpMethod | LowerCase}}:
       tags:
         - {{$pkg}}
       summary: {{.Name}}
@@ -20,6 +20,8 @@ paths:
       responses:
         "200":
           description: OK
+          {{range . | ApiResponse}}{{.}}
+          {{end}}
         "400":    
           description: Bad request
         "500":

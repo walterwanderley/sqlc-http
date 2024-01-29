@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   description: authors Services
   title: authors
-  version: 1.0.0
+  version: 0.0.1
   contact:
     name: sqlc-http
     url: https://github.com/walterwanderley/sqlc-http
@@ -10,7 +10,7 @@ tags:
   - authors
   
 paths:
-  /authors/author:
+  /authors:
     post:
       tags:
         - authors
@@ -29,12 +29,51 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_insert_id:
+                    type: integer
+                    format: int64
+                  rows_affected:
+                    type: integer
+                    format: int64
+          
+        "400":    
+          description: Bad request
+        "500":
+          description: Internal server error    
+    get:
+      tags:
+        - authors
+      summary: ListAuthors
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                    bio:
+                      type: string
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /authors/author/{id}:
+  /authors/{id}:
     delete:
       tags:
         - authors
@@ -49,6 +88,7 @@ paths:
       responses:
         "200":
           description: OK
+          
         "400":    
           description: Bad request
         "500":
@@ -67,20 +107,99 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                  bio:
+                    type: string
+          
+        "400":    
+          description: Bad request
+        "500":
+          description: Internal server error    
+    put:
+      tags:
+        - authors
+      summary: UpdateAuthor
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_insert_id:
+                    type: integer
+                    format: int64
+                  rows_affected:
+                    type: integer
+                    format: int64
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /authors/authors:
-    get:
+  /authors/{id}/bio:
+    patch:
       tags:
         - authors
-      summary: ListAuthors
+      summary: UpdateAuthorBio
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
       
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_insert_id:
+                    type: integer
+                    format: int64
+                  rows_affected:
+                    type: integer
+                    format: int64
+          
         "400":    
           description: Bad request
         "500":

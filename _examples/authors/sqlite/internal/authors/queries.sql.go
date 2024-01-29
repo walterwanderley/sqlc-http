@@ -23,6 +23,7 @@ type CreateAuthorParams struct {
 	Bio  sql.NullString
 }
 
+// http: POST /authors
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio)
 }
@@ -32,6 +33,7 @@ DELETE FROM authors
 WHERE id = ?
 `
 
+// http: DELETE /authors/{id}
 func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteAuthor, id)
 	return err
@@ -42,6 +44,7 @@ SELECT id, name, bio FROM authors
 WHERE id = ? LIMIT 1
 `
 
+// http: GET /authors/{id}
 func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 	row := q.db.QueryRowContext(ctx, getAuthor, id)
 	var i Author
@@ -54,6 +57,7 @@ SELECT id, name, bio FROM authors
 ORDER BY name
 `
 
+// http: GET /authors
 func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
 	rows, err := q.db.QueryContext(ctx, listAuthors)
 	if err != nil {
@@ -75,4 +79,38 @@ func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateAuthor = `-- name: UpdateAuthor :execresult
+UPDATE authors
+SET name = ?, 
+bio = ?
+WHERE id = ?
+`
+
+type UpdateAuthorParams struct {
+	Name string
+	Bio  sql.NullString
+	ID   int64
+}
+
+// http: PUT /authors/{id}
+func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateAuthor, arg.Name, arg.Bio, arg.ID)
+}
+
+const updateAuthorBio = `-- name: UpdateAuthorBio :execresult
+UPDATE authors
+SET bio = ?
+WHERE id = ?
+`
+
+type UpdateAuthorBioParams struct {
+	Bio sql.NullString
+	ID  int64
+}
+
+// http: PATCH /authors/{id}/bio
+func (q *Queries) UpdateAuthorBio(ctx context.Context, arg UpdateAuthorBioParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateAuthorBio, arg.Bio, arg.ID)
 }

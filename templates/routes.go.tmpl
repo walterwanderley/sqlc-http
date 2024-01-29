@@ -6,6 +6,6 @@ import "net/http"
 
 {{$pkg := .Package}}
 func (s *Service) RegisterHandlers(mux *http.ServeMux) {
-{{ range .Services }}mux.HandleFunc("{{.HttpMethod | UpperCase}} /{{$pkg}}{{.HttpPath}}", s.handle{{.Name | UpperFirstCharacter}}())
+{{ range .Services }}mux.HandleFunc("{{. | HttpMethod}} {{. | HttpPath}}", s.handle{{.Name | UpperFirstCharacter}}())
 {{ end -}}
 }

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   description: booktest Services
   title: booktest
-  version: 1.0.0
+  version: 0.0.1
   contact:
     name: sqlc-http
     url: https://github.com/walterwanderley/sqlc-http
@@ -10,7 +10,7 @@ tags:
   - books
   
 paths:
-  /books/author:
+  /author:
     post:
       tags:
         - books
@@ -27,12 +27,23 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_id:
+                    type: integer
+                    format: int32
+                  name:
+                    type: string
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /books/author/{author_id}:
+  /author/{author_id}:
     get:
       tags:
         - books
@@ -47,12 +58,23 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_id:
+                    type: integer
+                    format: int32
+                  name:
+                    type: string
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /books/book:
+  /book:
     post:
       tags:
         - books
@@ -84,6 +106,32 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_id:
+                    type: integer
+                    format: int32
+                  author_id:
+                    type: integer
+                    format: int32
+                  isbn:
+                    type: string
+                  book_type:
+                    type: string
+                  title:
+                    type: string
+                  year:
+                    type: integer
+                    format: int32
+                  available:
+                    type: string
+                    format: date-time
+                  tags:
+                    type: string
+          
         "400":    
           description: Bad request
         "500":
@@ -111,12 +159,13 @@ paths:
       responses:
         "200":
           description: OK
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /books/book-isbn:
+  /book-isbn:
     put:
       tags:
         - books
@@ -140,12 +189,13 @@ paths:
       responses:
         "200":
           description: OK
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /books/book/{book_id}:
+  /book/{book_id}:
     delete:
       tags:
         - books
@@ -160,6 +210,7 @@ paths:
       responses:
         "200":
           description: OK
+          
         "400":    
           description: Bad request
         "500":
@@ -178,12 +229,38 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_id:
+                    type: integer
+                    format: int32
+                  author_id:
+                    type: integer
+                    format: int32
+                  isbn:
+                    type: string
+                  book_type:
+                    type: string
+                  title:
+                    type: string
+                  year:
+                    type: integer
+                    format: int32
+                  available:
+                    type: string
+                    format: date-time
+                  tags:
+                    type: string
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /books/books-by-tags:
+  /books-by-tags:
     post:
       tags:
         - books
@@ -192,20 +269,39 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                dollar_1:
-                  type: string
+              type: array
+              items:
+                type: string
+                format: 
       
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    book_id:
+                      type: integer
+                      format: int32
+                    title:
+                      type: string
+                    name:
+                      type: string
+                    isbn:
+                      type: string
+                    tags:
+                      type: string
+          
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     
-  /books/books-by-title-year:
+  /books-by-title-year:
     get:
       tags:
         - books
@@ -224,6 +320,34 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    book_id:
+                      type: integer
+                      format: int32
+                    author_id:
+                      type: integer
+                      format: int32
+                    isbn:
+                      type: string
+                    book_type:
+                      type: string
+                    title:
+                      type: string
+                    year:
+                      type: integer
+                      format: int32
+                    available:
+                      type: string
+                      format: date-time
+                    tags:
+                      type: string
+          
         "400":    
           description: Bad request
         "500":

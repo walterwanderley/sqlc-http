@@ -2,6 +2,8 @@ package metadata
 
 import (
 	"fmt"
+	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/walterwanderley/sqlc-grpc/converter"
@@ -42,7 +44,7 @@ func HandlerTypes(s *metadata.Service) []string {
 		res = append(res, "type response struct {")
 		for _, f := range m.Fields {
 			attrName := converter.UpperFirstCharacter(f.Name)
-			res = append(res, fmt.Sprintf("%s %s `json:\"%s\"`", attrName, toSerializableType(f.Type), converter.ToSnakeCase(attrName)))
+			res = append(res, fmt.Sprintf("%s %s `json:\"%s,omitempty\"`", attrName, toSerializableType(f.Type), converter.ToSnakeCase(attrName)))
 		}
 		res = append(res, "}")
 	}
@@ -56,22 +58,49 @@ func InputHttp(s *metadata.Service) []string {
 	}
 	res = append(res, "var req request")
 
-	method := s.HttpMethod()
+	method := HttpMethod(s)
+	pathParams := httpPathParams(s)
 
-	if method == "get" || method == "delete" {
-		if len(s.InputNames) == 1 && !s.HasCustomParams() && !s.HasArrayParams() {
-			res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(s.InputNames[0]), s.InputTypes[0])...)
-		} else {
-			for _, typ := range s.InputTypes {
-				m := s.Messages[converter.CanonicalName(typ)]
+	if method == "GET" || method == "DELETE" {
+
+		for i, typ := range s.InputTypes {
+			m, ok := s.Messages[converter.CanonicalName(typ)]
+			if ok {
 				for _, f := range m.Fields {
+					if slices.Contains[[]string](pathParams, converter.ToSnakeCase(f.Name)) {
+						res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(f.Name), f.Type)...)
+						continue
+					}
 					res = append(res, BindStringToSerializable("r.URL.Query().Get", "req", converter.UpperFirstCharacter(f.Name), f.Type)...)
 				}
+				continue
 			}
+			if slices.Contains[[]string](pathParams, converter.ToSnakeCase(s.InputNames[i])) {
+				res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(s.InputNames[i]), typ)...)
+				continue
+			}
+			res = append(res, BindStringToSerializable("r.URL.Query().Get", "req", converter.UpperFirstCharacter(s.InputNames[i]), typ)...)
+
 		}
 	} else {
 		res = append(res, "if err := json.NewDecoder(r.Body).Decode(&req); err != nil { http.Error(w, err.Error(), http.StatusUnprocessableEntity)")
 		res = append(res, "return }")
+		for i, typ := range s.InputTypes {
+			m, ok := s.Messages[converter.CanonicalName(typ)]
+			if ok {
+				for _, f := range m.Fields {
+					if slices.Contains[[]string](pathParams, converter.ToSnakeCase(f.Name)) {
+						res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(f.Name), f.Type)...)
+						continue
+					}
+				}
+				continue
+			}
+			if slices.Contains[[]string](pathParams, converter.ToSnakeCase(s.InputNames[i])) {
+				res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(s.InputNames[i]), typ)...)
+				continue
+			}
+		}
 	}
 
 	if s.HasCustomParams() {
@@ -138,6 +167,14 @@ func OutputHttp(s *metadata.Service) []string {
 		res = append(res, "})")
 		return res
 	}
+
+	if s.Output == "pgconn.CommandTag" {
+		res = append(res, "json.NewEncoder(w).Encode(response{")
+		res = append(res, "RowsAffected: result.RowsAffected(),")
+		res = append(res, "})")
+		return res
+	}
+
 	res = append(res, "json.Encoder(w).Encode(map[string]any{\"value\": result})")
 
 	return res
@@ -146,7 +183,7 @@ func OutputHttp(s *metadata.Service) []string {
 func GroupByPath(pkg *metadata.Package) map[string][]*metadata.Service {
 	paths := make(map[string][]*metadata.Service)
 	for _, s := range pkg.Services {
-		path := fmt.Sprintf("/%s%s", pkg.Package, s.HttpPath())
+		path := HttpPath(s)
 		services, ok := paths[path]
 		if !ok {
 			services := []*metadata.Service{s}
@@ -154,6 +191,7 @@ func GroupByPath(pkg *metadata.Package) map[string][]*metadata.Service {
 			continue
 		}
 		paths[path] = append(services, s)
+
 	}
 	return paths
 }
@@ -164,27 +202,28 @@ func ApiParameters(s *metadata.Service) []string {
 		return res
 	}
 
-	method := s.HttpMethod()
+	method := HttpMethod(s)
+	pathParams := httpPathParams(s)
 
-	if method == "get" || method == "delete" {
-		res = append(res, "parameters:")
-		if len(s.InputNames) == 1 && !s.HasCustomParams() && !s.HasArrayParams() {
-			res = append(res, fmt.Sprintf("  - name: %s", converter.ToSnakeCase(converter.CanonicalName(s.InputNames[0]))))
-			res = append(res, "    in: path")
-			res = append(res, "    schema:")
-			oasType, oasFormat := toOpenAPITypeAndFormat(s.InputTypes[0])
-			res = append(res, fmt.Sprintf("      type: %s", oasType))
-			if oasFormat != "" {
-				res = append(res, fmt.Sprintf("      format: %s", oasFormat))
-			}
-			return res
-		}
-
-		for _, typ := range s.InputTypes {
-			m := s.Messages[converter.CanonicalName(typ)]
+	var hasParametersAttribute bool
+	for i, typ := range s.InputTypes {
+		m, ok := s.Messages[converter.CanonicalName(typ)]
+		if ok {
 			for _, f := range m.Fields {
-				res = append(res, fmt.Sprintf("  - name: %s", converter.ToSnakeCase(converter.CanonicalName(f.Name))))
-				res = append(res, "    in: query")
+				name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
+				inType := "query"
+				if slices.Contains[[]string](pathParams, name) {
+					inType = "path"
+				}
+				if inType == "query" && (method != "GET" && method != "DELETE") {
+					continue
+				}
+				if !hasParametersAttribute {
+					hasParametersAttribute = true
+					res = append(res, "parameters:")
+				}
+				res = append(res, fmt.Sprintf("  - name: %s", name))
+				res = append(res, fmt.Sprintf("    in: %s", inType))
 				res = append(res, "    schema:")
 				oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
 				res = append(res, fmt.Sprintf("      type: %s", oasType))
@@ -192,7 +231,61 @@ func ApiParameters(s *metadata.Service) []string {
 					res = append(res, fmt.Sprintf("      format: %s", oasFormat))
 				}
 			}
+			continue
 		}
+		name := converter.ToSnakeCase(converter.CanonicalName(s.InputNames[i]))
+		inType := "query"
+		if slices.Contains[[]string](pathParams, name) {
+			inType = "path"
+		}
+		if inType == "query" && (method != "GET" && method != "DELETE") {
+			continue
+		}
+		if !hasParametersAttribute {
+			hasParametersAttribute = true
+			res = append(res, "parameters:")
+		}
+		res = append(res, fmt.Sprintf("  - name: %s", name))
+		res = append(res, fmt.Sprintf("    in: %s", inType))
+		res = append(res, "    schema:")
+		oasType, oasFormat := toOpenAPITypeAndFormat(typ)
+		res = append(res, fmt.Sprintf("      type: %s", oasType))
+		if oasFormat != "" {
+			res = append(res, fmt.Sprintf("      format: %s", oasFormat))
+		}
+
+	}
+
+	if s.HasArrayParams() {
+		res = append(res, "requestBody:")
+		res = append(res, "  content:")
+		res = append(res, "    application/json:")
+		res = append(res, "      schema:")
+		res = append(res, "        type: array")
+		res = append(res, "        items:")
+		typ := converter.CanonicalName(s.InputTypes[0])
+		m := s.Messages[typ]
+		if m == nil {
+			oasType, oasFormat := toOpenAPITypeAndFormat(typ)
+			res = append(res, fmt.Sprintf("          type: %s", oasType))
+			res = append(res, fmt.Sprintf("          format: %s", oasFormat))
+			return res
+		}
+		res = append(res, "          type: object")
+		res = append(res, "          properties:")
+		for _, f := range m.Fields {
+			name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
+			res = append(res, fmt.Sprintf("            %s:", name))
+			oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
+			res = append(res, fmt.Sprintf("              type: %s", oasType))
+			if oasFormat != "" {
+				res = append(res, fmt.Sprintf("              format: %s", oasFormat))
+			}
+		}
+		return res
+	}
+
+	if method == "GET" || method == "DELETE" {
 		return res
 	}
 
@@ -203,9 +296,13 @@ func ApiParameters(s *metadata.Service) []string {
 	res = append(res, "        type: object")
 	res = append(res, "        properties:")
 	for i, typ := range s.InputTypes {
-		m, ok := s.Messages[converter.CanonicalName(typ)]
-		if !ok {
-			res = append(res, fmt.Sprintf("          %s:", converter.ToSnakeCase(converter.CanonicalName(s.InputNames[i]))))
+		m := s.Messages[converter.CanonicalName(typ)]
+		if m == nil {
+			name := converter.ToSnakeCase(converter.CanonicalName(s.InputNames[i]))
+			if slices.Contains[[]string](pathParams, name) {
+				continue
+			}
+			res = append(res, fmt.Sprintf("          %s:", name))
 			oasType, oasFormat := toOpenAPITypeAndFormat(typ)
 			res = append(res, fmt.Sprintf("            type: %s", oasType))
 			if oasFormat != "" {
@@ -214,7 +311,11 @@ func ApiParameters(s *metadata.Service) []string {
 			continue
 		}
 		for _, f := range m.Fields {
-			res = append(res, fmt.Sprintf("          %s:", converter.ToSnakeCase(converter.CanonicalName(f.Name))))
+			name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
+			if slices.Contains[[]string](pathParams, name) {
+				continue
+			}
+			res = append(res, fmt.Sprintf("          %s:", name))
 			oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
 			res = append(res, fmt.Sprintf("            type: %s", oasType))
 			if oasFormat != "" {
@@ -223,5 +324,106 @@ func ApiParameters(s *metadata.Service) []string {
 		}
 	}
 
+	return res
+}
+
+func ApiResponse(s *metadata.Service) []string {
+	res := make([]string, 0)
+	if s.EmptyOutput() {
+		return res
+	}
+	res = append(res, "content:")
+	res = append(res, "  application/json:")
+	res = append(res, "    schema:")
+	m := s.Messages[converter.CanonicalName(s.Output)]
+	if s.HasArrayOutput() {
+		res = append(res, "      type: array")
+		res = append(res, "      items:")
+		if m == nil {
+			oasType, oasFormat := toOpenAPITypeAndFormat(converter.CanonicalName(s.Output))
+			res = append(res, fmt.Sprintf("        type: %s", oasType))
+			res = append(res, fmt.Sprintf("        format: %s", oasFormat))
+			return res
+		}
+
+		res = append(res, "        type: object")
+		res = append(res, "        properties:")
+		for _, f := range m.Fields {
+			name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
+			res = append(res, fmt.Sprintf("          %s:", name))
+			oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
+			res = append(res, fmt.Sprintf("            type: %s", oasType))
+			if oasFormat != "" {
+				res = append(res, fmt.Sprintf("            format: %s", oasFormat))
+			}
+		}
+		return res
+	}
+
+	if m != nil {
+		res = append(res, "      type: object")
+		res = append(res, "      properties:")
+		for _, f := range m.Fields {
+			name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
+			res = append(res, fmt.Sprintf("        %s:", name))
+			oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
+			res = append(res, fmt.Sprintf("          type: %s", oasType))
+			if oasFormat != "" {
+				res = append(res, fmt.Sprintf("          format: %s", oasFormat))
+			}
+		}
+		return res
+	}
+
+	if s.Output == "sql.Result" {
+		res = append(res, "      type: object")
+		res = append(res, "      properties:")
+		res = append(res, "        last_insert_id:")
+		res = append(res, "          type: integer")
+		res = append(res, "          format: int64")
+		res = append(res, "        rows_affected:")
+		res = append(res, "          type: integer")
+		res = append(res, "          format: int64")
+		return res
+	}
+
+	if s.Output == "pgconn.CommandTag" {
+		res = append(res, "      type: object")
+		res = append(res, "      properties:")
+		res = append(res, "        rows_affected:")
+		res = append(res, "          type: integer")
+		res = append(res, "          format: int64")
+		return res
+	}
+
+	return res
+}
+
+func HttpMethod(s *metadata.Service) string {
+	if len(s.HttpSpecs) > 0 {
+		return strings.ToUpper(s.HttpSpecs[0].Method)
+	}
+	return strings.ToUpper(s.HttpMethod())
+}
+
+func HttpPath(s *metadata.Service) string {
+	path := s.HttpPath()
+	if len(s.HttpSpecs) > 0 {
+		path = s.HttpSpecs[0].Path
+	}
+	path = strings.TrimPrefix(path, "/")
+	return "/" + path
+}
+
+func httpPathParams(s *metadata.Service) []string {
+	re := regexp.MustCompile("{(.*?)}")
+	params := re.FindAllString(HttpPath(s), 100)
+	res := make([]string, 0)
+	for _, p := range params {
+		if len(p) <= 2 {
+			continue
+		}
+		res = append(res, strings.TrimSuffix(strings.TrimPrefix(p, "{"), "}"))
+	}
 	return res
 }
