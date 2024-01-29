@@ -12,9 +12,7 @@ Author example taken from [sqlc][sqlc] Git repository [examples][sqlc-git].
 docker compose up
 ```
 
-### Exploring with gRPC UI
+### Exploring the API
 
-```sh
-go install github.com/fullstorydev/grpcui/cmd/grpcui@latest
-grpcui -plaintext localhost:8080
-```
+http://localhost:8080/swagger
+
