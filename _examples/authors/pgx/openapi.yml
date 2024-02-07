@@ -32,15 +32,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int64
-                  name:
-                    type: string
-                  bio:
-                    type: string
+                $ref: "#/components/schemas/authorsAuthors"
           
         "400":    
           description: Bad request
@@ -84,15 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int64
-                  name:
-                    type: string
-                  bio:
-                    type: string
+                $ref: "#/components/schemas/authorsAuthors"
           
         "400":    
           description: Bad request
@@ -113,15 +97,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      format: int64
-                    name:
-                      type: string
-                    bio:
-                      type: string
+                  $ref: "#/components/schemas/authorsAuthors"
           
         "400":    
           description: Bad request
@@ -130,4 +106,15 @@ paths:
     
   
 components:
-  schemas:  
+  schemas: 
+    authorsAuthors:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        bio:
+          type: string
+    

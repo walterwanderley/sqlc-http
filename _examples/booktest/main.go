@@ -20,7 +20,7 @@ import (
 	"github.com/XSAM/otelsql"
 	"github.com/flowchartsman/swaggerui"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.23.0"
 	"go.uber.org/automaxprocs/maxprocs"
 
 	// database driver

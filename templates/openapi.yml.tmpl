@@ -1,20 +1,24 @@
 openapi: 3.0.3
 info:
-  description: {{ .GoModule}} Services
+  {{if .Info}}{{range .Info}}{{.}}
+  {{end}}{{else}}description: {{ .GoModule}} Services
   title: {{ .GoModule}}
   version: 0.0.1
   contact:
     name: sqlc-http
-    url: https://github.com/walterwanderley/sqlc-http
+    url: https://github.com/walterwanderley/sqlc-http{{end}}
 tags:
-  {{range .Packages}}- {{.Package}}
-  {{end}}
+  {{if .Tags}}{{range .Tags}}{{.}}
+  {{end}}{{else}}{{range .Packages}}- {{.Package}}
+  {{end}}{{end}}
 paths:
-  {{range .Packages}}{{$pkg := .Package}}{{range $key, $val := . | GroupByPath}}{{$key}}:
+  {{if .UserDefinedPaths}}{{range .UserDefinedPaths}}{{.}}
+  {{end}}{{end}}{{range .Packages}}{{$pkg := .Package}}{{range $key, $val := . | GroupByPath}}{{$key}}:
     {{range $val}}{{. | HttpMethod | LowerCase}}:
-      tags:
+      {{if .CustomProtoOptions}}{{range .CustomProtoOptions}}{{.}}
+      {{end}}{{else}}tags:
         - {{$pkg}}
-      summary: {{.Name}}
+      summary: {{.Name}}{{end}}
       {{range . | ApiParameters}}{{.}}
       {{end}}
       responses:
@@ -29,4 +33,8 @@ paths:
     {{end}}
   {{end}}{{end}}
 components:
-  schemas:  
+  schemas: 
+    {{range .Packages}}{{range . | ApiComponentSchemas}}{{.}}
+    {{end}}{{end}}
+{{range .ExtraDefinitions}}{{.}}
+{{end}}

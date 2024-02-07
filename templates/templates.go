@@ -23,6 +23,7 @@ var Funcs = template.FuncMap{
 	"GroupByPath":         metadata.GroupByPath,
 	"ApiParameters":       metadata.ApiParameters,
 	"ApiResponse":         metadata.ApiResponse,
+	"ApiComponentSchemas": metadata.ApiComponentSchemas,
 	"HttpMethod":          metadata.HttpMethod,
 	"HttpPath":            metadata.HttpPath,
 }

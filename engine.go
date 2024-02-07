@@ -15,6 +15,7 @@ import (
 	"github.com/walterwanderley/sqlc-grpc/metadata"
 	"golang.org/x/tools/imports"
 
+	httpmetadata "github.com/walterwanderley/sqlc-http/metadata"
 	"github.com/walterwanderley/sqlc-http/templates"
 )
 
@@ -95,6 +96,18 @@ func process(def *metadata.Definition, outPath string, appendMode bool) error {
 				}
 			}
 			return nil
+		}
+
+		if strings.HasSuffix(newPath, "openapi.yml") {
+			tpl, err := io.ReadAll(in)
+			if err != nil {
+				return err
+			}
+			openapiDef, err := httpmetadata.LoadOpenApi(newPath, appendMode, def)
+			if err != nil {
+				return err
+			}
+			return genFromTemplate(path, string(tpl), openapiDef, false, newPath)
 		}
 
 		if strings.HasSuffix(newPath, "tracing.go") && !def.DistributedTracing {

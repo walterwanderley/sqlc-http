@@ -1,20 +1,25 @@
 openapi: 3.0.3
 info:
+  contact:
+      name: sqlc-http
+      url: https://github.com/walterwanderley/sqlc-http
   description: booktest Services
   title: booktest
   version: 0.0.1
-  contact:
-    name: sqlc-http
-    url: https://github.com/walterwanderley/sqlc-http
+  
+  
 tags:
   - books
+  
   
 paths:
   /author:
     post:
-      tags:
-        - books
       summary: CreateAuthor
+      tags:
+          - books
+      
+      
       requestBody:
         content:
           application/json:
@@ -30,13 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  author_id:
-                    type: integer
-                    format: int32
-                  name:
-                    type: string
+                $ref: "#/components/schemas/booksAuthor"
           
         "400":    
           description: Bad request
@@ -45,9 +44,11 @@ paths:
     
   /author/{author_id}:
     get:
-      tags:
-        - books
       summary: GetAuthor
+      tags:
+          - books
+      
+      
       parameters:
         - name: author_id
           in: path
@@ -61,13 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  author_id:
-                    type: integer
-                    format: int32
-                  name:
-                    type: string
+                $ref: "#/components/schemas/booksAuthor"
           
         "400":    
           description: Bad request
@@ -76,9 +71,11 @@ paths:
     
   /book:
     post:
-      tags:
-        - books
       summary: CreateBook
+      tags:
+          - books
+      
+      
       requestBody:
         content:
           application/json:
@@ -109,37 +106,18 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  book_id:
-                    type: integer
-                    format: int32
-                  author_id:
-                    type: integer
-                    format: int32
-                  isbn:
-                    type: string
-                  book_type:
-                    type: string
-                  title:
-                    type: string
-                  year:
-                    type: integer
-                    format: int32
-                  available:
-                    type: string
-                    format: date-time
-                  tags:
-                    type: string
+                $ref: "#/components/schemas/booksBook"
           
         "400":    
           description: Bad request
         "500":
           description: Internal server error    
     put:
-      tags:
-        - books
       summary: UpdateBook
+      tags:
+          - books
+      
+      
       requestBody:
         content:
           application/json:
@@ -167,9 +145,11 @@ paths:
     
   /book-isbn:
     put:
-      tags:
-        - books
       summary: UpdateBookISBN
+      tags:
+          - books
+      
+      
       requestBody:
         content:
           application/json:
@@ -197,9 +177,11 @@ paths:
     
   /book/{book_id}:
     delete:
-      tags:
-        - books
       summary: DeleteBook
+      tags:
+          - books
+      
+      
       parameters:
         - name: book_id
           in: path
@@ -216,9 +198,11 @@ paths:
         "500":
           description: Internal server error    
     get:
-      tags:
-        - books
       summary: GetBook
+      tags:
+          - books
+      
+      
       parameters:
         - name: book_id
           in: path
@@ -232,28 +216,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  book_id:
-                    type: integer
-                    format: int32
-                  author_id:
-                    type: integer
-                    format: int32
-                  isbn:
-                    type: string
-                  book_type:
-                    type: string
-                  title:
-                    type: string
-                  year:
-                    type: integer
-                    format: int32
-                  available:
-                    type: string
-                    format: date-time
-                  tags:
-                    type: string
+                $ref: "#/components/schemas/booksBook"
           
         "400":    
           description: Bad request
@@ -262,9 +225,11 @@ paths:
     
   /books-by-tags:
     post:
-      tags:
-        - books
       summary: BooksByTags
+      tags:
+          - books
+      
+      
       requestBody:
         content:
           application/json:
@@ -282,19 +247,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    book_id:
-                      type: integer
-                      format: int32
-                    title:
-                      type: string
-                    name:
-                      type: string
-                    isbn:
-                      type: string
-                    tags:
-                      type: string
+                  $ref: "#/components/schemas/booksBooksByTagsRow"
           
         "400":    
           description: Bad request
@@ -303,9 +256,11 @@ paths:
     
   /books-by-title-year:
     get:
-      tags:
-        - books
       summary: BooksByTitleYear
+      tags:
+          - books
+      
+      
       parameters:
         - name: title
           in: query
@@ -325,28 +280,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    book_id:
-                      type: integer
-                      format: int32
-                    author_id:
-                      type: integer
-                      format: int32
-                    isbn:
-                      type: string
-                    book_type:
-                      type: string
-                    title:
-                      type: string
-                    year:
-                      type: integer
-                      format: int32
-                    available:
-                      type: string
-                      format: date-time
-                    tags:
-                      type: string
+                  $ref: "#/components/schemas/booksBook"
           
         "400":    
           description: Bad request
@@ -355,4 +289,50 @@ paths:
     
   
 components:
-  schemas:  
+  schemas: 
+    booksAuthor:
+      type: object
+      properties:
+        author_id:
+          type: integer
+          format: int32
+        name:
+          type: string
+    booksBook:
+      type: object
+      properties:
+        book_id:
+          type: integer
+          format: int32
+        author_id:
+          type: integer
+          format: int32
+        isbn:
+          type: string
+        book_type:
+          type: string
+        title:
+          type: string
+        year:
+          type: integer
+          format: int32
+        available:
+          type: string
+          format: date-time
+        tags:
+          type: string
+    booksBooksByTagsRow:
+      type: object
+      properties:
+        book_id:
+          type: integer
+          format: int32
+        title:
+          type: string
+        name:
+          type: string
+        isbn:
+          type: string
+        tags:
+          type: string
+    
