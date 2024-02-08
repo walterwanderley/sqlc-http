@@ -175,7 +175,7 @@ func OutputHttp(s *metadata.Service) []string {
 		return res
 	}
 
-	res = append(res, "json.Encoder(w).Encode(map[string]any{\"value\": result})")
+	res = append(res, "json.NewEncoder(w).Encode(map[string]any{\"value\": result})")
 
 	return res
 }
