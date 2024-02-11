@@ -232,6 +232,9 @@ func ApiComponentSchemas(pkg *metadata.Package) []string {
 	})
 	for _, m := range messages {
 		res = append(res, fmt.Sprintf("%s%s:", m.PackageName, m.Name))
+		for _, line := range m.CustomProtoOptions {
+			res = append(res, fmt.Sprintf("  %s", line))
+		}
 		res = append(res, "  type: object")
 		res = append(res, "  properties:")
 		for _, f := range m.Fields {
@@ -249,10 +252,12 @@ func ApiComponentSchemas(pkg *metadata.Package) []string {
 
 type EditableOpenApi struct {
 	*metadata.Definition
-	Info             []string
-	Tags             []string
-	UserDefinedPaths []string
-	ExtraDefinitions []string
+	Info                  []string
+	Tags                  []string
+	UserDefinedPaths      []string
+	UserDefinedSchemas    []string
+	UserDefinedComponents []string
+	ExtraDefinitions      []string
 }
 
 func LoadOpenApi(path string, append bool, def *metadata.Definition) (*EditableOpenApi, error) {
@@ -328,6 +333,52 @@ func LoadOpenApi(path string, append bool, def *metadata.Definition) (*EditableO
 					return nil, err
 				}
 				editable.UserDefinedPaths = strings.Split(string(out), "\n")
+			}
+		}
+	}
+	components, ok := openApiMap["components"]
+	if ok {
+		componentsMap, ok := components.(map[string]any)
+		if ok {
+			schemas, ok := componentsMap["schemas"]
+			if ok {
+				schemasMap, ok := schemas.(map[string]any)
+				if ok {
+					for packageStruct, schema := range schemasMap {
+						if msg, ok := lookupMessage(def, packageStruct); ok {
+							schemaMap, ok := schema.(map[string]any)
+							if ok {
+								delete(schemaMap, "type")
+								delete(schemaMap, "properties")
+								if len(schemaMap) > 0 {
+									out, err := yaml.Marshal(schemaMap)
+									if err != nil {
+										return nil, err
+									}
+									msg.CustomProtoOptions = strings.Split(string(out), "\n")
+								}
+
+							}
+							delete(schemasMap, packageStruct)
+						}
+					}
+					if len(schemasMap) > 0 {
+						out, err := yaml.Marshal(schemasMap)
+						if err != nil {
+							return nil, err
+						}
+						editable.UserDefinedSchemas = strings.Split(string(out), "\n")
+					}
+				}
+
+			}
+			delete(componentsMap, "schemas")
+			if len(componentsMap) > 0 {
+				out, err := yaml.Marshal(componentsMap)
+				if err != nil {
+					return nil, err
+				}
+				editable.UserDefinedComponents = strings.Split(string(out), "\n")
 			}
 		}
 	}
@@ -417,6 +468,17 @@ func containsPath(def *metadata.Definition, path string) bool {
 		}
 	}
 	return false
+}
+
+func lookupMessage(def *metadata.Definition, packageStruct string) (*metadata.Message, bool) {
+	for _, pkg := range def.Packages {
+		for _, msg := range pkg.Messages {
+			if msg.PackageName+msg.Name == packageStruct {
+				return msg, true
+			}
+		}
+	}
+	return nil, false
 }
 
 func lookupService(def *metadata.Definition, method, path string) (*metadata.Service, bool) {

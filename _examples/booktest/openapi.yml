@@ -1,25 +1,20 @@
 openapi: 3.0.3
 info:
-  contact:
-      name: sqlc-http
-      url: https://github.com/walterwanderley/sqlc-http
   description: booktest Services
   title: booktest
   version: 0.0.1
-  
-  
+  contact:
+    name: sqlc-http
+    url: https://github.com/walterwanderley/sqlc-http
 tags:
   - books
-  
   
 paths:
   /author:
     post:
-      summary: CreateAuthor
       tags:
-          - books
-      
-      
+        - books
+      summary: CreateAuthor
       requestBody:
         content:
           application/json:
@@ -37,18 +32,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/booksAuthor"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /author/{author_id}:
     get:
-      summary: GetAuthor
       tags:
-          - books
-      
-      
+        - books
+      summary: GetAuthor
       parameters:
         - name: author_id
           in: path
@@ -64,18 +59,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/booksAuthor"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /book:
     post:
-      summary: CreateBook
       tags:
-          - books
-      
-      
+        - books
+      summary: CreateBook
       requestBody:
         content:
           application/json:
@@ -108,16 +103,16 @@ paths:
               schema:
                 $ref: "#/components/schemas/booksBook"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     put:
-      summary: UpdateBook
       tags:
-          - books
-      
-      
+        - books
+      summary: UpdateBook
       requestBody:
         content:
           application/json:
@@ -138,18 +133,18 @@ paths:
         "200":
           description: OK
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /book-isbn:
     put:
-      summary: UpdateBookISBN
       tags:
-          - books
-      
-      
+        - books
+      summary: UpdateBookISBN
       requestBody:
         content:
           application/json:
@@ -170,18 +165,18 @@ paths:
         "200":
           description: OK
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /book/{book_id}:
     delete:
-      summary: DeleteBook
       tags:
-          - books
-      
-      
+        - books
+      summary: DeleteBook
       parameters:
         - name: book_id
           in: path
@@ -193,16 +188,16 @@ paths:
         "200":
           description: OK
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     get:
-      summary: GetBook
       tags:
-          - books
-      
-      
+        - books
+      summary: GetBook
       parameters:
         - name: book_id
           in: path
@@ -218,18 +213,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/booksBook"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /books-by-tags:
     post:
-      summary: BooksByTags
       tags:
-          - books
-      
-      
+        - books
+      summary: BooksByTags
       requestBody:
         content:
           application/json:
@@ -249,18 +244,18 @@ paths:
                 items:
                   $ref: "#/components/schemas/booksBooksByTagsRow"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /books-by-title-year:
     get:
-      summary: BooksByTitleYear
       tags:
-          - books
-      
-      
+        - books
+      summary: BooksByTitleYear
       parameters:
         - name: title
           in: query
@@ -282,14 +277,16 @@ paths:
                 items:
                   $ref: "#/components/schemas/booksBook"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   
 components:
-  schemas: 
+  schemas:
     booksAuthor:
       type: object
       properties:
@@ -336,3 +333,4 @@ components:
         tags:
           type: string
     
+  

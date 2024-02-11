@@ -3,13 +3,14 @@
 package authors
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"authors/internal/server"
 )
 
 type Service struct {
@@ -33,8 +34,8 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -56,7 +57,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		if result.Bio.Valid {
 			res.Bio = &result.Bio.String
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -120,7 +121,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		if result.Bio.Valid {
 			res.Bio = &result.Bio.String
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -149,6 +150,6 @@ func (s *Service) handleListAuthors() http.HandlerFunc {
 			}
 			res = append(res, item)
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }

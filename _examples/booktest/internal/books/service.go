@@ -3,11 +3,12 @@
 package books
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
+
+	"booktest/internal/server"
 )
 
 type Service struct {
@@ -31,8 +32,8 @@ func (s *Service) handleBooksByTags() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -56,7 +57,7 @@ func (s *Service) handleBooksByTags() http.HandlerFunc {
 			item.Tags = r.Tags
 			res = append(res, item)
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -110,7 +111,7 @@ func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 			item.Tags = r.Tags
 			res = append(res, item)
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -124,8 +125,8 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -140,7 +141,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		var res response
 		res.AuthorID = result.AuthorID
 		res.Name = result.Name
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -166,8 +167,8 @@ func (s *Service) handleCreateBook() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -195,7 +196,7 @@ func (s *Service) handleCreateBook() http.HandlerFunc {
 		res.Year = result.Year
 		res.Available = result.Available
 		res.Tags = result.Tags
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -255,7 +256,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		var res response
 		res.AuthorID = result.AuthorID
 		res.Name = result.Name
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -301,7 +302,7 @@ func (s *Service) handleGetBook() http.HandlerFunc {
 		res.Year = result.Year
 		res.Available = result.Available
 		res.Tags = result.Tags
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -314,8 +315,8 @@ func (s *Service) handleUpdateBook() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -325,7 +326,7 @@ func (s *Service) handleUpdateBook() http.HandlerFunc {
 		arg.BookType = BookType(req.BookType)
 		arg.BookID = req.BookID
 
-		err := s.querier.UpdateBook(r.Context(), arg)
+		err = s.querier.UpdateBook(r.Context(), arg)
 		if err != nil {
 			slog.Error("sql call failed", "error", err, "method", "UpdateBook")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -343,8 +344,8 @@ func (s *Service) handleUpdateBookISBN() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -354,7 +355,7 @@ func (s *Service) handleUpdateBookISBN() http.HandlerFunc {
 		arg.BookID = req.BookID
 		arg.Isbn = req.Isbn
 
-		err := s.querier.UpdateBookISBN(r.Context(), arg)
+		err = s.querier.UpdateBookISBN(r.Context(), arg)
 		if err != nil {
 			slog.Error("sql call failed", "error", err, "method", "UpdateBookISBN")
 			http.Error(w, err.Error(), http.StatusInternalServerError)

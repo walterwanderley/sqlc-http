@@ -56,13 +56,12 @@ func InputHttp(s *metadata.Service) []string {
 	if s.EmptyInput() {
 		return res
 	}
-	res = append(res, "var req request")
 
 	method := HttpMethod(s)
 	pathParams := httpPathParams(s)
 
 	if method == "GET" || method == "DELETE" {
-
+		res = append(res, "var req request")
 		for i, typ := range s.InputTypes {
 			m, ok := s.Messages[converter.CanonicalName(typ)]
 			if ok {
@@ -83,7 +82,8 @@ func InputHttp(s *metadata.Service) []string {
 
 		}
 	} else {
-		res = append(res, "if err := json.NewDecoder(r.Body).Decode(&req); err != nil { http.Error(w, err.Error(), http.StatusUnprocessableEntity)")
+		res = append(res, "req, err := server.Decode[request](r)")
+		res = append(res, "if err != nil { http.Error(w, err.Error(), http.StatusUnprocessableEntity)")
 		res = append(res, "return }")
 		for i, typ := range s.InputTypes {
 			m, ok := s.Messages[converter.CanonicalName(typ)]
@@ -133,7 +133,7 @@ func OutputHttp(s *metadata.Service) []string {
 	m := s.Messages[converter.CanonicalName(s.Output)]
 	if s.HasArrayOutput() {
 		if m == nil {
-			res = append(res, "json.NewEncoder(w).Encode(map[string]any{\"list\": result})")
+			res = append(res, "server.Encode(w, r, http.StatusOK, map[string]any{\"list\": result})")
 			return res
 		}
 		res = append(res, "res := make([]response, 0)")
@@ -145,7 +145,7 @@ func OutputHttp(s *metadata.Service) []string {
 		}
 		res = append(res, "res = append(res, item)")
 		res = append(res, "}")
-		res = append(res, "json.NewEncoder(w).Encode(res)")
+		res = append(res, "server.Encode(w, r, http.StatusOK, res)")
 		return res
 	}
 
@@ -154,14 +154,14 @@ func OutputHttp(s *metadata.Service) []string {
 		for _, f := range m.Fields {
 			res = append(res, BindToSerializable("result", "res", converter.UpperFirstCharacter(f.Name), f.Type)...)
 		}
-		res = append(res, "json.NewEncoder(w).Encode(res)")
+		res = append(res, "server.Encode(w, r, http.StatusOK, res)")
 		return res
 	}
 
 	if s.Output == "sql.Result" {
 		res = append(res, "lastInsertId, _ := result.LastInsertId()")
 		res = append(res, "rowsAffected, _ := result.RowsAffected()")
-		res = append(res, "json.NewEncoder(w).Encode(response{")
+		res = append(res, "server.Encode(w, r, http.StatusOK, response{")
 		res = append(res, "LastInsertId: lastInsertId,")
 		res = append(res, "RowsAffected: rowsAffected,")
 		res = append(res, "})")
@@ -169,13 +169,13 @@ func OutputHttp(s *metadata.Service) []string {
 	}
 
 	if s.Output == "pgconn.CommandTag" {
-		res = append(res, "json.NewEncoder(w).Encode(response{")
+		res = append(res, "server.Encode(w, r, http.StatusOK, response{")
 		res = append(res, "RowsAffected: result.RowsAffected(),")
 		res = append(res, "})")
 		return res
 	}
 
-	res = append(res, "json.NewEncoder(w).Encode(map[string]any{\"value\": result})")
+	res = append(res, "server.Encode(w, r, http.StatusOK, map[string]any{\"value\": result})")
 
 	return res
 }
@@ -201,10 +201,10 @@ func httpPathParams(s *metadata.Service) []string {
 	params := re.FindAllString(HttpPath(s), 100)
 	res := make([]string, 0)
 	for _, p := range params {
-		if len(p) <= 2 {
+		if len(p) <= 2 || p == "{$}" {
 			continue
 		}
-		res = append(res, strings.TrimSuffix(strings.TrimPrefix(p, "{"), "}"))
+		res = append(res, strings.TrimSuffix(strings.TrimSuffix(strings.TrimPrefix(p, "{"), "}"), "..."))
 	}
 	return res
 }

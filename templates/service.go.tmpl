@@ -18,6 +18,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"{{.GoModule}}/internal/server"
 )
 	
 type Service struct {
@@ -37,7 +39,7 @@ func (s *Service) handle{{.Name | UpperFirstCharacter}}() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		{{ range . | Input}}{{ .}}
 		{{end}}
-		{{if not .EmptyOutput}}result, {{end}}err := s.querier.{{ .Name}}(r.Context(){{if $emitDbArgument}}, s.db{{end}}{{ .ParamsCallDatabase}})
+		{{if not .EmptyOutput}}result, err := {{else}}err {{if not (or .EmptyInput (and (ne (. | HttpMethod) "GET") (ne (. | HttpMethod) "DELETE"))) }}:{{end}}= {{end}}s.querier.{{ .Name}}(r.Context(){{if $emitDbArgument}}, s.db{{end}}{{ .ParamsCallDatabase}})
 		if err != nil {
 			slog.Error("sql call failed", "error", err, "method", "{{.Name}}")
 			http.Error(w, err.Error(), http.StatusInternalServerError)	

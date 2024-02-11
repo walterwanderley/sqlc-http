@@ -9,8 +9,8 @@ info:
     url: https://github.com/walterwanderley/sqlc-http{{end}}
 tags:
   {{if .Tags}}{{range .Tags}}{{.}}
-  {{end}}{{else}}{{range .Packages}}- {{.Package}}
-  {{end}}{{end}}
+  {{end -}}{{else}}{{range .Packages}}- {{.Package}}
+  {{end -}}{{end}}
 paths:
   {{if .UserDefinedPaths}}{{range .UserDefinedPaths}}{{.}}
   {{end}}{{end}}{{range .Packages}}{{$pkg := .Package}}{{range $key, $val := . | GroupByPath}}{{$key}}:
@@ -26,15 +26,20 @@ paths:
           description: OK
           {{range . | ApiResponse}}{{.}}
           {{end}}
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     {{end}}
-  {{end}}{{end}}
+  {{end -}}{{end}}
 components:
-  schemas: 
-    {{range .Packages}}{{range . | ApiComponentSchemas}}{{.}}
+  schemas:
+    {{if .UserDefinedSchemas}}{{range .UserDefinedSchemas}}{{.}}
+    {{end}}{{end}}{{range .Packages}}{{range . | ApiComponentSchemas}}{{.}}
     {{end}}{{end}}
+  {{if .UserDefinedComponents}}{{range .UserDefinedComponents}}{{.}}
+  {{end}}{{end}}
 {{range .ExtraDefinitions}}{{.}}
 {{end}}

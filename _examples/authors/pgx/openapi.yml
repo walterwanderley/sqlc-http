@@ -34,10 +34,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/authorsAuthors"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /author/{id}:
     delete:
@@ -55,10 +57,12 @@ paths:
         "200":
           description: OK
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     get:
       tags:
         - authors
@@ -78,10 +82,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/authorsAuthors"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   /authors:
     get:
@@ -99,14 +105,16 @@ paths:
                 items:
                   $ref: "#/components/schemas/authorsAuthors"
           
-        "400":    
-          description: Bad request
-        "500":
-          description: Internal server error    
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
     
   
 components:
-  schemas: 
+  schemas:
     authorsAuthors:
       type: object
       properties:
@@ -118,3 +126,4 @@ components:
         bio:
           type: string
     
+  

@@ -4,10 +4,11 @@ package authors
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+
+	"authors/internal/server"
 )
 
 type Service struct {
@@ -29,8 +30,8 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -48,7 +49,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		}
 		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
-		json.NewEncoder(w).Encode(response{
+		server.Encode(w, r, http.StatusOK, response{
 			LastInsertId: lastInsertId,
 			RowsAffected: rowsAffected,
 		})
@@ -115,7 +116,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		if result.Bio.Valid {
 			res.Bio = &result.Bio.String
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -144,7 +145,7 @@ func (s *Service) handleListAuthors() http.HandlerFunc {
 			}
 			res = append(res, item)
 		}
-		json.NewEncoder(w).Encode(res)
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }
 
@@ -160,8 +161,8 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -188,7 +189,7 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		}
 		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
-		json.NewEncoder(w).Encode(response{
+		server.Encode(w, r, http.StatusOK, response{
 			LastInsertId: lastInsertId,
 			RowsAffected: rowsAffected,
 		})
@@ -206,8 +207,8 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req, err := server.Decode[request](r)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -233,7 +234,7 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 		}
 		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
-		json.NewEncoder(w).Encode(response{
+		server.Encode(w, r, http.StatusOK, response{
 			LastInsertId: lastInsertId,
 			RowsAffected: rowsAffected,
 		})
