@@ -37,6 +37,12 @@ func HandlerTypes(s *metadata.Service) []string {
 			res = append(res, "RowsAffected int64 `json:\"rows_affected\"`")
 			res = append(res, "}")
 		}
+		if s.Output == "pgconn.CommandTag" {
+			res = append(res, "type response struct {")
+			res = append(res, "RowsAffected int64 `json:\"rows_affected\"`")
+			res = append(res, "}")
+		}
+
 		m, ok := s.Messages[converter.CanonicalName(s.Output)]
 		if !ok {
 			return res

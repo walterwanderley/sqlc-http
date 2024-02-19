@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/benbjohnson/litestream v0.3.13
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
-	github.com/hashicorp/raft v1.6.0
+	github.com/hashicorp/raft v1.6.1
 	github.com/hashicorp/raft-boltdb v0.0.0-20231211162105-6c830fa4535e
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/pressly/goose/v3 v3.18.0
@@ -24,7 +24,7 @@ require (
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/hashicorp/go-hclog v1.5.0 // indirect
+	github.com/hashicorp/go-hclog v1.6.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-msgpack v0.5.5 // indirect
 	github.com/hashicorp/go-msgpack/v2 v2.1.1 // indirect
