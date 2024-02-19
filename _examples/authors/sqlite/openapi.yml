@@ -25,6 +25,14 @@ paths:
                   type: string
                 bio:
                   type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
       
       responses:
         "200":
@@ -136,6 +144,14 @@ paths:
                   type: string
                 bio:
                   type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
       
       responses:
         "200":
@@ -173,6 +189,12 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+          application/x-www-form-urlencoded:
             schema:
               type: object
               properties:

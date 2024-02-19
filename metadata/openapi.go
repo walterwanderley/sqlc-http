@@ -93,28 +93,37 @@ func ApiParameters(s *metadata.Service) []string {
 		res = append(res, "requestBody:")
 		res = append(res, "  content:")
 		res = append(res, "    application/json:")
-		res = append(res, "      schema:")
-		res = append(res, "        type: array")
-		res = append(res, "        items:")
+
+		schemaRes := make([]string, 0)
+
+		schemaRes = append(schemaRes, "      schema:")
+		schemaRes = append(schemaRes, "        type: array")
+		schemaRes = append(schemaRes, "        items:")
 		typ := converter.CanonicalName(s.InputTypes[0])
 		m := s.Messages[typ]
 		if m == nil {
 			oasType, oasFormat := toOpenAPITypeAndFormat(typ)
-			res = append(res, fmt.Sprintf("          type: %s", oasType))
-			res = append(res, fmt.Sprintf("          format: %s", oasFormat))
+			schemaRes = append(schemaRes, fmt.Sprintf("          type: %s", oasType))
+			schemaRes = append(schemaRes, fmt.Sprintf("          format: %s", oasFormat))
+			res = append(res, schemaRes...)
+			res = append(res, "    application/x-www-form-urlencoded:")
+			res = append(res, schemaRes...)
 			return res
 		}
-		res = append(res, "          type: object")
-		res = append(res, "          properties:")
+		schemaRes = append(schemaRes, "          type: object")
+		schemaRes = append(schemaRes, "          properties:")
 		for _, f := range m.Fields {
 			name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
-			res = append(res, fmt.Sprintf("            %s:", name))
+			schemaRes = append(schemaRes, fmt.Sprintf("            %s:", name))
 			oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
-			res = append(res, fmt.Sprintf("              type: %s", oasType))
+			schemaRes = append(schemaRes, fmt.Sprintf("              type: %s", oasType))
 			if oasFormat != "" {
-				res = append(res, fmt.Sprintf("              format: %s", oasFormat))
+				schemaRes = append(schemaRes, fmt.Sprintf("              format: %s", oasFormat))
 			}
 		}
+		res = append(res, schemaRes...)
+		res = append(res, "    application/x-www-form-urlencoded:")
+		res = append(res, schemaRes...)
 		return res
 	}
 
@@ -125,9 +134,11 @@ func ApiParameters(s *metadata.Service) []string {
 	res = append(res, "requestBody:")
 	res = append(res, "  content:")
 	res = append(res, "    application/json:")
-	res = append(res, "      schema:")
-	res = append(res, "        type: object")
-	res = append(res, "        properties:")
+
+	schemaRes := make([]string, 0)
+	schemaRes = append(schemaRes, "      schema:")
+	schemaRes = append(schemaRes, "        type: object")
+	schemaRes = append(schemaRes, "        properties:")
 	for i, typ := range s.InputTypes {
 		m := s.Messages[converter.CanonicalName(typ)]
 		if m == nil {
@@ -135,11 +146,11 @@ func ApiParameters(s *metadata.Service) []string {
 			if slices.Contains[[]string](pathParams, name) {
 				continue
 			}
-			res = append(res, fmt.Sprintf("          %s:", name))
+			schemaRes = append(schemaRes, fmt.Sprintf("          %s:", name))
 			oasType, oasFormat := toOpenAPITypeAndFormat(typ)
-			res = append(res, fmt.Sprintf("            type: %s", oasType))
+			schemaRes = append(schemaRes, fmt.Sprintf("            type: %s", oasType))
 			if oasFormat != "" {
-				res = append(res, fmt.Sprintf("            format: %s", oasFormat))
+				schemaRes = append(schemaRes, fmt.Sprintf("            format: %s", oasFormat))
 			}
 			continue
 		}
@@ -148,14 +159,17 @@ func ApiParameters(s *metadata.Service) []string {
 			if slices.Contains[[]string](pathParams, name) {
 				continue
 			}
-			res = append(res, fmt.Sprintf("          %s:", name))
+			schemaRes = append(schemaRes, fmt.Sprintf("          %s:", name))
 			oasType, oasFormat := toOpenAPITypeAndFormat(f.Type)
-			res = append(res, fmt.Sprintf("            type: %s", oasType))
+			schemaRes = append(schemaRes, fmt.Sprintf("            type: %s", oasType))
 			if oasFormat != "" {
-				res = append(res, fmt.Sprintf("            format: %s", oasFormat))
+				schemaRes = append(schemaRes, fmt.Sprintf("            format: %s", oasFormat))
 			}
 		}
 	}
+	res = append(res, schemaRes...)
+	res = append(res, "    application/x-www-form-urlencoded:")
+	res = append(res, schemaRes...)
 
 	return res
 }

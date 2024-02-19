@@ -6,12 +6,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/go-playground/form/v4"
 )
+
+var formDecoder = form.NewDecoder()
 
 func Decode[T any](r *http.Request) (T, error) {
 	var v T
-	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
-		return v, fmt.Errorf("decode json: %w", err)
+	if r.Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
+		if err := r.ParseForm(); err != nil {
+			return v, fmt.Errorf("parse form: %w", err)
+		}
+		if err := formDecoder.Decode(&v, r.Form); err != nil {
+			return v, fmt.Errorf("decode form: %w", err)
+		}
+	} else {
+		if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+			return v, fmt.Errorf("decode json: %w", err)
+		}
 	}
 	return v, nil
 }

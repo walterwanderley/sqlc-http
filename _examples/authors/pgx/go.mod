@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
+	github.com/go-playground/form/v4 v4.2.1
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/jackc/pgx/v5 v5.5.3
 	go.uber.org/automaxprocs v1.5.3

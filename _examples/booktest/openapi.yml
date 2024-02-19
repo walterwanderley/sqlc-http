@@ -23,6 +23,12 @@ paths:
               properties:
                 name:
                   type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
       
       responses:
         "200":
@@ -94,6 +100,27 @@ paths:
                   format: date-time
                 tags:
                   type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                author_id:
+                  type: integer
+                  format: int32
+                isbn:
+                  type: string
+                book_type:
+                  type: string
+                title:
+                  type: string
+                year:
+                  type: integer
+                  format: int32
+                available:
+                  type: string
+                  format: date-time
+                tags:
+                  type: string
       
       responses:
         "200":
@@ -128,6 +155,19 @@ paths:
                 book_id:
                   type: integer
                   format: int32
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                tags:
+                  type: string
+                book_type:
+                  type: string
+                book_id:
+                  type: integer
+                  format: int32
       
       responses:
         "200":
@@ -148,6 +188,19 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                tags:
+                  type: string
+                book_id:
+                  type: integer
+                  format: int32
+                isbn:
+                  type: string
+          application/x-www-form-urlencoded:
             schema:
               type: object
               properties:
@@ -228,6 +281,12 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                format: 
+          application/x-www-form-urlencoded:
             schema:
               type: array
               items:

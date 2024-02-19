@@ -19,13 +19,13 @@ func HandlerTypes(s *metadata.Service) []string {
 			m := s.Messages[converter.CanonicalName(typ)]
 			for _, f := range m.Fields {
 				attrName := converter.UpperFirstCharacter(f.Name)
-				res = append(res, fmt.Sprintf("%s %s `json:\"%s\"`", attrName, toSerializableType(f.Type), converter.ToSnakeCase(attrName)))
+				res = append(res, fmt.Sprintf("%s %s `form:\"%s\" json:\"%s\"`", attrName, toSerializableType(f.Type), converter.ToSnakeCase(attrName), converter.ToSnakeCase(attrName)))
 			}
 		} else {
 			for i, name := range s.InputNames {
 				attrName := converter.UpperFirstCharacter(name)
 				typ := s.InputTypes[i]
-				res = append(res, fmt.Sprintf("%s %s `json:\"%s\"`", attrName, toSerializableType(typ), converter.ToSnakeCase(attrName)))
+				res = append(res, fmt.Sprintf("%s %s `form:\"%s\" json:\"%s\"`", attrName, toSerializableType(typ), converter.ToSnakeCase(attrName), converter.ToSnakeCase(attrName)))
 			}
 		}
 		res = append(res, "}")

@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/XSAM/otelsql v0.28.0
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
+	github.com/go-playground/form/v4 v4.2.1
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/lib/pq v1.10.9
 	github.com/prometheus/client_golang v1.18.0
