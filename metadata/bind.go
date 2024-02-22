@@ -12,8 +12,27 @@ import (
 
 func HandlerTypes(s *metadata.Service) []string {
 	res := make([]string, 0)
-	if !s.EmptyInput() {
+
+	requestAttributes := RequestTypeAttributes(s)
+	if len(requestAttributes) > 0 {
 		res = append(res, "type request struct {")
+		res = append(res, requestAttributes...)
+		res = append(res, "}")
+	}
+
+	responseAttributes := ResponseTypeAttributes(s)
+	if len(responseAttributes) > 0 {
+		res = append(res, "type response struct {")
+		res = append(res, responseAttributes...)
+		res = append(res, "}")
+	}
+
+	return res
+}
+
+func RequestTypeAttributes(s *metadata.Service) []string {
+	res := make([]string, 0)
+	if !s.EmptyInput() {
 		if s.HasCustomParams() {
 			typ := s.InputTypes[0]
 			m := s.Messages[converter.CanonicalName(typ)]
@@ -28,31 +47,29 @@ func HandlerTypes(s *metadata.Service) []string {
 				res = append(res, fmt.Sprintf("%s %s `form:\"%s\" json:\"%s\"`", attrName, toSerializableType(typ), converter.ToSnakeCase(attrName), converter.ToSnakeCase(attrName)))
 			}
 		}
-		res = append(res, "}")
 	}
+	return res
+}
+
+func ResponseTypeAttributes(s *metadata.Service) []string {
+	res := make([]string, 0)
 	if !s.EmptyOutput() {
 		if s.Output == "sql.Result" {
-			res = append(res, "type response struct {")
 			res = append(res, "LastInsertId int64 `json:\"last_insert_id\"`")
 			res = append(res, "RowsAffected int64 `json:\"rows_affected\"`")
-			res = append(res, "}")
 		}
 		if s.Output == "pgconn.CommandTag" {
-			res = append(res, "type response struct {")
 			res = append(res, "RowsAffected int64 `json:\"rows_affected\"`")
-			res = append(res, "}")
 		}
 
 		m, ok := s.Messages[converter.CanonicalName(s.Output)]
 		if !ok {
 			return res
 		}
-		res = append(res, "type response struct {")
 		for _, f := range m.Fields {
 			attrName := converter.UpperFirstCharacter(f.Name)
 			res = append(res, fmt.Sprintf("%s %s `json:\"%s,omitempty\"`", attrName, toSerializableType(f.Type), converter.ToSnakeCase(attrName)))
 		}
-		res = append(res, "}")
 	}
 	return res
 }

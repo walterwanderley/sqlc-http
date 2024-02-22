@@ -6,6 +6,8 @@ github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/walterwanderley/sqlc-grpc v0.19.4 h1:UY4Q4SpMFGTAZ6PmWabnLEUa14rfYZja1bX31lXdLlI=
 github.com/walterwanderley/sqlc-grpc v0.19.4/go.mod h1:bfMjDJUNyUkk3+OM/we8OKDYPVodms+ekOgHvV2hXFY=
+github.com/walterwanderley/sqlc-grpc v0.19.5 h1:IfI29n+sW45IumnjA0NBUQp9RThXZ/fKy7v/UgMy4Wc=
+github.com/walterwanderley/sqlc-grpc v0.19.5/go.mod h1:nTnF5NTVCQtUNc/0ymSgJhhX/70Ithh8+/GaaKlmS+o=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
