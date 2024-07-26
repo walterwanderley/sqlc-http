@@ -15,10 +15,6 @@ type Service struct {
 	querier *Queries
 }
 
-func NewService(querier *Queries) *Service {
-	return &Service{querier: querier}
-}
-
 func (s *Service) handleBooksByTags() http.HandlerFunc {
 	type request struct {
 		Dollar_1 []string `form:"dollar_1" json:"dollar_1"`

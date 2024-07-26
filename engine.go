@@ -80,6 +80,24 @@ func process(def *metadata.Definition, outPath string, appendMode bool) error {
 			return nil
 		}
 
+		if strings.HasSuffix(newPath, "service_factory.go") {
+			tpl, err := io.ReadAll(in)
+			if err != nil {
+				return err
+			}
+			for _, pkg := range def.Packages {
+				newPath := filepath.Join(pkg.SrcPath, "service_factory.go")
+				if appendMode && fileExists(newPath) {
+					continue
+				}
+				err = genFromTemplate(path, string(tpl), pkg, true, newPath)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+
 		if strings.HasSuffix(newPath, "routes.go") {
 			tpl, err := io.ReadAll(in)
 			if err != nil {

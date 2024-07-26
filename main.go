@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -18,6 +19,7 @@ import (
 )
 
 var (
+	gomodPath          string
 	module             string
 	ignoreQueries      string
 	migrationPath      string
@@ -35,6 +37,7 @@ func main() {
 	flag.BoolVar(&help, "h", false, "Help for this program")
 	flag.BoolVar(&showVersion, "v", false, "Show version")
 	flag.BoolVar(&appendMode, "append", false, "Enable append mode. Don't rewrite editable files")
+	flag.StringVar(&gomodPath, "go.mod", "go.mod", "Path to go.mod file")
 	flag.StringVar(&module, "m", "my-project", "Go module name if there are no go.mod")
 	flag.StringVar(&ignoreQueries, "i", "", "Comma separated list (regex) of queries to ignore")
 	flag.StringVar(&migrationPath, "migration-path", "", "Path to migration directory")
@@ -80,9 +83,11 @@ func main() {
 		queriesToIgnore = append(queriesToIgnore, regexp.MustCompile(s))
 	}
 
-	if m := moduleFromGoMod(); m != "" {
-		log.Println("Using module path from go.mod:", m)
-		module = m
+	if gomodPath == "go.mod" {
+		if m := moduleFromGoMod(); m != "" {
+			log.Println("Using module path from go.mod:", m)
+			module = m
+		}
 	}
 
 	args := strings.Join(os.Args, " ")
@@ -150,7 +155,7 @@ func main() {
 }
 
 func moduleFromGoMod() string {
-	f, err := os.Open("go.mod")
+	f, err := os.Open(gomodPath)
 	if err != nil {
 		return ""
 	}
@@ -166,6 +171,19 @@ func moduleFromGoMod() string {
 
 func postProcess(def *metadata.Definition) {
 	log.Printf("Configuring project %s...\n", def.GoModule)
+	modDir := filepath.Dir(gomodPath)
+	if modDir != "." {
+		wd, err := os.Getwd()
+		if err != nil {
+			fmt.Println("current working directory: ", err.Error())
+			os.Exit(-1)
+		}
+		if err := os.Chdir(modDir); err != nil {
+			fmt.Println("change working directory: ", err.Error())
+			os.Exit(-1)
+		}
+		defer os.Chdir(wd)
+	}
 	execCommand("go mod init " + def.GoModule)
 	execCommand("go mod tidy")
 	log.Println("Finished!")

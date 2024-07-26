@@ -1,15 +1,15 @@
 module authors
 
-go 1.22.0
+go 1.22.5
 
 require (
 	github.com/benbjohnson/litestream v0.3.13
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
 	github.com/go-playground/form/v4 v4.2.1
-	github.com/hashicorp/raft v1.6.1
+	github.com/hashicorp/raft v1.7.0
 	github.com/hashicorp/raft-boltdb v0.0.0-20231211162105-6c830fa4535e
 	github.com/mattn/go-sqlite3 v1.14.22
-	github.com/pressly/goose/v3 v3.18.0
+	github.com/pressly/goose/v3 v3.21.1
 	github.com/superfly/litefs v0.5.11
 	github.com/superfly/ltx v0.3.13
 	github.com/walterwanderley/litefs-raft v0.0.0-20231130032048-a2979ac7e817
@@ -42,11 +42,11 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/exp v0.0.0-20231127185646-65229373498e // indirect
-	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
+	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )

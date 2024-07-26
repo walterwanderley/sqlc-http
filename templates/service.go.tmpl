@@ -27,10 +27,6 @@ type Service struct {
 	{{if .EmitDbArgument}}db {{if eq .SqlPackage "pgx/v5"}}*pgxpool.Pool{{else}}*sql.DB{{end}}{{end}}
 }
 
-func NewService(querier {{if .EmitInterface}}Querier{{else}}*Queries{{end}}{{if .EmitDbArgument}}, db {{if eq .SqlPackage "pgx/v5"}}*pgxpool.Pool{{else}}*sql.DB{{end}}{{end}}) *Service {
-	return &Service{querier: querier{{if .EmitDbArgument}}, db: db{{end}}}
-}
-
 {{$emitDbArgument := .EmitDbArgument}}
 {{ range .Services }}
 func (s *Service) handle{{.Name | UpperFirstCharacter}}() http.HandlerFunc {

@@ -25,7 +25,7 @@ import (
 	"github.com/flowchartsman/swaggerui"	
 	"go.uber.org/automaxprocs/maxprocs"
 	// database driver
-	_ "{{ .DatabaseImport}}"
+	{{if eq .SqlPackage "pgx/v5"}}"github.com/jackc/pgx/v5/pgxpool"{{else}}_ "{{ .DatabaseImport}}"{{end}}
 	{{if .MigrationPath}}{{if eq .SqlPackage "pgx/v5"}}_ "github.com/jackc/pgx/v5/stdlib"{{end}}{{end}}
 
 	"{{ .GoModule}}/internal/server/litefs"

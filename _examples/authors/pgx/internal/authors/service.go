@@ -18,10 +18,6 @@ type Service struct {
 	db      *pgxpool.Pool
 }
 
-func NewService(querier Querier, db *pgxpool.Pool) *Service {
-	return &Service{querier: querier, db: db}
-}
-
 func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	type request struct {
 		Name string  `form:"name" json:"name"`
