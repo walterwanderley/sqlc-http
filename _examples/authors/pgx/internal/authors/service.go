@@ -20,8 +20,8 @@ type Service struct {
 
 func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	type request struct {
-		Name string  `form:"name" json:"name"`
-		Bio  *string `form:"bio" json:"bio"`
+		Name string  `json:"name"`
+		Bio  *string `json:"bio"`
 	}
 	type response struct {
 		ID   int64   `json:"id,omitempty"`
@@ -59,7 +59,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 
 func (s *Service) handleDeleteAuthor() http.HandlerFunc {
 	type request struct {
-		Id int64 `form:"id" json:"id"`
+		Id int64 `json:"id"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -85,7 +85,7 @@ func (s *Service) handleDeleteAuthor() http.HandlerFunc {
 
 func (s *Service) handleGetAuthor() http.HandlerFunc {
 	type request struct {
-		Id int64 `form:"id" json:"id"`
+		Id int64 `json:"id"`
 	}
 	type response struct {
 		ID   int64   `json:"id,omitempty"`

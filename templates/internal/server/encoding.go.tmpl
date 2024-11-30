@@ -10,7 +10,12 @@ import (
 	"github.com/go-playground/form/v4"
 )
 
-var formDecoder = form.NewDecoder()
+var formDecoder *form.Decoder
+
+func init() {
+	formDecoder = form.NewDecoder()
+	formDecoder.SetTagName("json")
+}
 
 func Decode[T any](r *http.Request) (T, error) {
 	var v T

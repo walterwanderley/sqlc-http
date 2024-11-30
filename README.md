@@ -4,7 +4,7 @@ Create a **net/http Server** from the generated code by the awesome [sqlc](https
 
 ### Requirements
 
-- Go 1.22 or superior
+- Go 1.23 or superior
 - [sqlc](https://sqlc.dev/)
 
 ```sh

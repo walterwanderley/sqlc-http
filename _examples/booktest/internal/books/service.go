@@ -17,7 +17,7 @@ type Service struct {
 
 func (s *Service) handleBooksByTags() http.HandlerFunc {
 	type request struct {
-		Dollar_1 []string `form:"dollar_1" json:"dollar_1"`
+		Dollar_1 []string `json:"dollar_1"`
 	}
 	type response struct {
 		BookID int32    `json:"book_id,omitempty"`
@@ -59,8 +59,8 @@ func (s *Service) handleBooksByTags() http.HandlerFunc {
 
 func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 	type request struct {
-		Title string `form:"title" json:"title"`
-		Year  int32  `form:"year" json:"year"`
+		Title string `json:"title"`
+		Year  int32  `json:"year"`
 	}
 	type response struct {
 		BookID    int32     `json:"book_id,omitempty"`
@@ -113,7 +113,7 @@ func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 
 func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	type request struct {
-		Name string `form:"name" json:"name"`
+		Name string `json:"name"`
 	}
 	type response struct {
 		AuthorID int32  `json:"author_id,omitempty"`
@@ -143,13 +143,13 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 
 func (s *Service) handleCreateBook() http.HandlerFunc {
 	type request struct {
-		AuthorID  int32     `form:"author_id" json:"author_id"`
-		Isbn      string    `form:"isbn" json:"isbn"`
-		BookType  string    `form:"book_type" json:"book_type"`
-		Title     string    `form:"title" json:"title"`
-		Year      int32     `form:"year" json:"year"`
-		Available time.Time `form:"available" json:"available"`
-		Tags      []string  `form:"tags" json:"tags"`
+		AuthorID  int32     `json:"author_id"`
+		Isbn      string    `json:"isbn"`
+		BookType  string    `json:"book_type"`
+		Title     string    `json:"title"`
+		Year      int32     `json:"year"`
+		Available time.Time `json:"available"`
+		Tags      []string  `json:"tags"`
 	}
 	type response struct {
 		BookID    int32     `json:"book_id,omitempty"`
@@ -198,7 +198,7 @@ func (s *Service) handleCreateBook() http.HandlerFunc {
 
 func (s *Service) handleDeleteBook() http.HandlerFunc {
 	type request struct {
-		BookID int32 `form:"book_id" json:"book_id"`
+		BookID int32 `json:"book_id"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -224,7 +224,7 @@ func (s *Service) handleDeleteBook() http.HandlerFunc {
 
 func (s *Service) handleGetAuthor() http.HandlerFunc {
 	type request struct {
-		AuthorID int32 `form:"author_id" json:"author_id"`
+		AuthorID int32 `json:"author_id"`
 	}
 	type response struct {
 		AuthorID int32  `json:"author_id,omitempty"`
@@ -258,7 +258,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 
 func (s *Service) handleGetBook() http.HandlerFunc {
 	type request struct {
-		BookID int32 `form:"book_id" json:"book_id"`
+		BookID int32 `json:"book_id"`
 	}
 	type response struct {
 		BookID    int32     `json:"book_id,omitempty"`
@@ -304,10 +304,10 @@ func (s *Service) handleGetBook() http.HandlerFunc {
 
 func (s *Service) handleUpdateBook() http.HandlerFunc {
 	type request struct {
-		Title    string   `form:"title" json:"title"`
-		Tags     []string `form:"tags" json:"tags"`
-		BookType string   `form:"book_type" json:"book_type"`
-		BookID   int32    `form:"book_id" json:"book_id"`
+		Title    string   `json:"title"`
+		Tags     []string `json:"tags"`
+		BookType string   `json:"book_type"`
+		BookID   int32    `json:"book_id"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -333,10 +333,10 @@ func (s *Service) handleUpdateBook() http.HandlerFunc {
 
 func (s *Service) handleUpdateBookISBN() http.HandlerFunc {
 	type request struct {
-		Title  string   `form:"title" json:"title"`
-		Tags   []string `form:"tags" json:"tags"`
-		BookID int32    `form:"book_id" json:"book_id"`
-		Isbn   string   `form:"isbn" json:"isbn"`
+		Title  string   `json:"title"`
+		Tags   []string `json:"tags"`
+		BookID int32    `json:"book_id"`
+		Isbn   string   `json:"isbn"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
