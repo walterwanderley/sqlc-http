@@ -229,7 +229,7 @@ func (c Content[T]) BaseHref() string {
 func (c Content[T]) BreadCrumbsFromRequest() []breadCrumb {
 	{{ range .BreadCrumbs}}{{ .}}
 	{{end}}	
-	return breadCrumbsFromStrings("Home")
+	return nil
 }
 
 func (c Content[T]) HasQuery(key string) bool {

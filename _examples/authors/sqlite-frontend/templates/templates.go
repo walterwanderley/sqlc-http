@@ -261,7 +261,7 @@ func (c Content[T]) BreadCrumbsFromRequest() []breadCrumb {
 		}
 	}
 
-	return breadCrumbsFromStrings("Home")
+	return nil
 }
 
 func (c Content[T]) HasQuery(key string) bool {

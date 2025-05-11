@@ -1,14 +1,18 @@
-<nav>
-  <div class="nav-wrapper">
-    <div class="col s12">
-      <a href="javascript:void(0)" hx-push-url="true" hx-get="{{"{{"}}WebContext{{"}}"}}" class="breadcrumb">Home</a>
-      {{"{{"}}range .BreadCrumbsFromRequest{{"}}"}}
-        {{"{{"}}if .Href -{{"}}"}}
-        <a href="javascript: void(0)" hx-push-url="true" hx-get="{{"{{"}}.Href{{"}}"}}" class="breadcrumb">{{"{{"}}.Name{{"}}"}}</a>
-        {{"{{"}}else -{{"}}"}}
-        <a href="javascript: void(0)" class="breadcrumb">{{"{{"}}.Name{{"}}"}}</a>
+<div id="breadcrumbs" hx-swap-oob="true">
+{{"{{"}}if .BreadCrumbsFromRequest{{"}}"}}
+  <nav>
+    <div class="nav-wrapper">
+      <div class="col s12">
+        <a href="javascript:void(0)" hx-push-url="true" hx-get="{{"{{"}}WebContext{{"}}"}}" class="breadcrumb">Home</a>
+        {{"{{"}}range .BreadCrumbsFromRequest{{"}}"}}
+          {{"{{"}}if .Href -{{"}}"}}
+          <a href="javascript: void(0)" hx-push-url="true" hx-get="{{"{{"}}.Href{{"}}"}}" class="breadcrumb">{{"{{"}}.Name{{"}}"}}</a>
+          {{"{{"}}else -{{"}}"}}
+          <a href="javascript: void(0)" class="breadcrumb">{{"{{"}}.Name{{"}}"}}</a>
+          {{"{{"}}end -{{"}}"}}
         {{"{{"}}end -{{"}}"}}
-      {{"{{"}}end -{{"}}"}}
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
+{{"{{"}}end -{{"}}"}}
+</div>

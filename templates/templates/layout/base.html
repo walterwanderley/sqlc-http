@@ -19,6 +19,7 @@
         <div class="container">
             <img id="indicator" class="htmx-indicator" src="web/img/tail-spin.svg" />
             {{ template "message.html" .Content}}
+            {{ template "breadcrumbs.html" .Content}}
             <div class="section" id="main-section">
                 {{ template "content" .Content}}
             </div>
