@@ -25,6 +25,9 @@ paths:
                   type: string
                 bio:
                   type: string
+                created_at:
+                  type: string
+                  format: date-time
           application/x-www-form-urlencoded:
             schema:
               type: object
@@ -33,6 +36,9 @@ paths:
                   type: string
                 bio:
                   type: string
+                created_at:
+                  type: string
+                  format: date-time
       
       responses:
         "200":
@@ -155,6 +161,9 @@ paths:
                   type: string
                 bio:
                   type: string
+                created_at:
+                  type: string
+                  format: date-time
           application/x-www-form-urlencoded:
             schema:
               type: object
@@ -163,6 +172,9 @@ paths:
                   type: string
                 bio:
                   type: string
+                created_at:
+                  type: string
+                  format: date-time
       
       responses:
         "200":
@@ -247,5 +259,8 @@ components:
           type: string
         bio:
           type: string
+        created_at:
+          type: string
+          format: date-time
     
   

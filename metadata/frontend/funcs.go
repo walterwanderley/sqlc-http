@@ -151,7 +151,7 @@ func toHtmlType(typ string) string {
 }
 
 func htmlInput(attr, typ string, fill bool) []string {
-	attrName := converter.UpperFirstCharacter(attr)
+	attrName := converter.ToPascalCase(attr)
 	required := !strings.Contains(typ, "*") && !strings.Contains(typ, "pgtype.") && !strings.Contains(typ, "sql.Null")
 	label := AddSpace(attrName)
 	if required {
@@ -175,17 +175,20 @@ func htmlInput(attr, typ string, fill bool) []string {
 	case "date":
 		res = append(res, `<div class="row">`)
 		res = append(res, `    <div class="col">`)
-		res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
 		if required {
 			if fill {
+				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
 				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="text" class="datepicker" {{if .Data.%s}}value="{{.Data.%s.Format "02/01/2006"}}"{{end}} />`, attrFormName, attrFormName, attr, attr))
 			} else {
+				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
 				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="text" class="datepicker" />`, attrFormName, attrFormName))
 			}
 		} else {
 			if fill {
+				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
 				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="text" class="datepicker" {{if .Data.%s}}value="{{.Data.%s.Format "02/01/2006"}}"{{end}} />`, attrFormName, attrFormName, attr, attr))
 			} else {
+				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
 				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="text" class="datepicker" />`, attrFormName, attrFormName))
 			}
 		}

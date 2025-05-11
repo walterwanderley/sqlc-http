@@ -16,6 +16,7 @@
         <th>ID</th>
         <th>Name</th>
         <th>Bio</th>
+        <th>Created At</th>
         <th></th> <!-- Ações -->
     </tr></thead>
     <tbody>
@@ -23,10 +24,11 @@
         <td>{{$v.ID}}</td>
         <td>{{$v.Name}}</td>
         <td>{{$v.Bio}}</td>
+        <td>{{if $v.CreatedAt}}{{$v.CreatedAt.Format "02/01/2006"}}{{end}}</td>
         <td>
-            <a class="btn-floating btn-small waves-effect waves-light red" 
+            <a class="btn-floating btn-small waves-effect waves-light blue" 
   	href="javascript: void(0)" hx-push-url="true" hx-get="authors/{{$v.ID}}"><i class="material-icons">visibility</i></a>
-            <a class="btn-floating btn-small waves-effect waves-light red" 
+            <a class="btn-floating btn-small waves-effect waves-light green" 
   	href="javascript: void(0)" hx-push-url="true" hx-get="authors/{{$v.ID}}?edit"><i class="material-icons">edit</i></a>
             <a class="btn-floating btn-small waves-effect waves-light red" 
   	href="javascript: void(0)" hx-delete="authors/{{$v.ID}}" hx-swap="outerHTML"

@@ -666,11 +666,11 @@ func (s *ServiceUI) HtmlOutput() []string {
 		if viewPath != "" || deletePath != "" || editPath != "" {
 			res = append(res, `        <td>`) // Ações
 			if viewPath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light red" 
+				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light blue" 
   	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="material-icons">visibility</i></a>`, strings.TrimPrefix(viewPath, "/")))
 			}
 			if editPath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light red" 
+				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light green" 
   	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="material-icons">edit</i></a>`, strings.TrimPrefix(editPath, "/")))
 			}
 			if deletePath != "" {

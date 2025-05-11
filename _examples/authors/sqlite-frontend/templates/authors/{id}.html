@@ -19,6 +19,12 @@
                 <label for="bio">Bio</label>
             </div>
         </div>
+        <div class="row">
+            <div class="col">
+                <label for="created_at" class="active">Created At</label>
+                <input id="created_at" name="created_at" type="text" class="datepicker" {{if .Data.CreatedAt}}value="{{.Data.CreatedAt.Format "02/01/2006"}}"{{end}} />
+            </div>
+        </div>
         <input type="hidden" name="id" value="{{.Data.ID}}">
         <div class="row">
             <button class="btn waves-effect waves-light" type="submit">Update<i class="material-icons right">send</i></button>
@@ -46,6 +52,11 @@
         <div class="row">
             <div class="column">
                 <p><b>Bio:</b> {{.Data.Bio}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <p><b>Created At:</b> {{.Data.CreatedAt}}</p>
             </div>
         </div>
     </div>

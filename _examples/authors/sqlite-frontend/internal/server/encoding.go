@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/go-playground/form/v4"
 
@@ -19,6 +20,10 @@ var formDecoder *form.Decoder
 func init() {
 	formDecoder = form.NewDecoder()
 	formDecoder.SetTagName("json")
+
+	formDecoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) {
+		return time.Parse("02/01/2006", vals[0])
+	}, time.Time{})
 }
 
 func Decode[T any](r *http.Request) (T, error) {

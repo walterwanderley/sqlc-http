@@ -17,6 +17,10 @@ var formDecoder *form.Decoder
 func init() {
 	formDecoder = form.NewDecoder()
 	formDecoder.SetTagName("json")
+	{{if UI}}
+	formDecoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) {
+		return time.Parse("02/01/2006", vals[0])
+	}, time.Time{}){{end}}
 }
 
 func Decode[T any](r *http.Request) (T, error) {

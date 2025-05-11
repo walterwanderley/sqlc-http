@@ -12,20 +12,21 @@ import (
 
 const createAuthor = `-- name: CreateAuthor :execresult
 INSERT INTO authors (
-  name, bio
+  name, bio, created_at
 ) VALUES (
-  ?, ? 
+  ?, ?, ? 
 )
 `
 
 type CreateAuthorParams struct {
-	Name string
-	Bio  sql.NullString
+	Name      string
+	Bio       sql.NullString
+	CreatedAt sql.NullTime
 }
 
 // http: POST /authors
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio)
+	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio, arg.CreatedAt)
 }
 
 const deleteAuthor = `-- name: DeleteAuthor :exec
@@ -40,7 +41,7 @@ func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
 }
 
 const getAuthor = `-- name: GetAuthor :one
-SELECT id, name, bio FROM authors
+SELECT id, name, bio, created_at FROM authors
 WHERE id = ? LIMIT 1
 `
 
@@ -48,12 +49,17 @@ WHERE id = ? LIMIT 1
 func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 	row := q.db.QueryRowContext(ctx, getAuthor, id)
 	var i Author
-	err := row.Scan(&i.ID, &i.Name, &i.Bio)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Bio,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const listAuthors = `-- name: ListAuthors :many
-SELECT id, name, bio FROM authors
+SELECT id, name, bio, created_at FROM authors
 ORDER BY name
 LIMIT ? OFFSET ?
 `
@@ -73,7 +79,12 @@ func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Aut
 	var items []Author
 	for rows.Next() {
 		var i Author
-		if err := rows.Scan(&i.ID, &i.Name, &i.Bio); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Bio,
+			&i.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -90,19 +101,26 @@ func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Aut
 const updateAuthor = `-- name: UpdateAuthor :execresult
 UPDATE authors
 SET name = ?, 
-bio = ?
+bio = ?,
+created_at = ?
 WHERE id = ?
 `
 
 type UpdateAuthorParams struct {
-	Name string
-	Bio  sql.NullString
-	ID   int64
+	Name      string
+	Bio       sql.NullString
+	CreatedAt sql.NullTime
+	ID        int64
 }
 
 // http: PUT /authors/{id}
 func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateAuthor, arg.Name, arg.Bio, arg.ID)
+	return q.db.ExecContext(ctx, updateAuthor,
+		arg.Name,
+		arg.Bio,
+		arg.CreatedAt,
+		arg.ID,
+	)
 }
 
 const updateAuthorBio = `-- name: UpdateAuthorBio :execresult
