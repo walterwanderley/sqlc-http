@@ -30,6 +30,7 @@ import (
 const serviceName = "authors"
 
 var (
+	dev   bool
 	dbURL string
 	port  int
 
@@ -38,7 +39,6 @@ var (
 )
 
 func main() {
-	var dev bool
 	flag.StringVar(&dbURL, "db", "", "The Database connection URL")
 	flag.IntVar(&port, "port", 5000, "The server port")
 
@@ -46,7 +46,7 @@ func main() {
 
 	flag.Parse()
 
-	initLogger(dev)
+	initLogger()
 
 	if err := run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		slog.Error("server error", "error", err)
@@ -79,7 +79,8 @@ func run() error {
 
 	mux := http.NewServeMux()
 	registerHandlers(mux, db)
-	mux.Handle("/swagger/", http.StripPrefix("/swagger", swaggerui.Handler(openAPISpec)))
+
+	mux.Handle("GET /swagger/", http.StripPrefix("/swagger", swaggerui.Handler(openAPISpec)))
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
@@ -100,7 +101,7 @@ func run() error {
 	return server.ListenAndServe()
 }
 
-func initLogger(dev bool) {
+func initLogger() {
 	var handler slog.Handler
 	opts := slog.HandlerOptions{
 		AddSource: true,

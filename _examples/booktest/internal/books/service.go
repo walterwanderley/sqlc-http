@@ -41,6 +41,7 @@ func (s *Service) handleBooksByTags() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		res := make([]response, 0)
 		for _, r := range result {
 			var item response
@@ -94,6 +95,7 @@ func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		res := make([]response, 0)
 		for _, r := range result {
 			var item response
@@ -134,6 +136,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		var res response
 		res.AuthorID = result.AuthorID
 		res.Name = result.Name
@@ -183,6 +186,7 @@ func (s *Service) handleCreateBook() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		var res response
 		res.BookID = result.BookID
 		res.AuthorID = result.AuthorID
@@ -219,6 +223,7 @@ func (s *Service) handleDeleteBook() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 	}
 }
 
@@ -249,6 +254,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		var res response
 		res.AuthorID = result.AuthorID
 		res.Name = result.Name
@@ -289,6 +295,7 @@ func (s *Service) handleGetBook() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		var res response
 		res.BookID = result.BookID
 		res.AuthorID = result.AuthorID
@@ -328,6 +335,7 @@ func (s *Service) handleUpdateBook() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 	}
 }
 
@@ -357,5 +365,6 @@ func (s *Service) handleUpdateBookISBN() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 	}
 }

@@ -15,6 +15,7 @@ var formDecoder *form.Decoder
 func init() {
 	formDecoder = form.NewDecoder()
 	formDecoder.SetTagName("json")
+
 }
 
 func Decode[T any](r *http.Request) (T, error) {
