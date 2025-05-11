@@ -12,14 +12,16 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/walterwanderley/sqlc-grpc/converter"
 	"github.com/walterwanderley/sqlc-grpc/metadata"
 	"golang.org/x/tools/imports"
 
 	httpmetadata "github.com/walterwanderley/sqlc-http/metadata"
+	"github.com/walterwanderley/sqlc-http/metadata/frontend"
 	"github.com/walterwanderley/sqlc-http/templates"
 )
 
-func process(def *metadata.Definition, appendMode bool) error {
+func process(def *metadata.Definition, appendMode bool, generateFrontend bool) error {
 	return fs.WalkDir(templates.Files, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			log.Println("ERROR ", err.Error())
@@ -29,6 +31,19 @@ func process(def *metadata.Definition, appendMode bool) error {
 		newPath := strings.TrimSuffix(path, ".tmpl")
 
 		if d.IsDir() {
+			if (strings.HasSuffix(newPath, "templates") ||
+				strings.HasSuffix(newPath, "etag") ||
+				strings.HasSuffix(newPath, "htmx") ||
+				strings.HasSuffix(newPath, "watcher") ||
+				strings.HasSuffix(newPath, "web") ||
+				strings.HasSuffix(newPath, "swagger") ||
+				strings.HasSuffix(newPath, "css") ||
+				strings.HasSuffix(newPath, "js") ||
+				strings.HasSuffix(newPath, "app") ||
+				strings.HasSuffix(newPath, "layout")) && !generateFrontend {
+				return nil
+			}
+
 			if strings.HasSuffix(newPath, "instrumentation") && (!def.DistributedTracing && !def.Metric) {
 				return nil
 			}
@@ -54,7 +69,12 @@ func process(def *metadata.Definition, appendMode bool) error {
 			return nil
 		}
 
-		if strings.HasSuffix(newPath, "templates.go") {
+		if newPath == "templates.go" {
+			return nil
+		}
+
+		if (strings.HasSuffix(newPath, ".html") || strings.HasSuffix(newPath, ".css") || strings.HasSuffix(newPath, ".svg") ||
+			strings.HasSuffix(newPath, ".js") || strings.HasSuffix(newPath, "templates.go")) && !generateFrontend {
 			return nil
 		}
 
@@ -72,7 +92,7 @@ func process(def *metadata.Definition, appendMode bool) error {
 				return err
 			}
 			for _, pkg := range def.Packages {
-				err = genFromTemplate(path, string(tpl), pkg, true, filepath.Join(pkg.SrcPath, "service.go"))
+				err = genFromTemplate(path, string(tpl), pkg, true, generateFrontend, filepath.Join(pkg.SrcPath, "service.go"))
 				if err != nil {
 					return err
 				}
@@ -90,7 +110,7 @@ func process(def *metadata.Definition, appendMode bool) error {
 				if appendMode && fileExists(newPath) {
 					continue
 				}
-				err = genFromTemplate(path, string(tpl), pkg, true, newPath)
+				err = genFromTemplate(path, string(tpl), pkg, true, generateFrontend, newPath)
 				if err != nil {
 					return err
 				}
@@ -105,9 +125,77 @@ func process(def *metadata.Definition, appendMode bool) error {
 			}
 			for _, pkg := range def.Packages {
 				newPath := filepath.Join(pkg.SrcPath, "routes.go")
-				err = genFromTemplate(path, string(tpl), pkg, true, newPath)
+				err = genFromTemplate(path, string(tpl), pkg, true, generateFrontend, newPath)
 				if err != nil {
 					return err
+				}
+			}
+			return nil
+		}
+
+		if strings.HasSuffix(newPath, "request.html") {
+			if !generateFrontend {
+				return nil
+			}
+			tpl, err := io.ReadAll(in)
+			if err != nil {
+				return err
+			}
+			dir := strings.TrimSuffix(newPath, "request.html")
+			for _, pkg := range def.Packages {
+				dest := filepath.Join(dir, pkg.Package)
+				if _, err := os.Stat(dest); os.IsNotExist(err) {
+					err := os.MkdirAll(dest, 0750)
+					if err != nil {
+						return err
+					}
+				}
+				for _, service := range pkg.Services {
+					destFile := filepath.Join(dest, (converter.ToSnakeCase(service.Name) + ".html"))
+					if appendMode && fileExists(destFile) {
+						return nil
+					}
+					err = genFromTemplate(path, string(tpl), &frontend.ServiceUI{Service: service, Package: pkg}, false, generateFrontend, destFile)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		}
+
+		if strings.HasSuffix(newPath, "response.html") {
+			if !generateFrontend {
+				return nil
+			}
+			tpl, err := io.ReadAll(in)
+			if err != nil {
+				return err
+			}
+
+			for _, pkg := range def.Packages {
+				for _, service := range pkg.Services {
+					if service.EmptyOutput() || service.Output == "sql.Result" || service.Output == "pgconn.CommandTag" {
+						continue
+					}
+					path := httpmetadata.HttpPath(service)
+					path = strings.TrimSuffix(path, "/")
+					destFile := filepath.Join("templates", path+".html")
+
+					if appendMode && fileExists(destFile) {
+						return nil
+					}
+					destDir := filepath.Dir(destFile)
+					if _, err := os.Stat(destDir); os.IsNotExist(err) {
+						err := os.MkdirAll(destDir, 0750)
+						if err != nil {
+							return err
+						}
+					}
+					err = genFromTemplate(path, string(tpl), &frontend.ServiceUI{Service: service, Package: pkg}, false, generateFrontend, destFile)
+					if err != nil {
+						return err
+					}
 				}
 			}
 			return nil
@@ -122,7 +210,7 @@ func process(def *metadata.Definition, appendMode bool) error {
 			if err != nil {
 				return err
 			}
-			return genFromTemplate(path, string(tpl), openapiDef, false, newPath)
+			return genFromTemplate(path, string(tpl), openapiDef, false, generateFrontend, newPath)
 		}
 
 		if strings.HasSuffix(newPath, "tracing.go") && !def.DistributedTracing {
@@ -145,6 +233,17 @@ func process(def *metadata.Definition, appendMode bool) error {
 			return nil
 		}
 
+		if strings.HasSuffix(newPath, "templates/templates.go") {
+			if !generateFrontend {
+				return nil
+			}
+			tpl, err := io.ReadAll(in)
+			if err != nil {
+				return err
+			}
+			return genFromTemplate(path, string(tpl), &frontend.DefinitionUI{Definition: def, UI: generateFrontend}, true, generateFrontend, newPath)
+		}
+
 		if strings.HasSuffix(path, ".tmpl") {
 			tpl, err := io.ReadAll(in)
 			if err != nil {
@@ -154,7 +253,7 @@ func process(def *metadata.Definition, appendMode bool) error {
 			if goCode && appendMode && fileExists(newPath) && !strings.HasSuffix(newPath, "registry.go") {
 				return nil
 			}
-			return genFromTemplate(path, string(tpl), def, goCode, newPath)
+			return genFromTemplate(path, string(tpl), def, goCode, generateFrontend, newPath)
 		}
 
 		if appendMode && fileExists(newPath) {
@@ -172,7 +271,7 @@ func process(def *metadata.Definition, appendMode bool) error {
 	})
 }
 
-func genFromTemplate(name, tmp string, data interface{}, goSource bool, outPath string) error {
+func genFromTemplate(name, tmp string, data interface{}, goSource, generateFrontend bool, outPath string) error {
 	w, err := os.Create(outPath)
 	if err != nil {
 		return err
@@ -180,6 +279,10 @@ func genFromTemplate(name, tmp string, data interface{}, goSource bool, outPath 
 	defer w.Close()
 
 	var b bytes.Buffer
+
+	templates.Funcs["UI"] = func() bool {
+		return generateFrontend
+	}
 
 	t, err := template.New(name).Funcs(templates.Funcs).Parse(tmp)
 	if err != nil {

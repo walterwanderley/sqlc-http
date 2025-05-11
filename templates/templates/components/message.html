@@ -1,0 +1,17 @@
+{{$msg := .MessageContext}}
+<div id="messages" hx-swap-oob="true">
+{{if $msg}}{{with $msg}}
+<script>    
+    var msgs = htmx.find('#messages');
+    msgs.innerHTML = `<div class="materialert {{.Type}}">
+        <div class="material-icons">{{.Type.Icon}}</div>
+            <span>{{.Text}}</span>
+            <button type="button" class="close-alert">×</button>
+        </div>`;
+
+    $('.materialert .close-alert').click(function () {
+        $(this).parent().hide('slow');
+    });
+</script>
+{{end}}{{end}}
+</div>

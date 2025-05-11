@@ -5,11 +5,13 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/go-playground/form/v4"
 
-	"{{ .GoModule}}/templates"
+	"authors/templates"
 )
 
 var formDecoder *form.Decoder
@@ -25,7 +27,7 @@ func Decode[T any](r *http.Request) (T, error) {
 		if err := r.ParseForm(); err != nil {
 			return v, fmt.Errorf("parse form: %w", err)
 		}
-		if err := formDecoder.Decode(&v, r.Form) ; err != nil {
+		if err := formDecoder.Decode(&v, r.Form); err != nil {
 			return v, fmt.Errorf("decode form: %w", err)
 		}
 	} else {
@@ -37,14 +39,14 @@ func Decode[T any](r *http.Request) (T, error) {
 }
 
 func Encode[T any](w http.ResponseWriter, r *http.Request, status int, v T) error {
-	{{if UI}}if !strings.Contains(r.Header.Get("Accept"), "application/json") {
+	if !strings.Contains(r.Header.Get("Accept"), "application/json") {
 		if err := templates.RenderHTML(w, r, v); err != nil {
 			slog.Error("render html", "error", err)
 		}
 		return nil
-	}{{end}}
+	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)	
+	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(v); err != nil {
 		return fmt.Errorf("encode json: %w", err)
 	}

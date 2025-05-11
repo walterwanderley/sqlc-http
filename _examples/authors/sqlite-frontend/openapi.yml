@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  description: authors Services
+  title: authors
+  version: 0.0.1
+  contact:
+    name: sqlc-http
+    url: https://github.com/walterwanderley/sqlc-http
+tags:
+  - authors
+  
+paths:
+  /authors:
+    post:
+      tags:
+        - authors
+      summary: CreateAuthor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_insert_id:
+                    type: integer
+                    format: int64
+                  rows_affected:
+                    type: integer
+                    format: int64
+          
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
+    get:
+      tags:
+        - authors
+      summary: ListAuthors
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/authorsAuthor"
+          
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
+    
+  /authors/{id}:
+    delete:
+      tags:
+        - authors
+      summary: DeleteAuthor
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        "200":
+          description: OK
+          
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
+    get:
+      tags:
+        - authors
+      summary: GetAuthor
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/authorsAuthor"
+          
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
+    put:
+      tags:
+        - authors
+      summary: UpdateAuthor
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_insert_id:
+                    type: integer
+                    format: int64
+                  rows_affected:
+                    type: integer
+                    format: int64
+          
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
+    
+  /authors/{id}/bio:
+    patch:
+      tags:
+        - authors
+      summary: UpdateAuthorBio
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_insert_id:
+                    type: integer
+                    format: int64
+                  rows_affected:
+                    type: integer
+                    format: int64
+          
+        "default":    
+          description: Error message
+          content:
+            text/plain:
+              schema:
+                type: string  
+    
+  
+components:
+  schemas:
+    authorsAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        bio:
+          type: string
+    
+  

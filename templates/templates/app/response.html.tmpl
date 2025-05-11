@@ -1,0 +1,52 @@
+{{"{{"}}define "content"{{"}}"}}
+{{"{{"}}if not (eq (.Query "nested") "true"){{"}}"}}
+<div class="col">
+{{"{{"}}template "hx-context.html" .{{"}}"}}
+{{"{{"}}end{{"}}"}}
+{{if .HasEditService}}
+{{"{{"}}if .HasQuery "edit"{{"}}"}}
+    <h5>{{.EditName}}</h5>
+    <form {{.EditHtmxCall}} hx-target="#messages">            
+        {{range .HtmlInputEdit}}{{.}}
+        {{end}}
+    </form>
+    <script>
+        htmx.on("htmx:configRequest", replacePathParams)
+    </script>
+</div>
+{{"{{"}}else{{"}}"}}
+    {{range .HtmlOutput}}{{.}}
+    {{end -}}
+{{"{{"}}end{{"}}"}}
+{{else}}
+{{if .Service | HasPagination}}{{"{{"}}$pagination := .Pagination{{"}}"}}
+    {{"{{"}}if $pagination{{"}}"}}
+<div id="table_response">
+{{"{{"}}end{{"}}"}}{{- end -}}
+    {{range .HtmlOutput}}{{.}}
+{{end -}}
+    {{if .Service | HasPagination}}    
+    {{"{{"}}$pagination := .Pagination{{"}}"}}
+    {{"{{"}}if $pagination{{"}}"}}
+    <ul class="pagination">
+        <li class="{{"{{"}}if eq $pagination.Offset 0{{"}}"}}disabled{{"{{"}}else{{"}}"}}waves-effect{{"{{"}}end{{"}}"}}">
+            <a href="javascript: void(0)" hx-get="{{"{{"}}$pagination.URL $pagination.Limit $pagination.Prev{{"}}"}}" hx-target="#table_response"><i class="material-icons">chevron_left</i></a></li>
+        <li>
+            <select name="limit" hx-get="{{"{{"}}$pagination.URL -1 $pagination.Offset{{"}}"}}" hx-target="#table_response">
+                <option value="10" {{"{{"}}if eq $pagination.Limit 10{{"}}"}}selected{{"{{"}}end{{"}}"}}>Show 10 items</option>
+                <option value="20" {{"{{"}}if eq $pagination.Limit 20{{"}}"}}selected{{"{{"}}end{{"}}"}}>Show 20 items</option>
+                <option value="30" {{"{{"}}if eq $pagination.Limit 30{{"}}"}}selected{{"{{"}}end{{"}}"}}>Show 30 items</option>
+            </select>            
+        </li>
+        <li>{{"{{"}}$pagination.From{{"}}"}} - {{"{{"}}$pagination.To{{"}}"}}</li>
+        <li class="waves-effect">
+            <a href="javascript: void(0)" hx-get="{{"{{"}}$pagination.URL $pagination.Limit $pagination.Next{{"}}"}}" hx-target="#table_response"><i class="material-icons">chevron_right</i></a></li>
+    </ul>
+</div>
+{{"{{"}}end{{"}}"}}
+{{- end -}}
+{{- end -}}
+{{"{{"}}if not (eq (.Query "nested") "true"){{"}}"}}
+</div>
+{{"{{"}}end{{"}}"}}
+{{"{{"}}end{{"}}"}}

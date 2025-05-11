@@ -1,0 +1,56 @@
+{{define "content"}}
+{{if not (eq (.Query "nested") "true")}}
+<div class="col">
+{{template "hx-context.html" .}}
+{{end}}
+
+{{if .HasQuery "edit"}}
+    <h5>Update Author</h5>
+    <form hx-put="authors/{id}" hx-target="#messages">            
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="name" required name="name" type="text" value="{{.Data.Name}}" class="validate"/>
+                <label for="name">Name *</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="bio" name="bio" type="text" value="{{.Data.Bio}}" class="validate"/>
+                <label for="bio">Bio</label>
+            </div>
+        </div>
+        <input type="hidden" name="id" value="{{.Data.ID}}">
+        <div class="row">
+            <button class="btn waves-effect waves-light" type="submit">Update<i class="material-icons right">send</i></button>
+            <button class="waves-effect waves-light btn" type="button"
+                onclick="javascript:window.history.back()">Back</button>
+        </div>
+        
+    </form>
+    <script>
+        htmx.on("htmx:configRequest", replacePathParams)
+    </script>
+</div>
+{{else}}
+    <div class="col mb-5">
+        <div class="row">
+            <div class="column">
+                <p><b>ID:</b> {{.Data.ID}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <p><b>Name:</b> {{.Data.Name}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <p><b>Bio:</b> {{.Data.Bio}}</p>
+            </div>
+        </div>
+    </div>
+    {{end}}
+{{if not (eq (.Query "nested") "true")}}
+</div>
+{{end}}
+{{end}}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base href="{{.Content.BaseHref}}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+    <title>{{.Title}}</title>
+
+    <!-- CSS  -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="web/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <link href="web/css/style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body hx-indicator="#indicator" hx-target="#main-section">
+    {{ template "header.html" .}}
+    <main>
+        <div class="container">
+            <img id="indicator" class="htmx-indicator" src="web/img/tail-spin.svg" />
+            {{ template "message.html" .Content}}
+            <div class="section" id="main-section">
+                {{ template "content" .Content}}
+            </div>
+            <br><br>
+        </div>
+    </main>
+    {{ template "footer.html" .}}
+
+    <!--  Scripts-->
+    {{if .DevMode}}
+    <script>
+        var evtSource = new EventSource("reload");
+        evtSource.onmessage = function (event) {
+            window.location.reload(true);
+        };
+        evtSource.onerror = function (err) {
+            console.error("EventSource failed:", err);
+        };
+    </script>
+    {{end}}
+    <script src="web/js/jquery-2.1.1.min.js"></script>
+    <script src="web/js/materialize.min.js"></script>
+    <script src="web/js/htmx.min.js"></script>
+    <script src="web/js/init.js"></script>
+</body>
+
+</html>

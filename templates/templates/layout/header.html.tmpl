@@ -1,0 +1,33 @@
+{{range .Packages}}{{$pkg := .Package}}
+<ul id="{{$pkg}}" class="dropdown-content">
+  {{range .Services}}
+  <li><a href="javascript: void(0)" hx-push-url="true" hx-get="app/{{$pkg}}/{{ .Name | SnakeCase}}">{{ .Name | PascalCase | AddSpace}}</a></li>
+  {{end}}
+</ul>
+{{end -}}
+<nav class="light-blue lighten-1" role="navigation">
+  <div class="nav-wrapper container">
+    <a id="logo-container" hx-get="/" hx-push-url="true" class="brand-logo">{{"{{"}}.Title{{"}}"}}</a>
+    <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    <ul class="right hide-on-med-and-down">
+      <li></li>
+      <li><a hx-get="/" hx-push-url="true" ><i class="material-icons left">home</i>Home</a></li>
+      <li><a href="web/swagger" >Swagger UI</a></li>
+      {{range .Packages}}{{$pkg := .Package}}
+      <li><a class="dropdown-trigger" href="javascript: void(0)" data-target="{{$pkg}}">{{$pkg | PascalCase | AddSpace}}<i class="material-icons right">arrow_drop_down</i></a></li>        
+      {{end -}}
+    </ul>
+  </div>
+</nav>
+
+<ul class="sidenav" id="mobile-demo">
+  <li><a hx-get="/" hx-push-url="true"><i class="material-icons left">home</i>Home</a></li>
+  <li><a href="web/swagger" >Swagger UI</a></li>
+  {{range .Packages}}{{$pkg := .Package}}
+  <li><div class="divider"></div></li>
+  <li><a class="subheader">{{$pkg}}</a></li>
+  {{range .Services}}
+  <li><a href="javascript: void(0)" hx-push-url="true" hx-get="app/{{$pkg}}/{{ .Name | SnakeCase}}">{{ .Name | PascalCase | AddSpace}}</a></li>
+  {{end}}
+  {{end}}
+</ul>

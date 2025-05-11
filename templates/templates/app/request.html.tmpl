@@ -1,0 +1,26 @@
+{{"{{"}}define "content"{{"}}"}}
+<div class="col">
+    {{"{{"}}template "hx-context.html" .{{"}}"}}  
+    <h5>{{.Title}}</h5>
+    {{if .AutoSubmit}}
+    <div hx-trigger="load" {{.HtmxCall true}} hx-target="#response"></div>
+    {{else}}                   
+    <form {{.HtmxCall true}} hx-target="#response">
+        {{range .HtmlInput}}{{.}}
+        {{end}}
+        <div class="row">
+            <button class="btn waves-effect waves-light" type="submit">{{.ActionLabel}}<i class="material-icons right">send</i></button>
+            <button class="waves-effect waves-light btn" type="button"
+                onclick="javascript:window.history.back()">Back</button>
+        </div>
+    </form> 
+    <div class="divider"></div>
+    {{end}}        
+    <div id="response"></div>
+{{if .HasPathParam}}
+    <script>
+        htmx.on("htmx:configRequest", replacePathParams)
+    </script>
+{{end -}}
+</div>
+{{"{{"}}end{{"}}"}}

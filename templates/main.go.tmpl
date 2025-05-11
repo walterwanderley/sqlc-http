@@ -28,10 +28,12 @@ import (
 	{{if eq .SqlPackage "pgx/v5"}}"github.com/jackc/pgx/v5/pgxpool"{{else}}_ "{{ .DatabaseImport}}"{{end}}
 	{{if .MigrationPath}}{{if eq .SqlPackage "pgx/v5"}}_ "github.com/jackc/pgx/v5/stdlib"{{end}}{{end}}
 
+	"{{ .GoModule}}/internal/server/etag"
 	"{{ .GoModule}}/internal/server/litefs"
 	"{{ .GoModule}}/internal/server/litestream"
 	"{{ .GoModule}}/internal/server/instrumentation/metric"
 	"{{ .GoModule}}/internal/server/instrumentation/trace"
+	"{{ .GoModule}}/templates"
 )
 
 {{if .Args}}//go:generate {{ .Args}}{{end}}
@@ -43,6 +45,7 @@ const (
 const serviceName = "{{ .GoModule}}"
 {{end}}
 var (
+	dev bool
 	dbURL string	
 	port{{if .Metric}}, prometheusPort{{end}} int
 	{{if .Litestream}}replicationURL string{{end}}
@@ -51,14 +54,16 @@ var (
 	liteFS         *litefs.LiteFS{{end}}
 	//go:embed openapi.yml
 	openAPISpec []byte
+	{{if UI}}//go:embed web
+	webFS embed.FS
+	{{end -}}
 )
 
-func main() {
-	var dev bool
+func main() {	
 	flag.StringVar(&dbURL, "db", "", "The Database connection URL")
 	flag.IntVar(&port, "port", 5000, "The server port")
 	{{if .Metric}}flag.IntVar(&prometheusPort, "prometheus-port", 0, "The metrics server port"){{end}}
-	flag.BoolVar(&dev, "dev", false, "Set logger to development mode")
+	flag.BoolVar(&dev, "dev", false, "Set logger to development mode{{if UI}} and enable Hot Reload on edit templates files{{end}}")
 	{{if .DistributedTracing}}flag.StringVar(&otlpEndpoint, "otlp-endpoint", "", "The Open Telemetry Protocol Endpoint (example: localhost:4317)"){{end}}
 	{{if .Litestream}}flag.StringVar(&replicationURL, "replication", "", "S3 replication URL"){{end}}
 	{{if .LiteFS}}litefs.SetFlags(&litefsConfig){{end}}
@@ -66,7 +71,7 @@ func main() {
 
 	{{if .LiteFS}}dbURL = filepath.Join(litefsConfig.MountDir, dbURL){{end}}
 
-	initLogger(dev)
+	initLogger()
 	
 	if err := run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		slog.Error("server error", "error", err)
@@ -150,8 +155,27 @@ func run() error {
 	}{{end}}{{end}}
 
 	mux := http.NewServeMux()
-	registerHandlers(mux, db)
-	mux.Handle("/swagger/", http.StripPrefix("/swagger", swaggerui.Handler(openAPISpec)))
+	registerHandlers(mux, db)	
+
+	{{if UI}}
+	mux.HandleFunc("GET /openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/yaml")
+		w.Write(openAPISpec)
+	})
+	{{else}}
+		mux.Handle("GET /swagger/", http.StripPrefix("/swagger", swaggerui.Handler(openAPISpec)))
+	{{end}}
+	{{if UI}}if dev {
+		mux.Handle("GET /web/", http.StripPrefix("/web", http.FileServer(http.FS(os.DirFS("web")))))
+	} else {
+		mux.Handle("GET /web/", etag.Handler(webFS, ""))
+	}
+	err = templates.RegisterHandlers(mux, dev)
+	if err != nil {
+		return fmt.Errorf("frontend templates error: %w", err)
+	}
+	{{end -}}
+
 	{{if .LiteFS}}
 	var handler http.Handler = mux
 	if litefsConfig.MountDir != "" {
@@ -226,7 +250,7 @@ func run() error {
 	return server.ListenAndServe()
 }
 
-func initLogger(dev bool) {
+func initLogger() {
 	var handler slog.Handler
 	opts := slog.HandlerOptions{
 		AddSource: true,

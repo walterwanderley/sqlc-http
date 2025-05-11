@@ -28,6 +28,7 @@ var (
 	litestream         bool
 	metric             bool
 	distributedTracing bool
+	generateFrontend   bool
 	appendMode         bool
 	showVersion        bool
 	help               bool
@@ -46,6 +47,7 @@ func main() {
 	flag.BoolVar(&litestream, "litestream", false, "Enable support to Litestream")
 	flag.BoolVar(&distributedTracing, "tracing", false, "Enable support to distributed tracing")
 	flag.BoolVar(&metric, "metric", false, "Enable support to metrics")
+	flag.BoolVar(&generateFrontend, "frontend", false, "Generate frontend")
 	flag.Parse()
 
 	if help {
@@ -141,7 +143,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	err = process(&def, appendMode)
+	err = process(&def, appendMode, generateFrontend)
 	if err != nil {
 		log.Fatal("unable to process templates:", err.Error())
 	}

@@ -1,0 +1,30 @@
+{{define "content"}}
+<div class="col">
+    {{template "hx-context.html" .}}  
+    <h5>Create Author</h5>
+                       
+    <form hx-post="authors?nested=true" hx-target="#response">
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="name" required name="name" type="text" class="validate"/>
+                <label for="name">Name *</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="bio" name="bio" type="text" class="validate"/>
+                <label for="bio">Bio</label>
+            </div>
+        </div>
+        
+        <div class="row">
+            <button class="btn waves-effect waves-light" type="submit">Insert<i class="material-icons right">send</i></button>
+            <button class="waves-effect waves-light btn" type="button"
+                onclick="javascript:window.history.back()">Back</button>
+        </div>
+    </form> 
+    <div class="divider"></div>
+            
+    <div id="response"></div>
+</div>
+{{end}}
