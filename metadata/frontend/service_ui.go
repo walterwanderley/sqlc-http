@@ -37,7 +37,19 @@ func (d *DefinitionUI) BreadCrumbs() []string {
 						parent := parents[i-1]
 						args.WriteString(fmt.Sprintf(`"%s", %s, `, parent.name, parent.path))
 					}
-					res = append(res, fmt.Sprintf(`return breadCrumbsFromStrings(%s"%s")`, args.String(), svcName))
+					serviceUI := ServiceUI{
+						Service: svc,
+						Package: pkg,
+					}
+					if editService := serviceUI.editService(); editService != nil {
+						res = append(res, fmt.Sprintf(`serviceName := "%s"`, svcName))
+						res = append(res, `if c.HasQuery("edit") {`)
+						res = append(res, fmt.Sprintf(`    serviceName = "%s"`, AddSpace(converter.ToPascalCase(editService.Name))))
+						res = append(res, `}`)
+						res = append(res, fmt.Sprintf(`return breadCrumbsFromStrings(%s serviceName)`, args.String()))
+					} else {
+						res = append(res, fmt.Sprintf(`return breadCrumbsFromStrings(%s"%s")`, args.String(), svcName))
+					}
 				}
 			}
 		}
@@ -103,6 +115,10 @@ func parentServices(pkg *metadata.Package, svc *metadata.Service, httpSpec *meta
 }
 
 func serviceByPath(pkg *metadata.Package, services []*metadata.Service, path string, ignorePathParams bool) (*metadata.Service, *servicePath) {
+	pathParams := specPathParams(path)
+	if ignorePathParams && len(pathParams) > 0 {
+		return nil, nil
+	}
 	for _, svc := range pkg.Services {
 		if slices.Contains(services, svc) {
 			continue
@@ -112,10 +128,6 @@ func serviceByPath(pkg *metadata.Package, services []*metadata.Service, path str
 				continue
 			}
 			if spec.Path == path {
-				pathParams := specPathParams(path)
-				if ignorePathParams && len(pathParams) > 0 {
-					continue
-				}
 				resolvedPath := spec.Path
 				for _, param := range pathParams {
 					resolvedPath = strings.ReplaceAll(resolvedPath, fmt.Sprintf("{%s}", param), fmt.Sprintf(`" + c.Request.PathValue("%s") + "`, param))

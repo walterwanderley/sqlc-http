@@ -233,7 +233,11 @@ func (c Content[T]) BreadCrumbsFromRequest() []breadCrumb {
 	case "DELETE /authors/{id}":
 		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Delete Author")
 	case "GET /authors/{id}":
-		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Get Author")
+		serviceName := "Get Author"
+		if c.HasQuery("edit") {
+			serviceName = "Update Author"
+		}
+		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", serviceName)
 	case "GET /authors":
 		return breadCrumbsFromStrings("Authors", "/", "List Authors")
 	case "PUT /authors/{id}":
