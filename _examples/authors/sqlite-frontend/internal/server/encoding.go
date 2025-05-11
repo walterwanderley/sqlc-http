@@ -22,7 +22,7 @@ func init() {
 	formDecoder.SetTagName("json")
 
 	formDecoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) {
-		return time.Parse("02/01/2006", vals[0])
+		return time.ParseInLocation("02/01/2006", vals[0], time.Local)
 	}, time.Time{})
 }
 

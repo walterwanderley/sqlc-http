@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/walterwanderley/sqlc-grpc/converter"
@@ -175,22 +176,27 @@ func htmlInput(attr, typ string, fill bool) []string {
 	case "date":
 		res = append(res, `<div class="row">`)
 		res = append(res, `    <div class="col">`)
+		var requiredAttr string
 		if required {
-			if fill {
-				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
-				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="text" class="datepicker" {{if .Data.%s}}value="{{.Data.%s.Format "02/01/2006"}}"{{end}} />`, attrFormName, attrFormName, attr, attr))
-			} else {
-				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
-				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="text" class="datepicker" />`, attrFormName, attrFormName))
-			}
+			requiredAttr = "required"
+		}
+		if fill {
+			res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="text" class="datepicker" />`, attrFormName, requiredAttr, attrFormName))
+			res = append(res, fmt.Sprintf(`        {{if .Data.%s}}`, attr))
+			res = append(res, `        <script>`)
+			res = append(res, `            setTimeout(function () {`)
+			res = append(res, fmt.Sprintf(`            var %sInput = $('#%s');`, attrFormName, attrFormName))
+			res = append(res, fmt.Sprintf(`            var %sInput = $('#%s');`, attrFormName, attrFormName))
+			res = append(res, fmt.Sprintf(`            var %sPicker = M.Datepicker.getInstance(%sInput);`, attrFormName, attrFormName))
+			res = append(res, fmt.Sprintf(`            %sPicker.setDate(new Date({{.Data.%s.Format "%s"}}));`, attrFormName, attr, time.RFC3339))
+			res = append(res, fmt.Sprintf(`            %sInput.val(%sPicker.toString());`, attrFormName, attrFormName))
+			res = append(res, `            }, 100);`)
+			res = append(res, `        </script>`)
+			res = append(res, (`        {{end}}`))
 		} else {
-			if fill {
-				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
-				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="text" class="datepicker" {{if .Data.%s}}value="{{.Data.%s.Format "02/01/2006"}}"{{end}} />`, attrFormName, attrFormName, attr, attr))
-			} else {
-				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
-				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="text" class="datepicker" />`, attrFormName, attrFormName))
-			}
+			res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="text" class="datepicker" />`, attrFormName, requiredAttr, attrFormName))
 		}
 		res = append(res, `    </div>`)
 		res = append(res, `</div>`)
@@ -200,17 +206,20 @@ func htmlInput(attr, typ string, fill bool) []string {
 		if required {
 			if fill {
 				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="%s" value="{{.Data.%s}}" class="validate"/>`, attrFormName, attrFormName, typ, attr))
+				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
 			} else {
 				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="%s" class="validate"/>`, attrFormName, attrFormName, typ))
+				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
 			}
 		} else {
 			if fill {
 				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="%s" value="{{.Data.%s}}" class="validate"/>`, attrFormName, attrFormName, typ, attr))
+				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
 			} else {
 				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="%s" class="validate"/>`, attrFormName, attrFormName, typ))
+				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
 			}
 		}
-		res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
 		res = append(res, `    </div>`)
 		res = append(res, `</div>`)
 	}

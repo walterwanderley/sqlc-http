@@ -10,19 +10,30 @@
         <div class="row">
             <div class="input-field col s12">
                 <input id="name" required name="name" type="text" value="{{.Data.Name}}" class="validate"/>
-                <label for="name">Name *</label>
+                <label for="name" class="active">Name *</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
                 <input id="bio" name="bio" type="text" value="{{.Data.Bio}}" class="validate"/>
-                <label for="bio">Bio</label>
+                <label for="bio" class="active">Bio</label>
             </div>
         </div>
         <div class="row">
             <div class="col">
                 <label for="created_at" class="active">Created At</label>
-                <input id="created_at" name="created_at" type="text" class="datepicker" {{if .Data.CreatedAt}}value="{{.Data.CreatedAt.Format "02/01/2006"}}"{{end}} />
+                <input id="created_at"  name="created_at" type="text" class="datepicker" />
+                {{if .Data.CreatedAt}}
+                <script>
+                    setTimeout(function () {
+                    var created_atInput = $('#created_at');
+                    var created_atInput = $('#created_at');
+                    var created_atPicker = M.Datepicker.getInstance(created_atInput);
+                    created_atPicker.setDate(new Date({{.Data.CreatedAt.Format "2006-01-02T15:04:05Z07:00"}}));
+                    created_atInput.val(created_atPicker.toString());
+                    }, 100);
+                </script>
+                {{end}}
             </div>
         </div>
         <input type="hidden" name="id" value="{{.Data.ID}}">

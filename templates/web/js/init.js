@@ -24,10 +24,6 @@ function loadComponents(content) {
             format: 'dd/mm/yyyy'
         });
     });
-
-    $(content).ready(function () {
-        M.updateTextFields();
-    });
 }
 
 function replacePathParams(event) {
