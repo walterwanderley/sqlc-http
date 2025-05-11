@@ -87,6 +87,13 @@ sqlc generate
 sqlc-http -m "mymodule"
 ```
 
+If you want to generate the frontend (htmx):
+
+```sh
+sqlc-http -m "mymodule" -frontend
+```
+
+
 5. Run the generated server
 
 ```sh
@@ -95,7 +102,14 @@ go run . -db [Database Connection URL] -dev
 
 6. Enjoy!
 
-- Swagger UI [http://localhost:5000/swagger](http://localhost:5000/swagger)
+If you do not generate the frontend in step 4?
+
+- Swagger UI: [http://localhost:5000/swagger](http://localhost:5000/swagger)
+
+If you generate the frontend in step 4:
+
+- [HTMX](https://htmx.org) frontend: [http://localhost:5000](http://localhost:5000)
+- Swagger UI: [http://localhost:5000/web/swagger](http://localhost:5000/web/swagger)
 
 ### Customizing HTTP endpoints
 
