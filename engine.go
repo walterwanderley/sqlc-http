@@ -74,7 +74,9 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 		}
 
 		if (strings.HasSuffix(newPath, ".html") || strings.HasSuffix(newPath, ".css") || strings.HasSuffix(newPath, ".svg") ||
-			strings.HasSuffix(newPath, ".js") || strings.HasSuffix(newPath, "templates.go")) && !generateFrontend {
+			strings.HasSuffix(newPath, ".js") || strings.HasSuffix(newPath, "templates.go") ||
+			strings.HasSuffix(newPath, "watcher.go") || strings.HasSuffix(newPath, "message.go") ||
+			strings.HasSuffix(newPath, "etag.go") || strings.HasSuffix(newPath, "htmx.go")) && !generateFrontend {
 			return nil
 		}
 
