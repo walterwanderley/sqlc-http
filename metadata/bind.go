@@ -89,7 +89,7 @@ func InputHttp(s *metadata.Service) []string {
 			m, ok := s.Messages[converter.CanonicalName(typ)]
 			if ok {
 				for _, f := range m.Fields {
-					if slices.Contains[[]string](pathParams, converter.ToSnakeCase(f.Name)) {
+					if slices.Contains(pathParams, converter.ToSnakeCase(f.Name)) {
 						res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(f.Name), f.Type)...)
 						continue
 					}
@@ -97,7 +97,7 @@ func InputHttp(s *metadata.Service) []string {
 				}
 				continue
 			}
-			if slices.Contains[[]string](pathParams, converter.ToSnakeCase(s.InputNames[i])) {
+			if slices.Contains(pathParams, converter.ToSnakeCase(s.InputNames[i])) {
 				res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(s.InputNames[i]), typ)...)
 				continue
 			}
@@ -112,14 +112,14 @@ func InputHttp(s *metadata.Service) []string {
 			m, ok := s.Messages[converter.CanonicalName(typ)]
 			if ok {
 				for _, f := range m.Fields {
-					if slices.Contains[[]string](pathParams, converter.ToSnakeCase(f.Name)) {
+					if slices.Contains(pathParams, converter.ToSnakeCase(f.Name)) {
 						res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(f.Name), f.Type)...)
 						continue
 					}
 				}
 				continue
 			}
-			if slices.Contains[[]string](pathParams, converter.ToSnakeCase(s.InputNames[i])) {
+			if slices.Contains(pathParams, converter.ToSnakeCase(s.InputNames[i])) {
 				res = append(res, BindStringToSerializable("r.PathValue", "req", converter.UpperFirstCharacter(s.InputNames[i]), typ)...)
 				continue
 			}

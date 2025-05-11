@@ -41,7 +41,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		if req.Bio != nil {
 			arg.Bio = sql.NullString{Valid: true, String: *req.Bio}
 		}
-		if req.CreatedAt != nil {
+		if req.CreatedAt != nil && !req.CreatedAt.IsZero() {
 			arg.CreatedAt.Valid = true
 			arg.CreatedAt.Time = *req.CreatedAt
 		}
@@ -230,7 +230,7 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		if req.Bio != nil {
 			arg.Bio = sql.NullString{Valid: true, String: *req.Bio}
 		}
-		if req.CreatedAt != nil {
+		if req.CreatedAt != nil && !req.CreatedAt.IsZero() {
 			arg.CreatedAt.Valid = true
 			arg.CreatedAt.Time = *req.CreatedAt
 		}

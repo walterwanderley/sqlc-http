@@ -347,7 +347,7 @@ func bindToGo(src, dst, attrName, attrType string, newVar bool) []string {
 		if newVar {
 			res = append(res, fmt.Sprintf("var %s %s", dst, attrType))
 		}
-		res = append(res, fmt.Sprintf("if %s.%s != nil {", src, attrName))
+		res = append(res, fmt.Sprintf("if %s.%s != nil && !%s.%s.IsZero() {", src, attrName, src, attrName))
 		res = append(res, fmt.Sprintf("%s.Valid = true", dst))
 		res = append(res, fmt.Sprintf("%s.Time = *%s.%s }", dst, src, attrName))
 	case "time.Time":

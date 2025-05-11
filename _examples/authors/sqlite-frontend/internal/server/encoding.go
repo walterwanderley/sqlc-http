@@ -22,6 +22,9 @@ func init() {
 	formDecoder.SetTagName("json")
 
 	formDecoder.RegisterCustomTypeFunc(func(vals []string) (interface{}, error) {
+		if vals[0] == "" {
+			return time.Time{}, nil
+		}
 		return time.ParseInLocation("02/01/2006", vals[0], time.Local)
 	}, time.Time{})
 }
