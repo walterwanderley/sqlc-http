@@ -43,6 +43,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
 		server.Encode(w, r, http.StatusOK, response{
@@ -75,6 +76,7 @@ func (s *Service) handleDeleteAuthor() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 	}
 }
 
@@ -106,6 +108,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		var res response
 		res.ID = result.ID
 		res.Name = result.Name
@@ -131,6 +134,7 @@ func (s *Service) handleListAuthors() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		res := make([]response, 0)
 		for _, r := range result {
 			var item response
@@ -183,6 +187,7 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
 		server.Encode(w, r, http.StatusOK, response{
@@ -228,6 +233,7 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
 		server.Encode(w, r, http.StatusOK, response{
