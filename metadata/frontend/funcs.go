@@ -187,7 +187,6 @@ func htmlInput(attr, typ string, fill bool) []string {
 			res = append(res, `        <script>`)
 			res = append(res, `            setTimeout(function () {`)
 			res = append(res, fmt.Sprintf(`            var %sInput = $('#%s');`, attrFormName, attrFormName))
-			res = append(res, fmt.Sprintf(`            var %sInput = $('#%s');`, attrFormName, attrFormName))
 			res = append(res, fmt.Sprintf(`            var %sPicker = M.Datepicker.getInstance(%sInput);`, attrFormName, attrFormName))
 			res = append(res, fmt.Sprintf(`            %sPicker.setDate(new Date({{.Data.%s.Format "%s"}}));`, attrFormName, attr, time.RFC3339))
 			res = append(res, fmt.Sprintf(`            %sInput.val(%sPicker.toString());`, attrFormName, attrFormName))
