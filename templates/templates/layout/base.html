@@ -17,7 +17,9 @@
     {{ template "header.html" .}}
     <main>
         <div class="container">
-            <img id="indicator" class="htmx-indicator" src="web/img/tail-spin.svg" />
+            <div id="indicator" class="htmx-indicator progress">
+                <div class="indeterminate"></div>
+            </div>
             {{ template "message.html" .Content}}
             {{ template "breadcrumbs.html" .Content}}
             <div class="section" id="main-section">
