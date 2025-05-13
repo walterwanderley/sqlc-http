@@ -12,12 +12,12 @@ import (
 	"os"
 	"strings"
 
-	"authors/internal/server/htmx"
-	watchersse "authors/internal/server/watcher"
+	"sqlite-htmx/internal/server/htmx"
+	watchersse "sqlite-htmx/internal/server/watcher"
 )
 
 // Content-Security-Policy
-const csp = "default-src 'self'; img-src 'self' *.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+const csp = "default-src 'self'; img-src 'self' data: ; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
 
 type key int
 
@@ -180,7 +180,7 @@ type templateOpts struct {
 
 func defaultTemplateOpts(content any) templateOpts {
 	return templateOpts{
-		Title:   "Authors",
+		Title:   "Sqlite-htmx",
 		Content: content,
 		DevMode: provider.DevMode(),
 	}

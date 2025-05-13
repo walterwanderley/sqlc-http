@@ -30,15 +30,24 @@ const (
 func (t MessageType) Icon() string {
 	switch t {
 	case TypeInfo:
-		return "info_outline"
+		return "info-fill"
 	case TypeSuccess:
-		return "check"
-	case TypeError:
-		return "error_outline"
-	case TypeWarning:
-		return "warning"
+		return "check-circle-fill"
 	default:
-		return "check_circle"
+		return "exclamation-triangle-fill"
+	}
+}
+
+func (t MessageType) Class() string {
+	switch t {
+	case TypeInfo:
+		return "primary"
+	case TypeSuccess:
+		return "success"
+	case TypeError:
+		return "danger"
+	default:
+		return "warning"
 	}
 }
 

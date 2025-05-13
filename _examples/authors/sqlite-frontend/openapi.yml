@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  description: authors Services
-  title: authors
+  description: sqlite-htmx Services
+  title: sqlite-htmx
   version: 0.0.1
   contact:
     name: sqlc-http

@@ -1,5 +1,9 @@
-<div class="materialert {{.Type}}">
-    <div class="material-icons">{{.Type.Icon}}</div>
-    <span>{{.Text}}</span>
-    <button type="button" class="close-alert">×</button>
+<div class="alert alert-{{.Type.Class}} d-flex align-items-center" role="alert">
+    <svg width="24" height="24" class="bi flex-shrink-0 me-2" role="img" aria-label="{{.Type}}">
+        <use xlink:href="#{{.Type.Icon}}" />
+    </svg>
+    <div>
+        {{.Text}}
+    </div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>

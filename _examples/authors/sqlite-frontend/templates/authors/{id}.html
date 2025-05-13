@@ -7,38 +7,24 @@
 {{if .HasQuery "edit"}}
     <h5>Update Author</h5>
     <form hx-put="authors/{id}" hx-target="#messages">            
-        <div class="row">
-            <div class="input-field col s12">
-                <input id="name" required name="name" type="text" value="{{.Data.Name}}" class="validate"/>
-                <label for="name" class="active">Name *</label>
-            </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name *</label>
+            <input id="name" required name="name" type="text"{{if .Data.Name}} value="{{.Data.Name}}"{{end}} class="form-control"/>
         </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <input id="bio" name="bio" type="text" value="{{.Data.Bio}}" class="validate"/>
-                <label for="bio" class="active">Bio</label>
-            </div>
+        <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <input id="bio"  name="bio" type="text"{{if .Data.Bio}} value="{{.Data.Bio}}"{{end}} class="form-control"/>
         </div>
-        <div class="row">
-            <div class="col">
-                <label for="created_at" class="active">Created At</label>
-                <input id="created_at"  name="created_at" type="text" class="datepicker" />
-                {{if .Data.CreatedAt}}
-                <script>
-                    setTimeout(function () {
-                    var created_atInput = $('#created_at');
-                    var created_atPicker = M.Datepicker.getInstance(created_atInput);
-                    created_atPicker.setDate(new Date({{.Data.CreatedAt.Format "2006-01-02T15:04:05Z07:00"}}));
-                    created_atInput.val(created_atPicker.toString());
-                    }, 100);
-                </script>
-                {{end}}
+        <div class="mb-3">
+            <div class="col-sm-2">
+                <label for="created_at" class="form-label">Created At</label>
+                <input id="created_at"  name="created_at" type="date" class="form-control"{{if .Data.CreatedAt}} value="{{.Data.CreatedAt.Format "2006-01-02"}}"{{end}}/>
             </div>
         </div>
         <input type="hidden" name="id" value="{{.Data.ID}}">
-        <div class="row">
-            <button class="btn waves-effect waves-light" type="submit">Update<i class="material-icons right">send</i></button>
-            <button class="waves-effect waves-light btn" type="button"
+        <div class="p-3">
+            <button class="btn btn-primary" type="submit">Update</button>
+            <button class="btn btn-secondary" type="button"
                 onclick="javascript:window.history.back()">Back</button>
         </div>
         
@@ -50,22 +36,22 @@
 {{else}}
     <div class="col mb-5">
         <div class="row">
-            <div class="column">
+            <div class="col">
                 <p><b>ID:</b> {{.Data.ID}}</p>
             </div>
         </div>
         <div class="row">
-            <div class="column">
+            <div class="col">
                 <p><b>Name:</b> {{.Data.Name}}</p>
             </div>
         </div>
         <div class="row">
-            <div class="column">
+            <div class="col">
                 <p><b>Bio:</b> {{.Data.Bio}}</p>
             </div>
         </div>
         <div class="row">
-            <div class="column">
+            <div class="col">
                 <p><b>Created At:</b> {{.Data.CreatedAt}}</p>
             </div>
         </div>

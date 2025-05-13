@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-playground/form/v4"
 
-	"authors/templates"
+	"sqlite-htmx/templates"
 )
 
 var formDecoder *form.Decoder
@@ -25,7 +25,7 @@ func init() {
 		if vals[0] == "" {
 			return time.Time{}, nil
 		}
-		return time.ParseInLocation("02/01/2006", vals[0], time.Local)
+		return time.ParseInLocation(time.DateOnly, vals[0], time.Local)
 	}, time.Time{})
 }
 

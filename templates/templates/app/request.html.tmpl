@@ -8,10 +8,9 @@
     <form {{.HtmxCall true}} hx-target="#response">
         {{range .HtmlInput}}{{.}}
         {{end}}
-        <div class="row">
-            <button class="btn waves-effect waves-light" type="submit">{{.ActionLabel}}<i class="material-icons right">send</i></button>
-            <button class="waves-effect waves-light btn" type="button"
-                onclick="javascript:window.history.back()">Back</button>
+        <div class="p-3">
+            <button class="btn btn-primary" type="submit">{{.ActionLabel}}</button>
+            <button type="button" class="btn btn-secondary" onclick="javascript:window.history.back()">Back</button>
         </div>
     </form> 
     <div class="divider"></div>

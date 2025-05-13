@@ -4,17 +4,14 @@
     <h5>Delete Author</h5>
                        
     <form hx-delete="authors/{id}?nested=true" hx-target="#response">
-        <div class="row">
-            <div class="input-field col s12">
-                <input id="id" required name="id" type="number" class="validate"/>
-                <label for="id">Id *</label>
-            </div>
+        <div class="mb-3">
+                <label for="id" class="form-label">Id *</label>
+                <input id="id" required name="id" type="number" class="form-control"/>
         </div>
         
-        <div class="row">
-            <button class="btn waves-effect waves-light" type="submit">Delete<i class="material-icons right">send</i></button>
-            <button class="waves-effect waves-light btn" type="button"
-                onclick="javascript:window.history.back()">Back</button>
+        <div class="p-3">
+            <button class="btn btn-primary" type="submit">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="javascript:window.history.back()">Back</button>
         </div>
     </form> 
     <div class="divider"></div>

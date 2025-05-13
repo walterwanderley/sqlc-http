@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"net/http"
 
-	authors_app "authors/internal/authors"
+	authors_app "sqlite-htmx/internal/authors"
 )
 
 func registerHandlers(mux *http.ServeMux, db *sql.DB) {

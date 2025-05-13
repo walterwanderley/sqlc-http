@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"authors/internal/server"
-	"authors/internal/server/htmx"
-	"authors/templates"
+	"sqlite-htmx/internal/server"
+	"sqlite-htmx/internal/server/htmx"
+	"sqlite-htmx/templates"
 )
 
 type Service struct {

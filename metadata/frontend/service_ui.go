@@ -325,9 +325,9 @@ func (s *ServiceUI) HtmlInputEdit() []string {
 			res = append(res, htmlInput(name, serviceUI.InputTypes[i], true)...)
 		}
 	}
-	res = append(res, `<div class="row">`)
-	res = append(res, fmt.Sprintf(`    <button class="btn waves-effect waves-light" type="submit">%s<i class="material-icons right">send</i></button>`, serviceUI.ActionLabel()))
-	res = append(res, `    <button class="waves-effect waves-light btn" type="button"`)
+	res = append(res, `<div class="p-3">`)
+	res = append(res, fmt.Sprintf(`    <button class="btn btn-primary" type="submit">%s</button>`, serviceUI.ActionLabel()))
+	res = append(res, `    <button class="btn btn-secondary" type="button"`)
 	res = append(res, `        onclick="javascript:window.history.back()">Back</button>`)
 	res = append(res, `</div>`)
 	return res
@@ -549,13 +549,13 @@ func (s *ServiceUI) ViewPath() string {
 	return paths[0]
 }
 
-func (s *ServiceUI) AddPath() string {
+func (s *ServiceUI) AddPath() (*ServiceUI, string) {
 	if httpmetadata.HttpMethod(s.Service) != "GET" {
-		return ""
+		return nil, ""
 	}
 	_, ok := s.Messages[converter.CanonicalName(s.Output)]
 	if !s.HasArrayOutput() || !ok {
-		return ""
+		return nil, ""
 	}
 
 	path := httpmetadata.HttpPath(s.Service)
@@ -564,10 +564,13 @@ func (s *ServiceUI) AddPath() string {
 			continue
 		}
 		if httpmetadata.HttpPath(svc) == path {
-			return fmt.Sprintf("app/%s/%s", s.Package.Package, converter.ToSnakeCase(svc.Name))
+			return &ServiceUI{
+				Service: svc,
+				Package: s.Package,
+			}, fmt.Sprintf("app/%s/%s", s.Package.Package, converter.ToSnakeCase(svc.Name))
 		}
 	}
-	return ""
+	return nil, ""
 }
 
 func (s *ServiceUI) EditPath() string {
@@ -633,7 +636,7 @@ func (s *ServiceUI) HtmlOutput() []string {
 			res = append(res, `    </ul>`)
 		} else {
 			res = append(res, `    <div class="row">`)
-			res = append(res, `        <div class="column">`)
+			res = append(res, `        <div class="col">`)
 			res = append(res, `            <p>{{.Data.value}}</p>`)
 			res = append(res, `        </div>`)
 			res = append(res, `    </div>`)
@@ -646,14 +649,18 @@ func (s *ServiceUI) HtmlOutput() []string {
 		viewPath := s.ViewPath()
 		deletePath := s.DeletePath()
 		editPath := s.EditPath()
-		addPath := s.AddPath()
+		addService, addPath := s.AddPath()
 		if addPath != "" {
-			res = append(res, `<div class="row">`)
-			res = append(res, fmt.Sprintf(`    <a class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons" hx-get="%s" hx-push-url="true">add</i></a>`, strings.TrimPrefix(addPath, "/")))
+			btnTitle := "Add"
+			if addService != nil {
+				btnTitle = AddSpace(converter.ToPascalCase(addService.Name))
+			}
+			res = append(res, `<div class="p-3">`)
+			res = append(res, fmt.Sprintf(`    <a role="button" class="btn btn-success" hx-get="%s" hx-push-url="true"><i class="bi bi-plus">%s</i></a>`, strings.TrimPrefix(addPath, "/"), btnTitle))
 			res = append(res, `</div>`)
 		}
-		res = append(res, `<div class="col s12">`)
-		res = append(res, `<table>`)
+		res = append(res, `<div class="col-sm-12">`)
+		res = append(res, `<table class="table table-hover">`)
 		res = append(res, `    <thead><tr>`)
 		for _, f := range m.Fields {
 			attrName := AddSpace(converter.UpperFirstCharacter(f.Name))
@@ -664,7 +671,7 @@ func (s *ServiceUI) HtmlOutput() []string {
 		}
 		res = append(res, `    </tr></thead>`)
 		res = append(res, `    <tbody>`)
-		res = append(res, `        {{range $i, $v := .Data}}<tr id="row_{{$i}}">`)
+		res = append(res, `        {{range $i, $v := .Data}}<tr id="row_{{$i}}" scope="row">`)
 		for _, f := range m.Fields {
 			attrName := converter.UpperFirstCharacter(f.Name)
 			if strings.HasSuffix(f.Type, "time.Time") || strings.HasSuffix(f.Type, "sql.NullTime") ||
@@ -676,21 +683,21 @@ func (s *ServiceUI) HtmlOutput() []string {
 		}
 
 		if viewPath != "" || deletePath != "" || editPath != "" {
-			res = append(res, `        <td>`) // Ações
+			res = append(res, `        <td>`) // Actions
 			if viewPath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light blue" 
-  	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="material-icons">visibility</i></a>`, strings.TrimPrefix(viewPath, "/")))
+				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-primary" 
+  	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="bi bi-eye"></i></a>`, strings.TrimPrefix(viewPath, "/")))
 			}
 			if editPath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light green" 
-  	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="material-icons">edit</i></a>`, strings.TrimPrefix(editPath, "/")))
+				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-secondary"  
+  	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="bi bi-pencil"></i></a>`, strings.TrimPrefix(editPath, "/")))
 			}
 			if deletePath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn-floating btn-small waves-effect waves-light red" 
+				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-danger" 
   	href="javascript: void(0)" hx-delete="%s" hx-swap="outerHTML"
-	hx-target="#row_{{$i}}" hx-confirm="Are you shure?"><i class="material-icons">delete</i></a>`, strings.TrimPrefix(deletePath, "/")))
+	hx-target="#row_{{$i}}" hx-confirm="Are you shure?"><i class="bi bi-trash"></i></a>`, strings.TrimPrefix(deletePath, "/")))
 			}
-			res = append(res, `        </td>`) // Ações
+			res = append(res, `        </td>`) // Actions
 		}
 
 		res = append(res, `        </tr>{{end}}`)
@@ -705,7 +712,7 @@ func (s *ServiceUI) HtmlOutput() []string {
 		attrName := converter.UpperFirstCharacter(f.Name)
 		label := AddSpace(attrName)
 		res = append(res, `    <div class="row">`)
-		res = append(res, `        <div class="column">`)
+		res = append(res, `        <div class="col">`)
 		res = append(res, fmt.Sprintf(`            <p><b>%s:</b> {{.Data.%s}}</p>`, label, attrName))
 		res = append(res, `        </div>`)
 		res = append(res, `    </div>`)

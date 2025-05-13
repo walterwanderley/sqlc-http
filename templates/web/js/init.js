@@ -5,25 +5,8 @@ htmx.onLoad(function (content) {
 });
 
 function loadComponents(content) {
-    $(content).ready(function () {
-        $('.sidenav').sidenav();
-    });
-
-    $(".dropdown-trigger").dropdown();
-
-    $('.materialert .close-alert').click(function () {
-        $(this).parent().hide('slow');
-    });
-
-    $(content).ready(function () {
-        $('select').formSelect();
-    });
-
-    $(content).ready(function () {
-        $('.datepicker').datepicker({
-            format: 'dd/mm/yyyy'
-        });
-    });
+    const alertList = document.querySelectorAll('.alert')
+    const alerts = [...alertList].map(element => new bootstrap.Alert(element))
 }
 
 function replacePathParams(event) {
@@ -36,33 +19,36 @@ function replacePathParams(event) {
 }
 
 function showMessage(msg) {
-    var msgIcon = 'check_circle'
+    var msgIcon = 'exclamation-triangle-fill';
+    var msgClass = 'warning';
     switch (msg.type) {
-        case 'error':
-            msgIcon = 'error_outline'
-            break
-        case 'warning':
-            msgIcon = 'warning'
+        case 'error':            
+            msgClass = 'danger';
             break
         case 'info':
-            msgIcon = 'info_outline'
+            msgClass = 'primary';
+            msgIcon = 'info-fill'
             break
         case 'success':
-            msgIcon = 'check'
+            msgClass = 'success';
+            msgIcon = 'check-circle-fill'
             break
     }
-    const messageDiv =
-        `<div class="materialert ` + msg.type + `">
-            <div class="material-icons">` + msgIcon + `</div>
-            <span>` + msg.text + `</span>
-            <button type="button" class="close-alert">×</button>
-        </div>`
+
+    const messageDiv = 
+        `<div class="alert alert-` + msgClass + ` d-flex align-items-center" role="alert">
+    <svg width="24" height="24" class="bi flex-shrink-0 me-2" role="img" aria-label="` + msg.type + `">
+        <use xlink:href="#`+ msgIcon + `" />
+    </svg>
+    <div>
+        ` + msg.text + `
+    </div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>`;
+
     var messages = htmx.find('#messages');
     console.log('messages', messages);
     messages.innerHTML = messageDiv;
-    $('.materialert .close-alert').click(function () {
-        $(this).parent().hide('slow');
-    });
 }
 
 htmx.on('htmx:responseError', function (evt) {

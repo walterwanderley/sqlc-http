@@ -38,6 +38,7 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 				strings.HasSuffix(newPath, "web") ||
 				strings.HasSuffix(newPath, "swagger") ||
 				strings.HasSuffix(newPath, "css") ||
+				strings.HasSuffix(newPath, "fonts") ||
 				strings.HasSuffix(newPath, "js") ||
 				strings.HasSuffix(newPath, "app") ||
 				strings.HasSuffix(newPath, "layout")) && !generateFrontend {
@@ -75,6 +76,7 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 
 		if (strings.HasSuffix(newPath, ".html") || strings.HasSuffix(newPath, ".css") ||
 			strings.HasSuffix(newPath, ".js") || strings.HasSuffix(newPath, "templates.go") ||
+			strings.HasSuffix(newPath, ".woff") || strings.HasSuffix(newPath, "woff2") ||
 			strings.HasSuffix(newPath, "watcher.go") || strings.HasSuffix(newPath, "message.go") ||
 			strings.HasSuffix(newPath, "etag.go") || strings.HasSuffix(newPath, "htmx.go")) && !generateFrontend {
 			return nil

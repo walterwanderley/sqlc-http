@@ -1,18 +1,16 @@
 <div id="breadcrumbs" hx-swap-oob="true">
 {{"{{"}}if .BreadCrumbsFromRequest{{"}}"}}
-  <nav>
-    <div class="nav-wrapper">
-      <div class="col s12">
-        <a href="javascript:void(0)" hx-push-url="true" hx-get="{{"{{"}}WebContext{{"}}"}}" class="breadcrumb">Home</a>
-        {{"{{"}}range .BreadCrumbsFromRequest{{"}}"}}
-          {{"{{"}}if .Href -{{"}}"}}
-          <a href="javascript: void(0)" hx-push-url="true" hx-get="{{"{{"}}.Href{{"}}"}}" class="breadcrumb">{{"{{"}}.Name{{"}}"}}</a>
-          {{"{{"}}else -{{"}}"}}
-          <a href="javascript: void(0)" class="breadcrumb">{{"{{"}}.Name{{"}}"}}</a>
-          {{"{{"}}end -{{"}}"}}
-        {{"{{"}}end -{{"}}"}}
-      </div>
-    </div>
-  </nav>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="javascript:void(0)" hx-push-url="true" hx-get="{{"{{"}}WebContext{{"}}"}}"><i class="bi bi-house"></i></a></li>
+    {{"{{"}}range .BreadCrumbsFromRequest{{"}}"}}
+    {{"{{"}}if .Href -{{"}}"}}
+      <li class="breadcrumb-item"><a href="javascript: void(0)" hx-push-url="true" hx-get="{{"{{"}}.Href{{"}}"}}">{{"{{"}}.Name{{"}}"}}</a></li>
+    {{"{{"}}else -{{"}}"}}
+      <li class="breadcrumb-item active">{{"{{"}}.Name{{"}}"}}</li>
+    {{"{{"}}end -{{"}}"}}
+    {{"{{"}}end -{{"}}"}}
+  </ol>
+</nav>    
 {{"{{"}}end -{{"}}"}}
 </div>

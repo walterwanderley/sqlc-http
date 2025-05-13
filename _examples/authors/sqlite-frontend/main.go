@@ -14,36 +14,27 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"runtime"
 	"syscall"
 	"time"
 
 	"go.uber.org/automaxprocs/maxprocs"
 	// database driver
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 
-	"authors/internal/server/etag"
-	"authors/internal/server/litefs"
-	"authors/internal/server/litestream"
-	"authors/templates"
+	"sqlite-htmx/internal/server/etag"
+	"sqlite-htmx/templates"
 )
 
-//go:generate sqlc-http -m authors -migration-path sql/migrations -litefs -litestream -frontend -append
+//go:generate sqlc-http -m sqlite-htmx -migration-path sql/migrations -frontend -append
 
-const (
-	serviceName    = "authors"
-	forwardTimeout = 10 * time.Second
-)
+const serviceName = "sqlite-htmx"
 
 var (
-	dev            bool
-	dbURL          string
-	port           int
-	replicationURL string
+	dev   bool
+	dbURL string
+	port  int
 
-	litefsConfig litefs.Config
-	liteFS       *litefs.LiteFS
 	//go:embed openapi.yml
 	openAPISpec []byte
 	//go:embed web
@@ -56,11 +47,7 @@ func main() {
 
 	flag.BoolVar(&dev, "dev", false, "Set logger to development mode and enable Hot Reload on edit templates files")
 
-	flag.StringVar(&replicationURL, "replication", "", "S3 replication URL")
-	litefs.SetFlags(&litefsConfig)
 	flag.Parse()
-
-	dbURL = filepath.Join(litefsConfig.MountDir, dbURL)
 
 	initLogger()
 
@@ -77,20 +64,12 @@ func run() error {
 	}
 	slog.Info("startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
 
-	db, err := sql.Open("sqlite3", dbURL)
+	db, err := sql.Open("sqlite", dbURL)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	if replicationURL != "" {
-		slog.Info("replication", "url", replicationURL)
-		lsdb, err := litestream.Replicate(context.Background(), dbURL, replicationURL)
-		if err != nil {
-			return fmt.Errorf("init replication error: %w", err)
-		}
-		defer lsdb.Close()
-	}
 	if err := ensureSchema(db); err != nil {
 		return fmt.Errorf("migration error: %w", err)
 	}
@@ -113,30 +92,9 @@ func run() error {
 		return fmt.Errorf("frontend templates error: %w", err)
 	}
 
-	var handler http.Handler = mux
-	if litefsConfig.MountDir != "" {
-		err := litefsConfig.Validate()
-		if err != nil {
-			return fmt.Errorf("liteFS parameters validation: %w", err)
-		}
-
-		liteFS, err = litefs.Start(litefsConfig)
-		if err != nil {
-			return fmt.Errorf("cannot start LiteFS: %w", err)
-		}
-		defer liteFS.Close()
-
-		<-liteFS.ReadyCh()
-		slog.Info("LiteFS cluster is ready")
-
-		mux.HandleFunc("/nodes/", liteFS.ClusterHandler)
-		handler = liteFS.ForwardToLeader(forwardTimeout, "POST", "PUT", "PATCH", "DELETE")(handler)
-		handler = liteFS.ConsistentReader(forwardTimeout, "GET")(handler)
-	}
-
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: handler,
+		Handler: mux,
 		// Please, configure timeouts!
 	}
 

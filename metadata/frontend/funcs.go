@@ -161,6 +161,10 @@ func htmlInput(attr, typ string, fill bool) []string {
 	typ = toHtmlType(typ)
 	res := make([]string, 0)
 	attrFormName := converter.ToSnakeCase(attrName)
+	var requiredAttr string
+	if required {
+		requiredAttr = "required"
+	}
 	switch typ {
 	case "checkbox":
 		res = append(res, `<p>`)
@@ -174,52 +178,28 @@ func htmlInput(attr, typ string, fill bool) []string {
 		res = append(res, `    </label>`)
 		res = append(res, `</p>`)
 	case "date":
-		res = append(res, `<div class="row">`)
-		res = append(res, `    <div class="col">`)
-		var requiredAttr string
-		if required {
-			requiredAttr = "required"
-		}
+		res = append(res, `<div class="mb-3">`)
+		res = append(res, `    <div class="col-sm-2">`)
+
 		if fill {
-			res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="text" class="datepicker" />`, attrFormName, requiredAttr, attrFormName))
-			res = append(res, fmt.Sprintf(`        {{if .Data.%s}}`, attr))
-			res = append(res, `        <script>`)
-			res = append(res, `            setTimeout(function () {`)
-			res = append(res, fmt.Sprintf(`            var %sInput = $('#%s');`, attrFormName, attrFormName))
-			res = append(res, fmt.Sprintf(`            var %sPicker = M.Datepicker.getInstance(%sInput);`, attrFormName, attrFormName))
-			res = append(res, fmt.Sprintf(`            %sPicker.setDate(new Date({{.Data.%s.Format "%s"}}));`, attrFormName, attr, time.RFC3339))
-			res = append(res, fmt.Sprintf(`            %sInput.val(%sPicker.toString());`, attrFormName, attrFormName))
-			res = append(res, `            }, 100);`)
-			res = append(res, `        </script>`)
-			res = append(res, (`        {{end}}`))
+			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="date" class="form-control"{{if .Data.%s}} value="{{.Data.%s.Format "%s"}}"{{end}}/>`, attrFormName, requiredAttr, attrFormName, attr, attr, time.DateOnly))
 		} else {
-			res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="text" class="datepicker" />`, attrFormName, requiredAttr, attrFormName))
+			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="date" class="form-control"/>`, attrFormName, requiredAttr, attrFormName))
 		}
 		res = append(res, `    </div>`)
 		res = append(res, `</div>`)
 	default:
-		res = append(res, `<div class="row">`)
-		res = append(res, `    <div class="input-field col s12">`)
-		if required {
-			if fill {
-				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="%s" value="{{.Data.%s}}" class="validate"/>`, attrFormName, attrFormName, typ, attr))
-				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
-			} else {
-				res = append(res, fmt.Sprintf(`        <input id="%s" required name="%s" type="%s" class="validate"/>`, attrFormName, attrFormName, typ))
-				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
-			}
+		res = append(res, `<div class="mb-3">`)
+		if fill {
+			res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s"{{if .Data.%s}} value="{{.Data.%s}}"{{end}} class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ, attr, attr))
 		} else {
-			if fill {
-				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="%s" value="{{.Data.%s}}" class="validate"/>`, attrFormName, attrFormName, typ, attr))
-				res = append(res, fmt.Sprintf(`        <label for="%s" class="active">%s</label>`, attrFormName, label))
-			} else {
-				res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="%s" class="validate"/>`, attrFormName, attrFormName, typ))
-				res = append(res, fmt.Sprintf(`        <label for="%s">%s</label>`, attrFormName, label))
-			}
+			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="%s" class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ))
+
 		}
-		res = append(res, `    </div>`)
 		res = append(res, `</div>`)
 	}
 
