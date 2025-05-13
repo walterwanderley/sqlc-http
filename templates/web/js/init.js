@@ -5,7 +5,7 @@ htmx.onLoad(function (content) {
 });
 
 function loadComponents(content) {
-    const alertList = document.querySelectorAll('.alert')
+    const alertList = content.querySelectorAll('.alert')
     const alerts = [...alertList].map(element => new bootstrap.Alert(element))
 }
 
