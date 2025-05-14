@@ -9,6 +9,7 @@ import (
 
 	"github.com/walterwanderley/sqlc-grpc/converter"
 	"github.com/walterwanderley/sqlc-grpc/metadata"
+
 	httpmetadata "github.com/walterwanderley/sqlc-http/metadata"
 )
 
@@ -241,9 +242,6 @@ func (s *ServiceUI) AutoSubmit() bool {
 
 func (s *ServiceUI) HtmlInput() []string {
 	res := make([]string, 0)
-	if s.EmptyInput() {
-		return res
-	}
 	hasPagination := HasPagination(s.Service)
 	if s.HasCustomParams() {
 		typ := s.InputTypes[0]
@@ -274,6 +272,35 @@ func (s *ServiceUI) HtmlInput() []string {
 			res = append(res, htmlInput(inName, s.InputTypes[i], false)...)
 		}
 	}
+	res = append(res, `<div class="p-3">`)
+	res = append(res, fmt.Sprintf(`    <button class="btn btn-primary" type="submit">%s</button>`, s.ActionLabel()))
+	res = append(res, `    <button type="button" class="btn btn-secondary" onclick="javascript:window.history.back()">Back</button>`)
+	res = append(res, `</div>`)
+	return res
+}
+
+func (s *ServiceUI) HtmlPagination(target string) []string {
+	res := make([]string, 0)
+	res = append(res, fmt.Sprintf(`<nav aria-label="Page navigation" hx-target="%s" hx-swap="outerHTML">`, target))
+	res = append(res, `    <ul class="pagination justify-content-center">`)
+	res = append(res, `        <li class="page-item{{if eq $pagination.Offset 0}} disabled{{end}}">`)
+	res = append(res, `            <a class="page-link" href="javascript: void(0)" hx-get="{{$pagination.URL $pagination.Limit $pagination.Prev}}"><span aria-hidden="true">&laquo;</span></a>`)
+	res = append(res, `        </li>`)
+	res = append(res, `        <li class="page-item">`)
+	res = append(res, `            <p class="page-link">{{$pagination.From}} - {{$pagination.To}}</p>`)
+	res = append(res, `        </li>`)
+	res = append(res, `        <li class="page-item">`)
+	res = append(res, `            <a class="page-link" href="javascript: void(0)" hx-get="{{$pagination.URL $pagination.Limit $pagination.Next}}"><span aria-hidden="true">&raquo;</span></a>`)
+	res = append(res, `        </li>`)
+	res = append(res, `        <li class="page-item">`)
+	res = append(res, `            <select class="form-select" name="limit" hx-get="{{$pagination.URL -1 $pagination.Offset}}">`)
+	res = append(res, `                <option value="10" {{if eq $pagination.Limit 10}}selected{{end}}>10 items</option>`)
+	res = append(res, `                <option value="25" {{if eq $pagination.Limit 25}}selected{{end}}>25 items</option>`)
+	res = append(res, `                <option value="50" {{if eq $pagination.Limit 50}}selected{{end}}>50 items</option>`)
+	res = append(res, `            </select>`)
+	res = append(res, `        </li>`)
+	res = append(res, `    </ul>`)
+	res = append(res, `</nav>`)
 	return res
 }
 
@@ -327,8 +354,7 @@ func (s *ServiceUI) HtmlInputEdit() []string {
 	}
 	res = append(res, `<div class="p-3">`)
 	res = append(res, fmt.Sprintf(`    <button class="btn btn-primary" type="submit">%s</button>`, serviceUI.ActionLabel()))
-	res = append(res, `    <button class="btn btn-secondary" type="button"`)
-	res = append(res, `        onclick="javascript:window.history.back()">Back</button>`)
+	res = append(res, `    <button class="btn btn-secondary" type="button" onclick="javascript:window.history.back()">Back</button>`)
 	res = append(res, `</div>`)
 	return res
 }
@@ -372,14 +398,14 @@ func (s *ServiceUI) DeletePath() string {
 				var foundPathParam bool
 				for _, param := range params {
 					if param == converter.ToSnakeCase(inField.Name) {
-						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{$v.%s}}`, inField.Name))
+						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{.%s}}`, inField.Name))
 						foundPathParam = true
 						break
 					}
 				}
 				if !foundPathParam {
 					queryParam := converter.ToSnakeCase(inField.Name)
-					queryParams = append(queryParams, fmt.Sprintf("%s={{$v.%s}}", queryParam, inField.Name))
+					queryParams = append(queryParams, fmt.Sprintf("%s={{.%s}}", queryParam, inField.Name))
 				}
 
 			}
@@ -401,14 +427,14 @@ func (s *ServiceUI) DeletePath() string {
 				var foundPathParam bool
 				for _, param := range params {
 					if param == converter.ToSnakeCase(inField) {
-						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{$v.%s}}`, outParam))
+						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{.%s}}`, outParam))
 						foundPathParam = true
 						break
 					}
 				}
 				if !foundPathParam {
 					queryParam := converter.ToSnakeCase(inField)
-					queryParams = append(queryParams, fmt.Sprintf("%s={{$v.%s}}", queryParam, outParam))
+					queryParams = append(queryParams, fmt.Sprintf("%s={{.%s}}", queryParam, outParam))
 				}
 			}
 		}
@@ -484,14 +510,14 @@ func (s *ServiceUI) ViewPath() string {
 				var foundPathParam bool
 				for _, param := range params {
 					if param == converter.ToSnakeCase(inField.Name) {
-						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{$v.%s}}`, inField.Name))
+						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{.%s}}`, inField.Name))
 						foundPathParam = true
 						break
 					}
 				}
 				if !foundPathParam {
 					queryParam := converter.ToSnakeCase(inField.Name)
-					queryParams = append(queryParams, fmt.Sprintf("%s={{$v.%s}}", queryParam, inField.Name))
+					queryParams = append(queryParams, fmt.Sprintf("%s={{.%s}}", queryParam, inField.Name))
 				}
 			}
 		} else {
@@ -512,14 +538,14 @@ func (s *ServiceUI) ViewPath() string {
 				var foundPathParam bool
 				for _, param := range params {
 					if param == converter.ToSnakeCase(inField) {
-						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{$v.%s}}`, outParam))
+						p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{.%s}}`, outParam))
 						foundPathParam = true
 						break
 					}
 				}
 				if !foundPathParam {
 					queryParam := converter.ToSnakeCase(inField)
-					queryParams = append(queryParams, fmt.Sprintf("%s={{$v.%s}}", queryParam, outParam))
+					queryParams = append(queryParams, fmt.Sprintf("%s={{.%s}}", queryParam, outParam))
 				}
 			}
 		}
@@ -599,7 +625,7 @@ func (s *ServiceUI) EditPath() string {
 			for _, f := range out.Fields {
 				if converter.ToSnakeCase(param) == converter.ToSnakeCase(f.Name) {
 					found = true
-					p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{$v.%s}}`, f.Name))
+					p = strings.ReplaceAll(p, fmt.Sprintf("{%s}", param), fmt.Sprintf(`{{.%s}}`, f.Name))
 				}
 			}
 			if !found {
@@ -667,35 +693,31 @@ func (s *ServiceUI) HtmlOutput() []string {
 			res = append(res, fmt.Sprintf(`        <th>%s</th>`, attrName))
 		}
 		if viewPath != "" || deletePath != "" || editPath != "" {
-			res = append(res, `        <th></th> <!-- Ações -->`) // Ações
+			res = append(res, `        <th></th> <!-- Actions -->`) // Actions
 		}
 		res = append(res, `    </tr></thead>`)
 		res = append(res, `    <tbody>`)
-		res = append(res, `        {{range $i, $v := .Data}}<tr id="row_{{$i}}" scope="row">`)
+		res = append(res, `        {{range .Data}}<tr scope="row">`)
 		for _, f := range m.Fields {
 			attrName := converter.UpperFirstCharacter(f.Name)
 			if strings.HasSuffix(f.Type, "time.Time") || strings.HasSuffix(f.Type, "sql.NullTime") ||
 				strings.HasSuffix(f.Type, "pgtype.Date") {
-				res = append(res, fmt.Sprintf(`        <td>{{if $v.%s}}{{$v.%s.Format "02/01/2006"}}{{end}}</td>`, attrName, attrName))
+				res = append(res, fmt.Sprintf(`        <td>{{if .%s}}{{.%s.Format "02/01/2006"}}{{end}}</td>`, attrName, attrName))
 				continue
 			}
-			res = append(res, fmt.Sprintf(`        <td>{{$v.%s}}</td>`, attrName))
+			res = append(res, fmt.Sprintf(`        <td>{{.%s}}</td>`, attrName))
 		}
 
 		if viewPath != "" || deletePath != "" || editPath != "" {
 			res = append(res, `        <td>`) // Actions
 			if viewPath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-primary" 
-  	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="bi bi-eye"></i></a>`, strings.TrimPrefix(viewPath, "/")))
+				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-primary" href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="bi bi-eye"></i></a>`, strings.TrimPrefix(viewPath, "/")))
 			}
 			if editPath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-secondary"  
-  	href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="bi bi-pencil"></i></a>`, strings.TrimPrefix(editPath, "/")))
+				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-secondary" href="javascript: void(0)" hx-push-url="true" hx-get="%s"><i class="bi bi-pencil"></i></a>`, strings.TrimPrefix(editPath, "/")))
 			}
 			if deletePath != "" {
-				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-danger" 
-  	href="javascript: void(0)" hx-delete="%s" hx-swap="outerHTML"
-	hx-target="#row_{{$i}}" hx-confirm="Are you shure?"><i class="bi bi-trash"></i></a>`, strings.TrimPrefix(deletePath, "/")))
+				res = append(res, fmt.Sprintf(`            <a class="btn btn-outline-danger" href="javascript: void(0)" hx-delete="%s" hx-swap="outerHTML swap:1s" hx-target="closest tr" hx-confirm="Are you shure?"><i class="bi bi-trash"></i></a>`, strings.TrimPrefix(deletePath, "/")))
 			}
 			res = append(res, `        </td>`) // Actions
 		}

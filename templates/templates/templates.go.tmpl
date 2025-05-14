@@ -52,11 +52,12 @@ func init() {
 	}
 }
 
+const defaultLimit = 10
+
 type Pagination struct {
 	request *http.Request
 	Limit   int64
 	Offset  int64
-	Total   int64
 }
 
 func (p *Pagination) From() int64 {
@@ -64,22 +65,15 @@ func (p *Pagination) From() int64 {
 }
 
 func (p *Pagination) To() int64 {
-	return p.Offset + p.Limit
+	return p.Offset + p.validLimit()
 }
 
 func (p *Pagination) Next() int64 {
-	limit := p.Limit
-	if limit == 0 {
-		limit = 10
-	}
-	return p.Offset + limit
+	return p.Offset + p.validLimit()
 }
 
 func (p *Pagination) Prev() int64 {
-	limit := p.Limit
-	if limit == 0 {
-		limit = 10
-	}
+	limit := p.validLimit()
 	offset := p.Offset - limit
 	if offset < 0 {
 		offset = 0
@@ -95,7 +89,7 @@ func (p *Pagination) URL(limit, offset int64) string {
 		offset = 0
 	}
 	if limit == 0 {
-		limit = 10
+		limit = defaultLimit
 	}
 	var url strings.Builder
 	url.WriteString(p.request.URL.Path)
@@ -112,6 +106,14 @@ func (p *Pagination) URL(limit, offset int64) string {
 		url.WriteString(fmt.Sprintf("offset=%d", offset))
 	}
 	return url.String()
+}
+
+func (p *Pagination) validLimit() int64 {
+	limit := p.Limit
+	if limit == 0 {
+		limit = 10
+	}
+	return limit
 }
 
 type templatesProvider interface {

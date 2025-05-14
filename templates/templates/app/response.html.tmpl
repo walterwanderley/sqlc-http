@@ -1,58 +1,29 @@
 {{"{{"}}define "content"{{"}}"}}
-{{"{{"}}if not (eq (.Query "nested") "true"){{"}}"}}
-<div class="col">
 {{"{{"}}template "hx-context.html" .{{"}}"}}
-{{"{{"}}end{{"}}"}}
-{{if .HasEditService}}
-{{"{{"}}if .HasQuery "edit"{{"}}"}}
-    <h5>{{.EditName}}</h5>
-    <form {{.EditHtmxCall}} hx-target="#messages">            
-        {{range .HtmlInputEdit}}{{.}}
-        {{end}}
-    </form>
-    <script>
-        htmx.on("htmx:configRequest", replacePathParams)
-    </script>
-</div>
-{{"{{"}}else{{"}}"}}
-    {{range .HtmlOutput}}{{.}}
-    {{end -}}
-{{"{{"}}end{{"}}"}}
+{{if .HasEditService}}{{"{{- "}}if .HasQuery "edit"{{"}}"}}
+<h5>{{.EditName}}</h5>
+<form {{.EditHtmxCall}} hx-target="#messages">            
+    {{range .HtmlInputEdit}}{{.}}
+    {{end}}
+</form>
+<script>
+    htmx.on("htmx:configRequest", replacePathParams)
+</script>
+{{"{{- "}}else{{" -}}"}}
+{{range .HtmlOutput}}{{.}}
+{{end -}}
+{{"{{- "}}end{{" -}}"}}
 {{else}}
-{{if .Service | HasPagination}}{{"{{"}}$pagination := .Pagination{{"}}"}}
-    {{"{{"}}if $pagination{{"}}"}}
+{{- if .Service | HasPagination}}{{"{{"}}$pagination := .Pagination{{"}}"}}{{"{{"}}if $pagination{{"}}"}}
 <div id="table_response">
 {{"{{"}}end{{"}}"}}{{- end -}}
     {{range .HtmlOutput}}{{.}}
-{{end -}}
-    {{if .Service | HasPagination}}    
-    {{"{{"}}$pagination := .Pagination{{"}}"}}
-    {{"{{"}}if $pagination{{"}}"}}
-    <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center" hx-target="#table_response" hx-swap="outerHTML">
-        <li class="page-item{{"{{"}}if eq $pagination.Offset 0{{"}}"}} disabled{{"{{"}}end{{"}}"}}">
-            <a class="page-link" href="javascript: void(0)" hx-get="{{"{{"}}$pagination.URL $pagination.Limit $pagination.Prev{{"}}"}}"><span aria-hidden="true">&laquo;</span></a>
-        </li>
-        <li class="page-item">
-            <p class="page-link">{{"{{"}}$pagination.From{{"}}"}} - {{"{{"}}$pagination.To{{"}}"}}</p>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="javascript: void(0)" hx-get="{{"{{"}}$pagination.URL $pagination.Limit $pagination.Next{{"}}"}}"><span aria-hidden="true">&raquo;</span></a>
-        </li>
-        <li class="page-item">
-            <select class="form-select" name="limit" hx-get="{{"{{"}}$pagination.URL -1 $pagination.Offset{{"}}"}}">
-                <option value="10" {{"{{"}}if eq $pagination.Limit 10{{"}}"}}selected{{"{{"}}end{{"}}"}}>10 items</option>
-                <option value="25" {{"{{"}}if eq $pagination.Limit 25{{"}}"}}selected{{"{{"}}end{{"}}"}}>25 items</option>
-                <option value="50" {{"{{"}}if eq $pagination.Limit 50{{"}}"}}selected{{"{{"}}end{{"}}"}}>50 items</option>
-            </select>            
-        </li>        
-    </ul>
-    </nav>
+    {{end -}}
+    {{if .Service | HasPagination}}{{"{{"}}if $pagination{{"}}"}}
+    {{range .HtmlPagination "#table_response"}}{{.}}
+    {{end -}}    
 </div>
 {{"{{"}}end{{"}}"}}
 {{- end -}}
 {{- end -}}
-{{"{{"}}if not (eq (.Query "nested") "true"){{"}}"}}
-</div>
-{{"{{"}}end{{"}}"}}
 {{"{{"}}end{{"}}"}}

@@ -1,63 +1,54 @@
 {{define "content"}}
-{{if not (eq (.Query "nested") "true")}}
-<div class="col">
 {{template "hx-context.html" .}}
-{{end}}
-
-{{if .HasQuery "edit"}}
-    <h5>Update Author</h5>
-    <form hx-put="authors/{id}" hx-target="#messages">            
-        <div class="mb-3">
-            <label for="name" class="form-label">Name *</label>
-            <input id="name" required name="name" type="text"{{if .Data.Name}} value="{{.Data.Name}}"{{end}} class="form-control"/>
-        </div>
-        <div class="mb-3">
-            <label for="bio" class="form-label">Bio</label>
-            <input id="bio"  name="bio" type="text"{{if .Data.Bio}} value="{{.Data.Bio}}"{{end}} class="form-control"/>
-        </div>
-        <div class="mb-3">
-            <div class="col-sm-2">
-                <label for="created_at" class="form-label">Created At</label>
-                <input id="created_at"  name="created_at" type="date" class="form-control"{{if .Data.CreatedAt}} value="{{.Data.CreatedAt.Format "2006-01-02"}}"{{end}}/>
-            </div>
-        </div>
-        <input type="hidden" name="id" value="{{.Data.ID}}">
-        <div class="p-3">
-            <button class="btn btn-primary" type="submit">Update</button>
-            <button class="btn btn-secondary" type="button"
-                onclick="javascript:window.history.back()">Back</button>
-        </div>
-        
-    </form>
-    <script>
-        htmx.on("htmx:configRequest", replacePathParams)
-    </script>
-</div>
-{{else}}
-    <div class="col mb-5">
-        <div class="row">
-            <div class="col">
-                <p><b>ID:</b> {{.Data.ID}}</p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <p><b>Name:</b> {{.Data.Name}}</p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <p><b>Bio:</b> {{.Data.Bio}}</p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <p><b>Created At:</b> {{.Data.CreatedAt}}</p>
-            </div>
+{{- if .HasQuery "edit"}}
+<h5>Update Author</h5>
+<form hx-put="authors/{id}" hx-target="#messages">            
+    <div class="mb-3">
+        <label for="name" class="form-label">Name *</label>
+        <input id="name" required name="name" type="text"{{if .Data.Name}} value="{{.Data.Name}}"{{end}} class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label for="bio" class="form-label">Bio</label>
+        <input id="bio"  name="bio" type="text"{{if .Data.Bio}} value="{{.Data.Bio}}"{{end}} class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <div class="col-sm-4 col-md-2">
+            <label for="created_at" class="form-label">Created At</label>
+            <input id="created_at"  name="created_at" type="date" class="form-control"{{if .Data.CreatedAt}} value="{{.Data.CreatedAt.Format "2006-01-02"}}"{{end}}/>
         </div>
     </div>
-    {{end}}
-{{if not (eq (.Query "nested") "true")}}
+    <input type="hidden" name="id" value="{{.Data.ID}}">
+    <div class="p-3">
+        <button class="btn btn-primary" type="submit">Update</button>
+        <button class="btn btn-secondary" type="button" onclick="javascript:window.history.back()">Back</button>
+    </div>
+    
+</form>
+<script>
+    htmx.on("htmx:configRequest", replacePathParams)
+</script>
+{{- else -}}
+<div class="col mb-5">
+    <div class="row">
+        <div class="col">
+            <p><b>ID:</b> {{.Data.ID}}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><b>Name:</b> {{.Data.Name}}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><b>Bio:</b> {{.Data.Bio}}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><b>Created At:</b> {{.Data.CreatedAt}}</p>
+        </div>
+    </div>
 </div>
-{{end}}
+{{- end -}}
 {{end}}

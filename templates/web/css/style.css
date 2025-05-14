@@ -1,3 +1,8 @@
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+  }
+
 footer {
     position: fixed;
     left: 0;

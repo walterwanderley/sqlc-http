@@ -1,31 +1,28 @@
 {{define "content"}}
-<div class="col">
-    {{template "hx-context.html" .}}
-    <h5>Create Author</h5>
-                       
-    <form hx-post="authors?nested=true" hx-target="#response">
-        <div class="mb-3">
-                <label for="name" class="form-label">Name *</label>
-                <input id="name" required name="name" type="text" class="form-control"/>
+{{template "hx-context.html" . -}}
+<h5>Create Author</h5>
+<form hx-post="authors?nested=true" hx-target="#response">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name *</label>
+        <input id="name" required name="name" type="text" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label for="bio" class="form-label">Bio</label>
+        <input id="bio"  name="bio" type="text" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <div class="col-sm-4 col-md-2">
+            <label for="created_at" class="form-label">Created At</label>
+            <input id="created_at"  name="created_at" type="date" class="form-control"/>
         </div>
-        <div class="mb-3">
-                <label for="bio" class="form-label">Bio</label>
-                <input id="bio"  name="bio" type="text" class="form-control"/>
-        </div>
-        <div class="mb-3">
-            <div class="col-sm-2">
-                <label for="created_at" class="form-label">Created At</label>
-                <input id="created_at"  name="created_at" type="date" class="form-control"/>
-            </div>
-        </div>
+    </div>
+    <div class="p-3">
+        <button class="btn btn-primary" type="submit">Insert</button>
+        <button type="button" class="btn btn-secondary" onclick="javascript:window.history.back()">Back</button>
+    </div>
+    
+</form> 
+<hr class="hr" />
         
-        <div class="p-3">
-            <button class="btn btn-primary" type="submit">Insert</button>
-            <button type="button" class="btn btn-secondary" onclick="javascript:window.history.back()">Back</button>
-        </div>
-    </form> 
-    <div class="divider"></div>
-            
-    <div id="response"></div>
-</div>
+<div id="response"></div>
 {{end}}

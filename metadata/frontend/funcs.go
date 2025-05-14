@@ -10,6 +10,7 @@ import (
 
 	"github.com/walterwanderley/sqlc-grpc/converter"
 	"github.com/walterwanderley/sqlc-grpc/metadata"
+
 	httpmetadata "github.com/walterwanderley/sqlc-http/metadata"
 )
 
@@ -167,19 +168,17 @@ func htmlInput(attr, typ string, fill bool) []string {
 	}
 	switch typ {
 	case "checkbox":
-		res = append(res, `<p>`)
-		res = append(res, `    <label>`)
+		res = append(res, `<div class="form-check">`)
 		if fill {
-			res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="checkbox" value="{{.Data.%s}}" {{if .Data.%s}}checked{{end}}/>`, attrFormName, attrFormName, attr, attr))
+			res = append(res, fmt.Sprintf(`    <input id="%s" name="%s" type="checkbox" class="form-check-input" value="{{.Data.%s}}" {{if .Data.%s}}checked{{end}}/>`, attrFormName, attrFormName, attr, attr))
 		} else {
-			res = append(res, fmt.Sprintf(`        <input id="%s" name="%s" type="checkbox"/>`, attrFormName, attrFormName))
+			res = append(res, fmt.Sprintf(`    <input id="%s" name="%s" type="checkbox" class="form-check-input" value=""/>`, attrFormName, attrFormName))
 		}
-		res = append(res, fmt.Sprintf(`        <span>%s</span>`, label))
-		res = append(res, `    </label>`)
-		res = append(res, `</p>`)
+		res = append(res, fmt.Sprintf(`    <label class="form-check-label" for="%s">%s</label>`, attrFormName, label))
+		res = append(res, `</div>`)
 	case "date":
 		res = append(res, `<div class="mb-3">`)
-		res = append(res, `    <div class="col-sm-2">`)
+		res = append(res, `    <div class="col-sm-4 col-md-2">`)
 
 		if fill {
 			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
@@ -196,8 +195,8 @@ func htmlInput(attr, typ string, fill bool) []string {
 			res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
 			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s"{{if .Data.%s}} value="{{.Data.%s}}"{{end}} class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ, attr, attr))
 		} else {
-			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="%s" class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ))
+			res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s" class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ))
 
 		}
 		res = append(res, `</div>`)
