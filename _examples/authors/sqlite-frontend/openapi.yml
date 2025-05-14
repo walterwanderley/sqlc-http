@@ -25,7 +25,7 @@ paths:
                   type: string
                 bio:
                   type: string
-                created_at:
+                birth_date:
                   type: string
                   format: date-time
           application/x-www-form-urlencoded:
@@ -36,7 +36,7 @@ paths:
                   type: string
                 bio:
                   type: string
-                created_at:
+                birth_date:
                   type: string
                   format: date-time
       
@@ -161,7 +161,7 @@ paths:
                   type: string
                 bio:
                   type: string
-                created_at:
+                birth_date:
                   type: string
                   format: date-time
           application/x-www-form-urlencoded:
@@ -172,7 +172,7 @@ paths:
                   type: string
                 bio:
                   type: string
-                created_at:
+                birth_date:
                   type: string
                   format: date-time
       
@@ -259,7 +259,7 @@ components:
           type: string
         bio:
           type: string
-        created_at:
+        birth_date:
           type: string
           format: date-time
     

@@ -12,7 +12,7 @@ LIMIT ? OFFSET ?;
 /* name: CreateAuthor :execresult */
 /* http: POST /authors */
 INSERT INTO authors (
-  name, bio, created_at
+  name, bio, birth_date
 ) VALUES (
   ?, ?, ? 
 );
@@ -22,7 +22,7 @@ INSERT INTO authors (
 UPDATE authors
 SET name = ?, 
 bio = ?,
-created_at = ?
+birth_date = ?
 WHERE id = ?;
 
 /* name: UpdateAuthorBio :execresult */

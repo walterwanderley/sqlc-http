@@ -23,7 +23,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	type request struct {
 		Name      string     `json:"name"`
 		Bio       *string    `json:"bio"`
-		CreatedAt *time.Time `json:"created_at"`
+		BirthDate *time.Time `json:"birth_date"`
 	}
 	type response struct {
 		LastInsertId int64 `json:"last_insert_id"`
@@ -41,9 +41,9 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		if req.Bio != nil {
 			arg.Bio = sql.NullString{Valid: true, String: *req.Bio}
 		}
-		if req.CreatedAt != nil && !req.CreatedAt.IsZero() {
-			arg.CreatedAt.Valid = true
-			arg.CreatedAt.Time = *req.CreatedAt
+		if req.BirthDate != nil && !req.BirthDate.IsZero() {
+			arg.BirthDate.Valid = true
+			arg.BirthDate.Time = *req.BirthDate
 		}
 
 		result, err := s.querier.CreateAuthor(r.Context(), arg)
@@ -99,7 +99,7 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		ID        int64      `json:"id,omitempty"`
 		Name      string     `json:"name,omitempty"`
 		Bio       *string    `json:"bio,omitempty"`
-		CreatedAt *time.Time `json:"created_at,omitempty"`
+		BirthDate *time.Time `json:"birth_date,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -127,8 +127,8 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		if result.Bio.Valid {
 			res.Bio = &result.Bio.String
 		}
-		if result.CreatedAt.Valid {
-			res.CreatedAt = &result.CreatedAt.Time
+		if result.BirthDate.Valid {
+			res.BirthDate = &result.BirthDate.Time
 		}
 		server.Encode(w, r, http.StatusOK, res)
 	}
@@ -143,7 +143,7 @@ func (s *Service) handleListAuthors() http.HandlerFunc {
 		ID        int64      `json:"id,omitempty"`
 		Name      string     `json:"name,omitempty"`
 		Bio       *string    `json:"bio,omitempty"`
-		CreatedAt *time.Time `json:"created_at,omitempty"`
+		BirthDate *time.Time `json:"birth_date,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -190,8 +190,8 @@ func (s *Service) handleListAuthors() http.HandlerFunc {
 			if r.Bio.Valid {
 				item.Bio = &r.Bio.String
 			}
-			if r.CreatedAt.Valid {
-				item.CreatedAt = &r.CreatedAt.Time
+			if r.BirthDate.Valid {
+				item.BirthDate = &r.BirthDate.Time
 			}
 			res = append(res, item)
 		}
@@ -203,7 +203,7 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 	type request struct {
 		Name      string     `json:"name"`
 		Bio       *string    `json:"bio"`
-		CreatedAt *time.Time `json:"created_at"`
+		BirthDate *time.Time `json:"birth_date"`
 		ID        int64      `json:"id"`
 	}
 	type response struct {
@@ -230,9 +230,9 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		if req.Bio != nil {
 			arg.Bio = sql.NullString{Valid: true, String: *req.Bio}
 		}
-		if req.CreatedAt != nil && !req.CreatedAt.IsZero() {
-			arg.CreatedAt.Valid = true
-			arg.CreatedAt.Time = *req.CreatedAt
+		if req.BirthDate != nil && !req.BirthDate.IsZero() {
+			arg.BirthDate.Valid = true
+			arg.BirthDate.Time = *req.BirthDate
 		}
 		arg.ID = req.ID
 

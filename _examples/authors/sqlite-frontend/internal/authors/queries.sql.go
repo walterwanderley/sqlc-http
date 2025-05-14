@@ -12,7 +12,7 @@ import (
 
 const createAuthor = `-- name: CreateAuthor :execresult
 INSERT INTO authors (
-  name, bio, created_at
+  name, bio, birth_date
 ) VALUES (
   ?, ?, ? 
 )
@@ -21,12 +21,12 @@ INSERT INTO authors (
 type CreateAuthorParams struct {
 	Name      string
 	Bio       sql.NullString
-	CreatedAt sql.NullTime
+	BirthDate sql.NullTime
 }
 
 // http: POST /authors
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio, arg.CreatedAt)
+	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio, arg.BirthDate)
 }
 
 const deleteAuthor = `-- name: DeleteAuthor :exec
@@ -41,7 +41,7 @@ func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
 }
 
 const getAuthor = `-- name: GetAuthor :one
-SELECT id, name, bio, created_at FROM authors
+SELECT id, name, bio, birth_date FROM authors
 WHERE id = ? LIMIT 1
 `
 
@@ -53,13 +53,13 @@ func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 		&i.ID,
 		&i.Name,
 		&i.Bio,
-		&i.CreatedAt,
+		&i.BirthDate,
 	)
 	return i, err
 }
 
 const listAuthors = `-- name: ListAuthors :many
-SELECT id, name, bio, created_at FROM authors
+SELECT id, name, bio, birth_date FROM authors
 ORDER BY name
 LIMIT ? OFFSET ?
 `
@@ -83,7 +83,7 @@ func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Aut
 			&i.ID,
 			&i.Name,
 			&i.Bio,
-			&i.CreatedAt,
+			&i.BirthDate,
 		); err != nil {
 			return nil, err
 		}
@@ -102,14 +102,14 @@ const updateAuthor = `-- name: UpdateAuthor :execresult
 UPDATE authors
 SET name = ?, 
 bio = ?,
-created_at = ?
+birth_date = ?
 WHERE id = ?
 `
 
 type UpdateAuthorParams struct {
 	Name      string
 	Bio       sql.NullString
-	CreatedAt sql.NullTime
+	BirthDate sql.NullTime
 	ID        int64
 }
 
@@ -118,7 +118,7 @@ func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (sql
 	return q.db.ExecContext(ctx, updateAuthor,
 		arg.Name,
 		arg.Bio,
-		arg.CreatedAt,
+		arg.BirthDate,
 		arg.ID,
 	)
 }

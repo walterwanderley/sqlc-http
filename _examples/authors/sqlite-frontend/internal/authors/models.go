@@ -12,5 +12,5 @@ type Author struct {
 	ID        int64
 	Name      string
 	Bio       sql.NullString
-	CreatedAt sql.NullTime
+	BirthDate sql.NullTime
 }

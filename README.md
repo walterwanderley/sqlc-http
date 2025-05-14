@@ -17,6 +17,10 @@ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 go install github.com/walterwanderley/sqlc-http@latest
 ```
 
+### Fullstack application example (HTMX)
+
+If you want to generate a complete application (including htmx frontend), check [this example](https://github.com/walterwanderley/sqlc-http/blob/main/_examples/authors/sqlite-frontend/README.md).
+
 ### Example
 
 1. Create a queries.sql file:

@@ -11,7 +11,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Bio</th>
-            <th>Created At</th>
+            <th>Birth Date</th>
             <th></th> <!-- Actions -->
         </tr></thead>
         <tbody>
@@ -19,7 +19,7 @@
             <td>{{.ID}}</td>
             <td>{{.Name}}</td>
             <td>{{.Bio}}</td>
-            <td>{{if .CreatedAt}}{{.CreatedAt.Format "02/01/2006"}}{{end}}</td>
+            <td>{{if .BirthDate}}{{.BirthDate.Format "02/01/2006"}}{{end}}</td>
             <td>
                 <a class="btn btn-outline-primary" href="javascript: void(0)" hx-push-url="true" hx-get="authors/{{.ID}}"><i class="bi bi-eye"></i></a>
                 <a class="btn btn-outline-secondary" href="javascript: void(0)" hx-push-url="true" hx-get="authors/{{.ID}}?edit"><i class="bi bi-pencil"></i></a>

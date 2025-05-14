@@ -13,8 +13,8 @@
     </div>
     <div class="mb-3">
         <div class="col-sm-4 col-md-2">
-            <label for="created_at" class="form-label">Created At</label>
-            <input id="created_at"  name="created_at" type="date" class="form-control"{{if .Data.CreatedAt}} value="{{.Data.CreatedAt.Format "2006-01-02"}}"{{end}}/>
+            <label for="birth_date" class="form-label">Birth Date</label>
+            <input id="birth_date"  name="birth_date" type="date" class="form-control"{{if .Data.BirthDate}} value="{{.Data.BirthDate.Format "2006-01-02"}}"{{end}}/>
         </div>
     </div>
     <input type="hidden" name="id" value="{{.Data.ID}}">
@@ -46,7 +46,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <p><b>Created At:</b> {{.Data.CreatedAt}}</p>
+            <p><b>Birth Date:</b> {{.Data.BirthDate}}</p>
         </div>
     </div>
 </div>
