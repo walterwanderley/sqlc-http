@@ -24,7 +24,7 @@ paths:
       responses:
         "200":
           description: OK
-          {{range . | ApiResponse}}{{.}}
+          {{range ApiResponse . UI}}{{.}}
           {{end}}
         "default":    
           description: Error message

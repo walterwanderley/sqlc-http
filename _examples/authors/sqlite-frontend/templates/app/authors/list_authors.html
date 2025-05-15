@@ -2,6 +2,6 @@
 {{template "hx-context.html" . -}}
 <h5>List Authors</h5>
 <div hx-trigger="load" hx-get="authors?limit=10&nested=true" hx-target="#response"></div>
-        
+
 <div id="response"></div>
 {{end}}

@@ -188,7 +188,8 @@ func (s *ServiceUI) Title() string {
 	return AddSpace(converter.ToPascalCase(s.Name))
 }
 
-func (s *ServiceUI) HtmxCall(nestedResponse bool) string {
+func (s *ServiceUI) HtmxCall() string {
+	nestedResponse := s.Output != "sql.Result" && s.Output != "pgconn.CommandTag"
 	method := httpmetadata.HttpMethod(s.Service)
 	path := httpmetadata.HttpPath(s.Service)
 	path = strings.TrimSuffix(path, "{$}")
@@ -321,7 +322,7 @@ func (s *ServiceUI) EditHtmxCall() string {
 	if edit == nil {
 		return ""
 	}
-	return edit.HtmxCall(false)
+	return edit.HtmxCall()
 }
 
 func (s *ServiceUI) HtmlInputEdit() []string {

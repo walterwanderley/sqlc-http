@@ -282,9 +282,6 @@ func (c Content[T]) MessageContext() *htmx.Message {
 }
 
 func RenderHTML[T any](w http.ResponseWriter, r *http.Request, content T) (err error) {
-	if msg, ok := r.Context().Value(messageContext).(htmx.Message); ok {
-		return msg.Render(w, r)
-	}
 	templates := contextTemplates(r)
 	if len(templates) == 0 {
 		if msg, ok := r.Context().Value(messageContext).(htmx.Message); ok {

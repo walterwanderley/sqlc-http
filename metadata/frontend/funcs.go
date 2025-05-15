@@ -103,28 +103,18 @@ func OutputUI(s *metadata.Service) []string {
 	}
 
 	if s.Output == "sql.Result" {
-		res = append(res, "lastInsertId, _ := result.LastInsertId()")
-		res = append(res, "rowsAffected, _ := result.RowsAffected()")
 		if strings.Contains(strings.ToUpper(s.Sql), "INSERT ") {
-			res = append(res, `r = r.WithContext(templates.ContextWithMessage(r.Context(),`)
-			res = append(res, `htmx.SuccessMessage(http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))))`)
+			res = append(res, "lastInsertId, _ := result.LastInsertId()")
+			res = append(res, `htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))`)
 		} else {
-			res = append(res, `r = r.WithContext(templates.ContextWithMessage(r.Context(),`)
-			res = append(res, `htmx.SuccessMessage(http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))))`)
+			res = append(res, "rowsAffected, _ := result.RowsAffected()")
+			res = append(res, `htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
 		}
-		res = append(res, "server.Encode(w, r, http.StatusOK, response{")
-		res = append(res, "LastInsertId: lastInsertId,")
-		res = append(res, "RowsAffected: rowsAffected,")
-		res = append(res, "})")
 		return res
 	}
 
 	if s.Output == "pgconn.CommandTag" {
-		res = append(res, `r = r.WithContext(templates.ContextWithMessage(r.Context(),`)
-		res = append(res, `htmx.SuccessMessage(http.StatusOK, fmt.Sprintf("Rows affected: %d", result.RowsAffected()))))`)
-		res = append(res, "server.Encode(w, r, http.StatusOK, response{")
-		res = append(res, "RowsAffected: result.RowsAffected(),")
-		res = append(res, "})")
+		res = append(res, `htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", result.RowsAffected()))`)
 		return res
 	}
 

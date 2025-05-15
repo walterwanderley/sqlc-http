@@ -25,10 +25,6 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		Bio       *string    `json:"bio"`
 		BirthDate *time.Time `json:"birth_date"`
 	}
-	type response struct {
-		LastInsertId int64 `json:"last_insert_id"`
-		RowsAffected int64 `json:"rows_affected"`
-	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		req, err := server.Decode[request](r)
@@ -54,13 +50,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		}
 
 		lastInsertId, _ := result.LastInsertId()
-		rowsAffected, _ := result.RowsAffected()
-		r = r.WithContext(templates.ContextWithMessage(r.Context(),
-			htmx.SuccessMessage(http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))))
-		server.Encode(w, r, http.StatusOK, response{
-			LastInsertId: lastInsertId,
-			RowsAffected: rowsAffected,
-		})
+		htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))
 	}
 }
 
@@ -206,10 +196,6 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		BirthDate *time.Time `json:"birth_date"`
 		ID        int64      `json:"id"`
 	}
-	type response struct {
-		LastInsertId int64 `json:"last_insert_id"`
-		RowsAffected int64 `json:"rows_affected"`
-	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		req, err := server.Decode[request](r)
@@ -243,14 +229,8 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 			return
 		}
 
-		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
-		r = r.WithContext(templates.ContextWithMessage(r.Context(),
-			htmx.SuccessMessage(http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))))
-		server.Encode(w, r, http.StatusOK, response{
-			LastInsertId: lastInsertId,
-			RowsAffected: rowsAffected,
-		})
+		htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 	}
 }
 
@@ -258,10 +238,6 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 	type request struct {
 		Bio *string `json:"bio"`
 		ID  int64   `json:"id"`
-	}
-	type response struct {
-		LastInsertId int64 `json:"last_insert_id"`
-		RowsAffected int64 `json:"rows_affected"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -291,13 +267,7 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 			return
 		}
 
-		lastInsertId, _ := result.LastInsertId()
 		rowsAffected, _ := result.RowsAffected()
-		r = r.WithContext(templates.ContextWithMessage(r.Context(),
-			htmx.SuccessMessage(http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))))
-		server.Encode(w, r, http.StatusOK, response{
-			LastInsertId: lastInsertId,
-			RowsAffected: rowsAffected,
-		})
+		htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 	}
 }

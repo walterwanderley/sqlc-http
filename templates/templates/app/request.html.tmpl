@@ -1,14 +1,13 @@
 {{"{{"}}define "content"{{"}}"}}
 {{"{{"}}template "hx-context.html" . {{"-}}"}}
 <h5>{{.Title}}</h5>
-{{if .AutoSubmit}}<div hx-trigger="load" {{.HtmxCall true}} hx-target="#response"></div>
+{{if .AutoSubmit}}<div hx-trigger="load" {{.HtmxCall}} hx-target="#response"></div>
 {{else -}}                   
-<form {{.HtmxCall true}} hx-target="#response">
+<form {{.HtmxCall}} hx-target="#response">
     {{range .HtmlInput}}{{.}}
     {{end}}
 </form> 
-<hr class="hr" />
-{{end}}        
+<hr class="hr" />{{end}}
 <div id="response"></div>
 {{if .HasPathParam}}
 <script>

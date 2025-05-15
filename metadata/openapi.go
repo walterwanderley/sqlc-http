@@ -45,7 +45,7 @@ func ApiParameters(s *metadata.Service) []string {
 			for _, f := range m.Fields {
 				name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
 				inType := "query"
-				if slices.Contains[[]string](pathParams, name) {
+				if slices.Contains(pathParams, name) {
 					inType = "path"
 				}
 				if inType == "query" && (method != "GET" && method != "DELETE") {
@@ -68,7 +68,7 @@ func ApiParameters(s *metadata.Service) []string {
 		}
 		name := converter.ToSnakeCase(converter.CanonicalName(s.InputNames[i]))
 		inType := "query"
-		if slices.Contains[[]string](pathParams, name) {
+		if slices.Contains(pathParams, name) {
 			inType = "path"
 		}
 		if inType == "query" && (method != "GET" && method != "DELETE") {
@@ -143,7 +143,7 @@ func ApiParameters(s *metadata.Service) []string {
 		m := s.Messages[converter.CanonicalName(typ)]
 		if m == nil {
 			name := converter.ToSnakeCase(converter.CanonicalName(s.InputNames[i]))
-			if slices.Contains[[]string](pathParams, name) {
+			if slices.Contains(pathParams, name) {
 				continue
 			}
 			schemaRes = append(schemaRes, fmt.Sprintf("          %s:", name))
@@ -156,7 +156,7 @@ func ApiParameters(s *metadata.Service) []string {
 		}
 		for _, f := range m.Fields {
 			name := converter.ToSnakeCase(converter.CanonicalName(f.Name))
-			if slices.Contains[[]string](pathParams, name) {
+			if slices.Contains(pathParams, name) {
 				continue
 			}
 			schemaRes = append(schemaRes, fmt.Sprintf("          %s:", name))
@@ -174,7 +174,7 @@ func ApiParameters(s *metadata.Service) []string {
 	return res
 }
 
-func ApiResponse(s *metadata.Service) []string {
+func ApiResponse(s *metadata.Service, ui bool) []string {
 	res := make([]string, 0)
 	if s.EmptyOutput() {
 		return res
@@ -202,25 +202,40 @@ func ApiResponse(s *metadata.Service) []string {
 		return res
 	}
 
-	if s.Output == "sql.Result" {
-		res = append(res, "      type: object")
-		res = append(res, "      properties:")
-		res = append(res, "        last_insert_id:")
-		res = append(res, "          type: integer")
-		res = append(res, "          format: int64")
-		res = append(res, "        rows_affected:")
-		res = append(res, "          type: integer")
-		res = append(res, "          format: int64")
-		return res
-	}
+	if ui {
+		if s.Output == "sql.Result" || s.Output == "pgconn.CommandTag" {
+			res = append(res, "      type: object")
+			res = append(res, "      properties:")
+			res = append(res, "        code:")
+			res = append(res, "          type: integer")
+			res = append(res, "          format: int64")
+			res = append(res, "        text:")
+			res = append(res, "          type: string")
+			res = append(res, "        type:")
+			res = append(res, "          type: string")
+			return res
+		}
+	} else {
+		if s.Output == "sql.Result" {
+			res = append(res, "      type: object")
+			res = append(res, "      properties:")
+			res = append(res, "        last_insert_id:")
+			res = append(res, "          type: integer")
+			res = append(res, "          format: int64")
+			res = append(res, "        rows_affected:")
+			res = append(res, "          type: integer")
+			res = append(res, "          format: int64")
+			return res
+		}
 
-	if s.Output == "pgconn.CommandTag" {
-		res = append(res, "      type: object")
-		res = append(res, "      properties:")
-		res = append(res, "        rows_affected:")
-		res = append(res, "          type: integer")
-		res = append(res, "          format: int64")
-		return res
+		if s.Output == "pgconn.CommandTag" {
+			res = append(res, "      type: object")
+			res = append(res, "      properties:")
+			res = append(res, "        rows_affected:")
+			res = append(res, "          type: integer")
+			res = append(res, "          format: int64")
+			return res
+		}
 	}
 
 	return res
@@ -237,11 +252,11 @@ func ApiComponentSchemas(pkg *metadata.Package) []string {
 		if !ok {
 			continue
 		}
-		if !slices.Contains[[]*metadata.Message](messages, m) {
+		if !slices.Contains(messages, m) {
 			messages = append(messages, m)
 		}
 	}
-	slices.SortFunc[[]*metadata.Message](messages, func(a, b *metadata.Message) int {
+	slices.SortFunc(messages, func(a, b *metadata.Message) int {
 		return strings.Compare(a.Name, b.Name)
 	})
 	for _, m := range messages {

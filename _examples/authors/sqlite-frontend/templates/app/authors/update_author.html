@@ -1,7 +1,7 @@
 {{define "content"}}
 {{template "hx-context.html" . -}}
 <h5>Update Author</h5>
-<form hx-put="authors/{id}?nested=true" hx-target="#response">
+<form hx-put="authors/{id}" hx-target="#response">
     <div class="mb-3">
         <label for="name" class="form-label">Name *</label>
         <input id="name" required name="name" type="text" class="form-control"/>
@@ -27,7 +27,6 @@
     
 </form> 
 <hr class="hr" />
-        
 <div id="response"></div>
 
 <script>

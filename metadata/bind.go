@@ -10,7 +10,7 @@ import (
 	"github.com/walterwanderley/sqlc-grpc/metadata"
 )
 
-func HandlerTypes(s *metadata.Service) []string {
+func HandlerTypes(s *metadata.Service, ui bool) []string {
 	res := make([]string, 0)
 
 	requestAttributes := RequestTypeAttributes(s)
@@ -19,7 +19,10 @@ func HandlerTypes(s *metadata.Service) []string {
 		res = append(res, requestAttributes...)
 		res = append(res, "}")
 	}
-
+	// UI generate a message
+	if ui && (s.Output == "sql.Result" || s.Output == "pgconn.CommandTag") {
+		return res
+	}
 	responseAttributes := ResponseTypeAttributes(s)
 	if len(responseAttributes) > 0 {
 		res = append(res, "type response struct {")

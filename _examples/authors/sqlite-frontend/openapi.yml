@@ -48,12 +48,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  last_insert_id:
+                  code:
                     type: integer
                     format: int64
-                  rows_affected:
-                    type: integer
-                    format: int64
+                  text:
+                    type: string
+                  type:
+                    type: string
           
         "default":    
           description: Error message
@@ -184,12 +185,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  last_insert_id:
+                  code:
                     type: integer
                     format: int64
-                  rows_affected:
-                    type: integer
-                    format: int64
+                  text:
+                    type: string
+                  type:
+                    type: string
           
         "default":    
           description: Error message
@@ -232,12 +234,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  last_insert_id:
+                  code:
                     type: integer
                     format: int64
-                  rows_affected:
-                    type: integer
-                    format: int64
+                  text:
+                    type: string
+                  type:
+                    type: string
           
         "default":    
           description: Error message

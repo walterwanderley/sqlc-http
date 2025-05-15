@@ -52,9 +52,9 @@ func (t MessageType) Class() string {
 }
 
 type Message struct {
-	Code int
-	Text string
-	Type MessageType
+	Code int         `json:"code"`
+	Text string      `json:"text"`
+	Type MessageType `json:"type"`
 }
 
 func NewMessage(code int, text string, typ MessageType) Message {

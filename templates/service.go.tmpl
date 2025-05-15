@@ -32,7 +32,7 @@ type Service struct {
 {{$emitDbArgument := .EmitDbArgument}}
 {{ range .Services }}
 func (s *Service) handle{{.Name | UpperFirstCharacter}}() http.HandlerFunc {
-	{{ range . | HandlerTypes}}{{ .}}
+	{{ range HandlerTypes . UI}}{{ .}}
 	{{end}}
 	return func(w http.ResponseWriter, r *http.Request) {
 		{{ range . | Input}}{{ .}}
