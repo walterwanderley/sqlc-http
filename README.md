@@ -113,7 +113,7 @@ If you do not generate the frontend in step 4?
 If you generate the frontend in step 4:
 
 - [HTMX](https://htmx.org) frontend: [http://localhost:5000](http://localhost:5000)
-- Swagger UI: [http://localhost:5000/web/swagger](http://localhost:5000/web/swagger)
+- Swagger UI: [http://localhost:5000/static/swagger](http://localhost:5000/static/swagger)
 
 ### Customizing HTTP endpoints
 

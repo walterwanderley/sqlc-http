@@ -5,7 +5,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"embed"
 	_ "embed"
 	"errors"
 	"flag"
@@ -22,7 +21,6 @@ import (
 	// database driver
 	_ "modernc.org/sqlite"
 
-	"sqlite-htmx/internal/server/etag"
 	"sqlite-htmx/view"
 )
 
@@ -37,8 +35,6 @@ var (
 
 	//go:embed openapi.yml
 	openAPISpec []byte
-	//go:embed web
-	webFS embed.FS
 )
 
 func main() {
@@ -82,11 +78,6 @@ func run() error {
 		w.Write(openAPISpec)
 	})
 
-	if dev {
-		mux.Handle("GET /web/", http.StripPrefix("/web", http.FileServer(http.FS(os.DirFS("web")))))
-	} else {
-		mux.Handle("GET /web/", etag.Handler(webFS, ""))
-	}
 	err = view.RegisterHandlers(mux, dev)
 	if err != nil {
 		return fmt.Errorf("frontend templates error: %w", err)

@@ -10,8 +10,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"sqlite-htmx/view/etag"
 	watchersse "sqlite-htmx/view/watcher"
 )
 
@@ -28,6 +30,9 @@ const (
 
 var (
 	ErrTemplateNotFound = errors.New("template not found")
+
+	//go:embed static
+	staticFS embed.FS
 
 	//go:embed templates
 	templatesFS embed.FS
@@ -67,8 +72,11 @@ func RegisterHandlers(mux *http.ServeMux, devMode bool) error {
 		"layout/header.html",
 		"layout/footer.html",
 	}
+
 	if devMode {
-		templatesPath := "view/templates"
+		staticPath := filepath.Join("view", "static")
+		mux.Handle("GET /static/", http.StripPrefix("/static", http.FileServer(http.FS(os.DirFS(staticPath)))))
+		templatesPath := filepath.Join("view", "templates")
 		provider = &templateDevRender{
 			templatesFS:   os.DirFS(templatesPath),
 			base:          base,
@@ -76,13 +84,14 @@ func RegisterHandlers(mux *http.ServeMux, devMode bool) error {
 			baseTemplates: append(componentsTemplates, layoutTemplates...),
 			components:    componentsTemplates,
 		}
-		watcher, err := watchersse.New(templatesPath, "web")
+		watcher, err := watchersse.New(staticPath, templatesPath)
 		if err != nil {
 			return err
 		}
 		watcher.Start(context.Background())
 		mux.Handle("GET /reload", watcher)
 	} else {
+		mux.Handle("GET /static/", etag.Handler(staticFS, ""))
 		subFS, err := fs.Sub(templatesFS, "templates")
 		if err != nil {
 			return err

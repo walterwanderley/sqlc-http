@@ -31,9 +31,7 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 		newPath := strings.TrimSuffix(path, ".tmpl")
 
 		if d.IsDir() {
-			if (strings.HasPrefix(newPath, "view") ||
-				strings.HasPrefix(newPath, "web") ||
-				strings.HasSuffix(newPath, "/etag")) && !generateFrontend {
+			if strings.HasPrefix(newPath, "view") && !generateFrontend {
 				return nil
 			}
 
@@ -66,8 +64,7 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 			return nil
 		}
 
-		if (strings.HasPrefix(newPath, "view/") || strings.HasSuffix(newPath, "etag.go") ||
-			strings.HasPrefix(newPath, "web/")) && !generateFrontend {
+		if strings.HasPrefix(newPath, "view/") && !generateFrontend {
 			return nil
 		}
 

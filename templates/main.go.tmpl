@@ -27,8 +27,7 @@ import (
 	// database driver
 	{{if eq .SqlPackage "pgx/v5"}}"github.com/jackc/pgx/v5/pgxpool"{{else}}_ "{{ .DatabaseImport}}"{{end}}
 	{{if .MigrationPath}}{{if eq .SqlPackage "pgx/v5"}}_ "github.com/jackc/pgx/v5/stdlib"{{end}}{{end}}
-
-	"{{ .GoModule}}/internal/server/etag"
+	
 	"{{ .GoModule}}/internal/server/litefs"
 	"{{ .GoModule}}/internal/server/litestream"
 	"{{ .GoModule}}/internal/server/instrumentation/metric"
@@ -53,10 +52,7 @@ var (
 	{{if .LiteFS}}litefsConfig   litefs.Config
 	liteFS         *litefs.LiteFS{{end}}
 	//go:embed openapi.yml
-	openAPISpec []byte
-	{{if UI}}//go:embed web
-	webFS embed.FS
-	{{end -}}
+	openAPISpec []byte	
 )
 
 func main() {	
@@ -165,17 +161,11 @@ func run() error {
 	{{else}}
 		mux.Handle("GET /swagger/", http.StripPrefix("/swagger", swaggerui.Handler(openAPISpec)))
 	{{end}}
-	{{if UI}}if dev {
-		mux.Handle("GET /web/", http.StripPrefix("/web", http.FileServer(http.FS(os.DirFS("web")))))
-	} else {
-		mux.Handle("GET /web/", etag.Handler(webFS, ""))
-	}
-	err = view.RegisterHandlers(mux, dev)
+	{{if UI}}err = view.RegisterHandlers(mux, dev)
 	if err != nil {
 		return fmt.Errorf("frontend templates error: %w", err)
 	}
 	{{end -}}
-
 	{{if .LiteFS}}
 	var handler http.Handler = mux
 	if litefsConfig.MountDir != "" {
