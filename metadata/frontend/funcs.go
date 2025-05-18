@@ -105,16 +105,16 @@ func OutputUI(s *metadata.Service) []string {
 	if s.Output == "sql.Result" {
 		if strings.Contains(strings.ToUpper(s.Sql), "INSERT ") {
 			res = append(res, "lastInsertId, _ := result.LastInsertId()")
-			res = append(res, `view.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))`)
+			res = append(res, `server.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))`)
 		} else {
 			res = append(res, "rowsAffected, _ := result.RowsAffected()")
-			res = append(res, `view.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
+			res = append(res, `server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
 		}
 		return res
 	}
 
 	if s.Output == "pgconn.CommandTag" {
-		res = append(res, `view.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", result.RowsAffected()))`)
+		res = append(res, `server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", result.RowsAffected()))`)
 		return res
 	}
 

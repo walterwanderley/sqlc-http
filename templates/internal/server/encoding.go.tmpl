@@ -57,3 +57,20 @@ func Encode[T any](w http.ResponseWriter, r *http.Request, status int, v T) erro
 	}
 	return nil
 }
+{{if UI}}
+func Info(w http.ResponseWriter, r *http.Request, code int, text string) error {
+	return view.InfoMessage(code, text).Render(w, r)
+}
+
+func Success(w http.ResponseWriter, r *http.Request, code int, text string) error {
+	return view.SuccessMessage(code, text).Render(w, r)
+}
+
+func Error(w http.ResponseWriter, r *http.Request, code int, text string) error {
+	return view.ErrorMessage(code, text).Render(w, r)
+}
+
+func Warning(w http.ResponseWriter, r *http.Request, code int, text string) error {
+	return view.WarningMessage(code, text).Render(w, r)
+}
+{{end}}

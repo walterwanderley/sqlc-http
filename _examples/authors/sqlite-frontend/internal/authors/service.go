@@ -49,7 +49,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		}
 
 		lastInsertId, _ := result.LastInsertId()
-		view.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))
+		server.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))
 	}
 }
 
@@ -229,7 +229,7 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		view.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 	}
 }
 
@@ -267,6 +267,6 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		view.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 	}
 }

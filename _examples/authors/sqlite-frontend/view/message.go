@@ -99,19 +99,3 @@ func (m Message) Render(w http.ResponseWriter, r *http.Request) error {
 	}
 	return err
 }
-
-func Info(w http.ResponseWriter, r *http.Request, code int, text string) error {
-	return NewMessage(code, text, TypeInfo).Render(w, r)
-}
-
-func Success(w http.ResponseWriter, r *http.Request, code int, text string) error {
-	return NewMessage(code, text, TypeSuccess).Render(w, r)
-}
-
-func Error(w http.ResponseWriter, r *http.Request, code int, text string) error {
-	return NewMessage(code, text, TypeError).Render(w, r)
-}
-
-func Warning(w http.ResponseWriter, r *http.Request, code int, text string) error {
-	return NewMessage(code, text, TypeWarning).Render(w, r)
-}
