@@ -72,6 +72,7 @@ func HasPagination(s *metadata.Service) bool {
 func OutputUI(s *metadata.Service) []string {
 	res := make([]string, 0)
 	if s.EmptyOutput() {
+		res = append(res, `server.Success(w, r, http.StatusOK, "Success")`)
 		return res
 	}
 	m := s.Messages[converter.CanonicalName(s.Output)]
@@ -108,13 +109,21 @@ func OutputUI(s *metadata.Service) []string {
 			res = append(res, `server.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))`)
 		} else {
 			res = append(res, "rowsAffected, _ := result.RowsAffected()")
-			res = append(res, `server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
+			res = append(res, "if rowsAffected < 1 {")
+			res = append(res, `    server.Warning(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
+			res = append(res, "} else {")
+			res = append(res, `    server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
+			res = append(res, "}")
 		}
 		return res
 	}
 
 	if s.Output == "pgconn.CommandTag" {
-		res = append(res, `server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", result.RowsAffected()))`)
+		res = append(res, "if rowsAffected := result.RowsAffected(); rowsAffected < 1 {")
+		res = append(res, `    server.Warning(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
+		res = append(res, "} else {")
+		res = append(res, `    server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))`)
+		res = append(res, "}")
 		return res
 	}
 

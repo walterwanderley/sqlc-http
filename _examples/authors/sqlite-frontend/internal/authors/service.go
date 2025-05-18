@@ -77,6 +77,7 @@ func (s *Service) handleDeleteAuthor() http.HandlerFunc {
 			return
 		}
 
+		server.Success(w, r, http.StatusOK, "Success")
 	}
 }
 
@@ -229,7 +230,11 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		if rowsAffected < 1 {
+			server.Warning(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		} else {
+			server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		}
 	}
 }
 
@@ -267,6 +272,10 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		if rowsAffected < 1 {
+			server.Warning(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		} else {
+			server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		}
 	}
 }

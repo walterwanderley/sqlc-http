@@ -1,6 +1,5 @@
-{{$msg := .MessageContext}}
 <div id="messages" hx-swap-oob="true">
-    {{if $msg}}{{with $msg}}
-    {{ template "message.html" $msg}}
-    {{end}}{{end -}}
+    {{if .}}
+    {{ template "message.html" .}}
+    {{end -}}
 </div>

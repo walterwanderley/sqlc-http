@@ -1,7 +1,6 @@
 package view
 
 import (
-	_ "embed"
 	"encoding/json"
 	"html/template"
 	"log/slog"
@@ -15,10 +14,9 @@ const (
 )
 
 var (
-	//go:embed templates/components/message.html
-	messageHTML string
-
-	messageTemplate = template.Must(template.New("message").Parse(messageHTML))
+	messageTemplate         = template.Must(template.New("message.html").ParseFS(templatesFS, "templates/components/message.html"))
+	messagesContextTemplate = template.Must(template.New("messages-context.html").ParseFS(templatesFS,
+		"templates/components/messages-context.html", "templates/components/message.html"))
 )
 
 type MessageType string
@@ -89,6 +87,13 @@ func (m Message) Render(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if HXRequest(r) {
+		if r.Method == http.MethodDelete {
+			err := messagesContextTemplate.Execute(w, m)
+			if err != nil {
+				slog.Error("render messages-context", "err", err)
+			}
+			return err
+		}
 		w.Header().Set("HX-Retarget", retarget)
 		w.Header().Set("HX-Reswap", reswap)
 	}
