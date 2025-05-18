@@ -173,7 +173,7 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 					}
 					path := httpmetadata.HttpPath(service)
 					path = strings.TrimSuffix(path, "/")
-					destFile := filepath.Join("templates", path+".html")
+					destFile := filepath.Join("view", "templates", path+".html")
 
 					if appendMode && fileExists(destFile) {
 						return nil
