@@ -33,7 +33,7 @@ import (
 	"{{ .GoModule}}/internal/server/litestream"
 	"{{ .GoModule}}/internal/server/instrumentation/metric"
 	"{{ .GoModule}}/internal/server/instrumentation/trace"
-	"{{ .GoModule}}/templates"
+	"{{ .GoModule}}/view"
 )
 
 {{if .Args}}//go:generate {{ .Args}}{{end}}
@@ -170,7 +170,7 @@ func run() error {
 	} else {
 		mux.Handle("GET /web/", etag.Handler(webFS, ""))
 	}
-	err = templates.RegisterHandlers(mux, dev)
+	err = view.RegisterHandlers(mux, dev)
 	if err != nil {
 		return fmt.Errorf("frontend templates error: %w", err)
 	}

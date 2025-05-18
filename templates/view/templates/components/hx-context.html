@@ -1,4 +1,4 @@
 {{if and .HxRequest (not (eq (.Query "nested") "true"))}}
-{{ template "message.html" . }}
+{{ template "messages-context.html" . }}
 {{ template "breadcrumbs.html" . }}
 {{end -}}

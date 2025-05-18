@@ -1,4 +1,4 @@
-package templates
+package view
 
 import (
 	"context"
@@ -12,8 +12,7 @@ import (
 	"os"
 	"strings"
 
-	"sqlite-htmx/internal/server/htmx"
-	watchersse "sqlite-htmx/internal/server/watcher"
+	watchersse "{{.GoModule}}/view/watcher"
 )
 
 // Content-Security-Policy
@@ -27,15 +26,10 @@ const (
 	paginationContext
 )
 
-type breadCrumb struct {
-	Name string
-	Href string
-}
-
 var (
 	ErrTemplateNotFound = errors.New("template not found")
 
-	//go:embed *
+	//go:embed templates
 	templatesFS embed.FS
 	funcs       = template.FuncMap{}
 
@@ -52,70 +46,6 @@ func init() {
 	}
 }
 
-const defaultLimit = 10
-
-type Pagination struct {
-	request *http.Request
-	Limit   int64
-	Offset  int64
-}
-
-func (p *Pagination) From() int64 {
-	return p.Offset + 1
-}
-
-func (p *Pagination) To() int64 {
-	return p.Offset + p.validLimit()
-}
-
-func (p *Pagination) Next() int64 {
-	return p.Offset + p.validLimit()
-}
-
-func (p *Pagination) Prev() int64 {
-	limit := p.validLimit()
-	offset := p.Offset - limit
-	if offset < 0 {
-		offset = 0
-	}
-	return offset
-}
-
-func (p *Pagination) URL(limit, offset int64) string {
-	if p == nil {
-		return ""
-	}
-	if offset < 0 {
-		offset = 0
-	}
-	if limit == 0 {
-		limit = defaultLimit
-	}
-	var url strings.Builder
-	url.WriteString(p.request.URL.Path)
-	url.WriteString("?")
-	for k := range p.request.URL.Query() {
-		if k == "limit" || k == "offset" {
-			continue
-		}
-		url.WriteString(fmt.Sprintf("%s=%s&", k, p.request.URL.Query().Get(k)))
-	}
-	if limit > 0 {
-		url.WriteString(fmt.Sprintf("limit=%d&offset=%d", limit, offset))
-	} else {
-		url.WriteString(fmt.Sprintf("offset=%d", offset))
-	}
-	return url.String()
-}
-
-func (p *Pagination) validLimit() int64 {
-	limit := p.Limit
-	if limit == 0 {
-		limit = 10
-	}
-	return limit
-}
-
 type templatesProvider interface {
 	FullTemplate(string) (*template.Template, error)
 	DynamicTemplate(string) (*template.Template, error)
@@ -129,6 +59,7 @@ func RegisterHandlers(mux *http.ServeMux, devMode bool) error {
 	componentsTemplates := []string{
 		"components/breadcrumbs.html",
 		"components/hx-context.html",
+		"components/messages-context.html",
 		"components/message.html",
 	}
 	layoutTemplates := []string{
@@ -137,7 +68,7 @@ func RegisterHandlers(mux *http.ServeMux, devMode bool) error {
 		"layout/footer.html",
 	}
 	if devMode {
-		templatesPath := "templates"
+		templatesPath := "view/templates"
 		provider = &templateDevRender{
 			templatesFS:   os.DirFS(templatesPath),
 			base:          base,
@@ -152,11 +83,15 @@ func RegisterHandlers(mux *http.ServeMux, devMode bool) error {
 		watcher.Start(context.Background())
 		mux.Handle("GET /reload", watcher)
 	} else {
+		subFS, err := fs.Sub(templatesFS, "templates")
+		if err != nil {
+			return err
+		}
 		tr := templateRender{
-			templatesFS: templatesFS,
-			content: template.Must(content.ParseFS(templatesFS,
+			templatesFS: subFS,
+			content: template.Must(content.ParseFS(subFS,
 				append(componentsTemplates, "layout/content.html")...)),
-			base: template.Must(base.ParseFS(templatesFS,
+			base: template.Must(base.ParseFS(subFS,
 				append(componentsTemplates, layoutTemplates...)...)),
 		}
 		if err := tr.Compile(); err != nil {
@@ -182,17 +117,21 @@ type templateOpts struct {
 
 func defaultTemplateOpts(content any) templateOpts {
 	return templateOpts{
-		Title:   "Sqlite-htmx",
+		Title:   "{{.GoModule | PascalCase | AddSpace}}",
 		Content: content,
 		DevMode: provider.DevMode(),
 	}
+}
+
+func HXRequest(r *http.Request) bool {
+	return r.Header.Get("hx-request") == "true"
 }
 
 func ContextWithPagination(ctx context.Context, pagination *Pagination) context.Context {
 	return context.WithValue(ctx, paginationContext, pagination)
 }
 
-func ContextWithMessage(ctx context.Context, msg htmx.Message) context.Context {
+func ContextWithMessage(ctx context.Context, msg Message) context.Context {
 	return context.WithValue(ctx, messageContext, msg)
 }
 
@@ -200,91 +139,10 @@ func ContextWithTemplates(ctx context.Context, templates ...string) context.Cont
 	return context.WithValue(ctx, templatesContext, templates)
 }
 
-type Content[T any] struct {
-	Data    T
-	Request *http.Request
-}
-
-func (c Content[T]) HxRequest() bool {
-	return htmx.HXRequest(c.Request)
-}
-
-func (c Content[T]) Pagination() *Pagination {
-	pagination, _ := c.Request.Context().Value(paginationContext).(*Pagination)
-	if pagination != nil {
-		pagination.request = c.Request
-	}
-	return pagination
-}
-
-func (c Content[T]) BaseHref() string {
-	schema := "http"
-	if forwardedProto := c.Request.Header.Get("X-Forwarded-Proto"); forwardedProto != "" {
-		schema = forwardedProto
-	} else if c.Request.TLS != nil {
-		schema = "https"
-	}
-	context := os.Getenv("WEB_CONTEXT")
-	return fmt.Sprintf("%s://%s%s/", schema, c.Request.Host, strings.TrimSuffix(context, "/"))
-}
-
-func (c Content[T]) BreadCrumbsFromRequest() []breadCrumb {
-	switch c.Request.Pattern {
-	case "POST /authors":
-		return breadCrumbsFromStrings("Authors", "/", "Create Author")
-	case "DELETE /authors/{id}":
-		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Delete Author")
-	case "GET /authors/{id}":
-		serviceName := "Get Author"
-		if c.HasQuery("edit") {
-			serviceName = "Update Author"
-		}
-		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", serviceName)
-	case "GET /authors":
-		return breadCrumbsFromStrings("Authors", "/", "List Authors")
-	case "PUT /authors/{id}":
-		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Update Author")
-	case "PATCH /authors/{id}/bio":
-		return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Get Author", "/authors/"+c.Request.PathValue("id"), "Update Author Bio")
-	default:
-		switch c.Request.URL.Path {
-		case "/app/authors/create_author":
-			return breadCrumbsFromStrings("Authors", "/", "Create Author")
-		case "/app/authors/delete_author":
-			return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Delete Author")
-		case "/app/authors/get_author":
-			return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Get Author")
-		case "/app/authors/list_authors":
-			return breadCrumbsFromStrings("Authors", "/", "List Authors")
-		case "/app/authors/update_author":
-			return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Update Author")
-		case "/app/authors/update_author_bio":
-			return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Update Author Bio")
-		}
-	}
-
-	return nil
-}
-
-func (c Content[T]) HasQuery(key string) bool {
-	return c.Request.URL.Query().Has(key)
-}
-
-func (c Content[T]) Query(key string) string {
-	return c.Request.URL.Query().Get(key)
-}
-
-func (c Content[T]) MessageContext() *htmx.Message {
-	if msg, ok := c.Request.Context().Value(messageContext).(htmx.Message); ok {
-		return &msg
-	}
-	return nil
-}
-
 func RenderHTML[T any](w http.ResponseWriter, r *http.Request, content T) (err error) {
 	templates := contextTemplates(r)
 	if len(templates) == 0 {
-		if msg, ok := r.Context().Value(messageContext).(htmx.Message); ok {
+		if msg, ok := r.Context().Value(messageContext).(Message); ok {
 			return msg.Render(w, r)
 		}
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -294,7 +152,7 @@ func RenderHTML[T any](w http.ResponseWriter, r *http.Request, content T) (err e
 		tmpl *template.Template
 		obj  any
 	)
-	if htmx.HXRequest(r) {
+	if HXRequest(r) {
 		tmpl, err = provider.DynamicTemplate(templates[0])
 		obj = Content[T]{
 			Data:    content,
@@ -453,18 +311,4 @@ func contextTemplates(r *http.Request) []string {
 	}
 	path = path + ".html"
 	return []string{path}
-}
-
-func breadCrumbsFromStrings(items ...string) []breadCrumb {
-	breadcrumbs := make([]breadCrumb, 0)
-	for i := 0; i < len(items); i = i + 2 {
-		var bc breadCrumb
-		bc.Name = items[i]
-		j := i + 1
-		if j < len(items) {
-			bc.Href = items[j]
-		}
-		breadcrumbs = append(breadcrumbs, bc)
-	}
-	return breadcrumbs
 }

@@ -1,0 +1,28 @@
+package view
+
+import "net/http"
+
+type breadCrumb struct {
+	Name string
+	Href string
+}
+
+func breadCrumbsFromRequest(r *http.Request) []breadCrumb {
+	{{ range .BreadCrumbs}}{{ .}}
+	{{end}}
+	return nil
+}
+
+func breadCrumbsFromStrings(items ...string) []breadCrumb {
+	breadcrumbs := make([]breadCrumb, 0)
+	for i := 0; i < len(items); i = i + 2 {
+		var bc breadCrumb
+		bc.Name = items[i]
+		j := i + 1
+		if j < len(items) {
+			bc.Href = items[j]
+		}
+		breadcrumbs = append(breadcrumbs, bc)
+	}
+	return breadcrumbs
+}

@@ -1,4 +1,4 @@
-package htmx
+package view
 
 import (
 	_ "embed"
@@ -9,10 +9,13 @@ import (
 	"strings"
 )
 
-const messagesSelector = "#messages"
+const (
+	retarget = "#messages"
+	reswap   = "beforeend show:body:top"
+)
 
 var (
-	//go:embed message.html
+	//go:embed templates/components/message.html
 	messageHTML string
 
 	messageTemplate = template.Must(template.New("message").Parse(messageHTML))
@@ -86,8 +89,8 @@ func (m Message) Render(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if HXRequest(r) {
-		w.Header().Set("HX-Retarget", messagesSelector)
-		w.Header().Set("HX-Reswap", "beforeend")
+		w.Header().Set("HX-Retarget", retarget)
+		w.Header().Set("HX-Reswap", reswap)
 	}
 
 	err := messageTemplate.Execute(w, m)

@@ -23,7 +23,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"sqlite-htmx/internal/server/etag"
-	"sqlite-htmx/templates"
+	"sqlite-htmx/view"
 )
 
 //go:generate sqlc-http -m sqlite-htmx -migration-path sql/migrations -frontend -append
@@ -87,7 +87,7 @@ func run() error {
 	} else {
 		mux.Handle("GET /web/", etag.Handler(webFS, ""))
 	}
-	err = templates.RegisterHandlers(mux, dev)
+	err = view.RegisterHandlers(mux, dev)
 	if err != nil {
 		return fmt.Errorf("frontend templates error: %w", err)
 	}

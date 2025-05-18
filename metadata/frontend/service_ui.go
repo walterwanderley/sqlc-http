@@ -25,7 +25,7 @@ type DefinitionUI struct {
 
 func (d *DefinitionUI) BreadCrumbs() []string {
 	res := make([]string, 0)
-	res = append(res, "switch c.Request.Pattern {")
+	res = append(res, "switch r.Pattern {")
 	for _, pkg := range d.Packages {
 		for _, svc := range pkg.Services {
 			svcName := AddSpace(converter.ToPascalCase(svc.Name))
@@ -44,7 +44,7 @@ func (d *DefinitionUI) BreadCrumbs() []string {
 					}
 					if editService := serviceUI.editService(); editService != nil {
 						res = append(res, fmt.Sprintf(`serviceName := "%s"`, svcName))
-						res = append(res, `if c.HasQuery("edit") {`)
+						res = append(res, `if r.URL.Query().Has("edit") {`)
 						res = append(res, fmt.Sprintf(`    serviceName = "%s"`, AddSpace(converter.ToPascalCase(editService.Name))))
 						res = append(res, `}`)
 						res = append(res, fmt.Sprintf(`return breadCrumbsFromStrings(%s serviceName)`, args.String()))
@@ -56,7 +56,7 @@ func (d *DefinitionUI) BreadCrumbs() []string {
 		}
 	}
 	res = append(res, "default:")
-	res = append(res, "switch c.Request.URL.Path {")
+	res = append(res, "switch r.URL.Path {")
 	for _, pkg := range d.Packages {
 		for _, svc := range pkg.Services {
 			svcName := AddSpace(converter.ToPascalCase(svc.Name))
@@ -131,7 +131,7 @@ func serviceByPath(pkg *metadata.Package, services []*metadata.Service, path str
 			if spec.Path == path {
 				resolvedPath := spec.Path
 				for _, param := range pathParams {
-					resolvedPath = strings.ReplaceAll(resolvedPath, fmt.Sprintf("{%s}", param), fmt.Sprintf(`" + c.Request.PathValue("%s") + "`, param))
+					resolvedPath = strings.ReplaceAll(resolvedPath, fmt.Sprintf("{%s}", param), fmt.Sprintf(`" + r.PathValue("%s") + "`, param))
 				}
 				resolvedPath = fmt.Sprintf(`"%s"`, resolvedPath)
 				resolvedPath = strings.TrimSuffix(resolvedPath, ` + ""`)

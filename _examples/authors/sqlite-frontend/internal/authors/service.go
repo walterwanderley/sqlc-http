@@ -11,8 +11,7 @@ import (
 	"time"
 
 	"sqlite-htmx/internal/server"
-	"sqlite-htmx/internal/server/htmx"
-	"sqlite-htmx/templates"
+	"sqlite-htmx/view"
 )
 
 type Service struct {
@@ -50,7 +49,7 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 		}
 
 		lastInsertId, _ := result.LastInsertId()
-		htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))
+		view.Success(w, r, http.StatusOK, fmt.Sprintf("Last insert ID: %d", lastInsertId))
 	}
 }
 
@@ -168,7 +167,7 @@ func (s *Service) handleListAuthors() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		r = r.WithContext(templates.ContextWithPagination(r.Context(), &templates.Pagination{
+		r = r.WithContext(view.ContextWithPagination(r.Context(), &view.Pagination{
 			Limit:  req.Limit,
 			Offset: req.Offset,
 		}))
@@ -230,7 +229,7 @@ func (s *Service) handleUpdateAuthor() http.HandlerFunc {
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		view.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 	}
 }
 
@@ -268,6 +267,6 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		htmx.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
+		view.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 	}
 }

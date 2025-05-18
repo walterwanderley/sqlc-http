@@ -31,17 +31,9 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 		newPath := strings.TrimSuffix(path, ".tmpl")
 
 		if d.IsDir() {
-			if (strings.HasSuffix(newPath, "templates") ||
-				strings.HasSuffix(newPath, "etag") ||
-				strings.HasSuffix(newPath, "htmx") ||
-				strings.HasSuffix(newPath, "watcher") ||
-				strings.HasSuffix(newPath, "web") ||
-				strings.HasSuffix(newPath, "swagger") ||
-				strings.HasSuffix(newPath, "css") ||
-				strings.HasSuffix(newPath, "fonts") ||
-				strings.HasSuffix(newPath, "js") ||
-				strings.HasSuffix(newPath, "app") ||
-				strings.HasSuffix(newPath, "layout")) && !generateFrontend {
+			if (strings.HasPrefix(newPath, "view") ||
+				strings.HasPrefix(newPath, "web") ||
+				strings.HasSuffix(newPath, "/etag")) && !generateFrontend {
 				return nil
 			}
 
@@ -74,11 +66,8 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 			return nil
 		}
 
-		if (strings.HasSuffix(newPath, ".html") || strings.HasSuffix(newPath, ".css") ||
-			strings.HasSuffix(newPath, ".js") || strings.HasSuffix(newPath, "templates.go") ||
-			strings.HasSuffix(newPath, ".woff") || strings.HasSuffix(newPath, "woff2") ||
-			strings.HasSuffix(newPath, "watcher.go") || strings.HasSuffix(newPath, "message.go") ||
-			strings.HasSuffix(newPath, "etag.go") || strings.HasSuffix(newPath, "htmx.go")) && !generateFrontend {
+		if (strings.HasPrefix(newPath, "view/") || strings.HasSuffix(newPath, "etag.go") ||
+			strings.HasPrefix(newPath, "web/")) && !generateFrontend {
 			return nil
 		}
 
@@ -237,7 +226,7 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 			return nil
 		}
 
-		if strings.HasSuffix(newPath, "templates/templates.go") {
+		if strings.HasSuffix(newPath, "view/view.go") || strings.HasSuffix(newPath, "view/breadcrumbs.go") {
 			if !generateFrontend {
 				return nil
 			}

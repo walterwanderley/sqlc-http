@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-playground/form/v4"
 
-	"sqlite-htmx/templates"
+	"sqlite-htmx/view"
 )
 
 var formDecoder *form.Decoder
@@ -48,7 +48,7 @@ func Decode[T any](r *http.Request) (T, error) {
 
 func Encode[T any](w http.ResponseWriter, r *http.Request, status int, v T) error {
 	if !strings.Contains(r.Header.Get("Accept"), "application/json") {
-		if err := templates.RenderHTML(w, r, v); err != nil {
+		if err := view.RenderHTML(w, r, v); err != nil {
 			slog.Error("render html", "error", err)
 		}
 		return nil

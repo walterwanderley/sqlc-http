@@ -19,9 +19,8 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"{{.GoModule}}/internal/server"
-	"{{.GoModule}}/internal/server/htmx"
-	"{{.GoModule}}/templates"
+	"{{.GoModule}}/internal/server"	
+	"{{.GoModule}}/view"
 )
 	
 type Service struct {
@@ -45,7 +44,7 @@ func (s *Service) handle{{.Name | UpperFirstCharacter}}() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)	
 			return
 		}
-		{{if UI}}{{if . | HasPagination}}r = r.WithContext(templates.ContextWithPagination(r.Context(), &templates.Pagination{
+		{{if UI}}{{if . | HasPagination}}r = r.WithContext(view.ContextWithPagination(r.Context(), &view.Pagination{
 			Limit: req.Limit,
 			Offset: req.Offset,
 		})){{end}}
