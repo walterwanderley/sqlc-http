@@ -19,7 +19,7 @@ import (
 
 	"go.uber.org/automaxprocs/maxprocs"
 	// database driver
-	_ "modernc.org/sqlite"
+	_ "github.com/litesql/go-sqlite-ha"
 
 	"sqlite-htmx/view"
 )
@@ -60,7 +60,7 @@ func run() error {
 	}
 	slog.Info("startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
 
-	db, err := sql.Open("sqlite", dbURL)
+	db, err := sql.Open("sqlite-ha", dbURL)
 	if err != nil {
 		return err
 	}
