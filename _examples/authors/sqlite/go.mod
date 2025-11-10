@@ -8,7 +8,8 @@ require (
 	github.com/go-playground/form/v4 v4.3.0
 	github.com/hashicorp/raft v1.7.3
 	github.com/hashicorp/raft-boltdb v0.0.0-20251103221153-05f9dd7a5148
-	github.com/litesql/go-sqlite3-ha v0.0.4
+	github.com/litesql/go-ha v0.0.20
+	github.com/litesql/go-sqlite3-ha v0.0.5
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/superfly/litefs v0.5.14
 	github.com/superfly/ltx v0.5.0
@@ -57,7 +58,6 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
-	github.com/litesql/go-ha v0.0.16 // indirect
 	github.com/litesql/go-sqlite3 v1.14.34 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -87,7 +87,7 @@ require (
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/net v0.45.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect

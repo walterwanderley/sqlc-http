@@ -5,7 +5,8 @@ go 1.25.0
 require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-playground/form/v4 v4.3.0
-	github.com/litesql/go-sqlite-ha v0.0.7
+	github.com/litesql/go-ha v0.0.20
+	github.com/litesql/go-sqlite-ha v0.0.8
 	github.com/pressly/goose/v3 v3.26.0
 	go.uber.org/automaxprocs v1.6.0
 )
@@ -18,7 +19,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
-	github.com/litesql/go-ha v0.0.16 // indirect
 	github.com/litesql/sqlite v1.39.6 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
@@ -35,7 +35,7 @@ require (
 	golang.org/x/crypto v0.43.0 // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	modernc.org/libc v1.66.10 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/flowchartsman/swaggerui"
+	"github.com/litesql/go-ha"
 	"go.uber.org/automaxprocs/maxprocs"
 
 	// database driver
@@ -73,6 +74,7 @@ func run() error {
 		slog.Warn("startup", "error", err)
 	}
 	slog.Info("startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
+	defer ha.Shutdown()
 
 	db, err := sql.Open("sqlite3-ha", dbURL)
 	if err != nil {

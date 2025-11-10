@@ -17,7 +17,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/litesql/go-ha"
 	"go.uber.org/automaxprocs/maxprocs"
+
 	// database driver
 	_ "github.com/litesql/go-sqlite-ha"
 
@@ -59,6 +61,7 @@ func run() error {
 		slog.Warn("startup", "error", err)
 	}
 	slog.Info("startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
+	defer ha.Shutdown()
 
 	db, err := sql.Open("sqlite-ha", dbURL)
 	if err != nil {
