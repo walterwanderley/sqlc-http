@@ -50,6 +50,7 @@ var (
 	natsPort       int
 	natsURL        string
 	cdcID          string
+	clusterSize    int
 
 	//go:embed openapi.yml
 	openAPISpec []byte
@@ -62,6 +63,7 @@ func main() {
 	flag.StringVar(&replicationURL, "replication", "", "S3 replication URL")
 	flag.StringVar(&node, "node", "", "Node name identify (for database replication)")
 	flag.StringVar(&cdcID, "cdc-id", "", "CDC ID for replication (defaults to database filename)")
+	flag.IntVar(&clusterSize, "cluster-size", 1, "Cluster size (for leader election)")
 	flag.StringVar(&natsConfig, "nats-config", "", "Embedded NATS configuration file path (overrides other NATS configs)")
 	flag.IntVar(&natsPort, "nats-port", 0, "Embedded NATS port for database replication")
 	flag.StringVar(&natsURL, "nats-url", "", "External NATS URL connect for database replication. Ex: nats://host:4222")
@@ -100,6 +102,9 @@ func main() {
 	}
 	if cdcID != "" {
 		dbURL += fmt.Sprintf("&cdcID=%s", cdcID)
+	}
+	if clusterSize > 0 {
+		dbURL += fmt.Sprintf("&clusterSize=%d", clusterSize)
 	}
 	if leaderRedirect {
 		if staticLeader != "" {

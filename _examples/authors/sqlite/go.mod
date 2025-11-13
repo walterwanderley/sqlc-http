@@ -6,7 +6,7 @@ require (
 	github.com/benbjohnson/litestream v0.5.2
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
 	github.com/go-playground/form/v4 v4.3.0
-	github.com/litesql/go-ha v0.1.1
+	github.com/litesql/go-ha v0.1.2
 	github.com/litesql/go-sqlite-ha v0.1.0
 	github.com/pressly/goose/v3 v3.26.0
 	go.uber.org/automaxprocs v1.6.0

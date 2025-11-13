@@ -121,4 +121,30 @@ If you want to automatic refresh the browser after change html files, use the **
 go run . -db test.db -dev
 ```
 
+## Database Relication
+
+Starting 3 instances with database replication (using either an embedded or external NATS server) to achieve high availability and fault tolerance:
+
+### Instance 1
+
+```sh
+go run . -db "node1.db" -cdc-id example -nats-port 4222 -node n1 -port 5000 -leader-redirect
+```
+
+### Instance 2
+
+```sh
+go run . -db "node2.db" -cdc-id example -nats-url nats://localhost:4222 -node n2 -port 5001 -leader-redirect
+```
+
+### Instance 3
+
+```sh
+go run . -db "node3.db" -cdc-id example -nats-url nats://localhost:4222 -node n3 -port 5002 -leader-redirect
+```
+
+Go to [http://localhost:5000](http://localhost:5000)
+Go to [http://localhost:5001](http://localhost:5001)
+Go to [http://localhost:5002](http://localhost:5002)
+
 "Computers make art, artists make money" (Chico Science)
