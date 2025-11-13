@@ -51,7 +51,6 @@ func main() {
 	flag.IntVar(&prometheusPort, "prometheus-port", 0, "The metrics server port")
 	flag.BoolVar(&dev, "dev", false, "Set logger to development mode")
 	flag.StringVar(&otlpEndpoint, "otlp-endpoint", "", "The Open Telemetry Protocol Endpoint (example: localhost:4317)")
-
 	flag.Parse()
 
 	initLogger()
@@ -133,7 +132,7 @@ func run() error {
 		defer cancel()
 		server.Shutdown(ctx)
 	}()
-	slog.Info("Listening...", "port", port)
+	slog.Info("Listening...", "port", port, "service", serviceName)
 	return server.ListenAndServe()
 }
 

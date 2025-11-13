@@ -8,7 +8,7 @@ Create a **net/http Server** from the generated code by the awesome [sqlc](https
 
 ### Requirements
 
-- Go 1.23 or superior
+- Go 1.25 or superior
 - [sqlc](https://sqlc.dev/)
 
 ```sh
@@ -24,6 +24,10 @@ go install github.com/walterwanderley/sqlc-http@latest
 ### Fullstack application example (HTMX)
 
 If you want to generate a complete application (including htmx frontend), check [this example](https://github.com/walterwanderley/sqlc-http/blob/main/_examples/authors/sqlite-frontend/README.md).
+
+### High Availability SQLite Applications
+
+For SQLite-based applications, the generated code leverages the [go-ha](https://github.com/litesql/go-ha) driver to enable high availability and fault tolerance.
 
 ### Example
 

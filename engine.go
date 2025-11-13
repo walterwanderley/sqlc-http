@@ -48,9 +48,6 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 				return nil
 			}
 
-			if strings.HasSuffix(newPath, "litefs") && !(def.Database() == "sqlite" && def.LiteFS) {
-				return nil
-			}
 			if _, err := os.Stat(newPath); os.IsNotExist(err) {
 				err := os.MkdirAll(newPath, 0750)
 				if err != nil {
@@ -216,10 +213,6 @@ func process(def *metadata.Definition, appendMode bool, generateFrontend bool) e
 		}
 
 		if strings.HasSuffix(newPath, "litestream.go") && !(def.Database() == "sqlite" && def.Litestream) {
-			return nil
-		}
-
-		if (strings.HasSuffix(newPath, "litefs.go") || strings.HasSuffix(newPath, "forward.go")) && !(def.Database() == "sqlite" && def.LiteFS) {
 			return nil
 		}
 

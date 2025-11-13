@@ -41,9 +41,7 @@ var (
 func main() {
 	flag.StringVar(&dbURL, "db", "", "The Database connection URL")
 	flag.IntVar(&port, "port", 5000, "The server port")
-
 	flag.BoolVar(&dev, "dev", false, "Set logger to development mode")
-
 	flag.Parse()
 
 	initLogger()
@@ -97,7 +95,7 @@ func run() error {
 		defer cancel()
 		server.Shutdown(ctx)
 	}()
-	slog.Info("Listening...", "port", port)
+	slog.Info("Listening...", "port", port, "service", serviceName)
 	return server.ListenAndServe()
 }
 

@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,12 +29,25 @@ import (
 
 //go:generate sqlc-http -m sqlite-htmx -migration-path sql/migrations -frontend -append
 
-const serviceName = "sqlite-htmx"
+const (
+	serviceName    = "sqlite-htmx"
+	forwardTimeout = 10 * time.Second
+)
 
 var (
 	dev   bool
 	dbURL string
 	port  int
+
+	node           string
+	leaderRedirect bool
+	staticLeader   string
+	advertiseAddr  string
+	natsAsyncPub   bool
+	natsConfig     string
+	natsPort       int
+	natsURL        string
+	cdcID          string
 
 	//go:embed openapi.yml
 	openAPISpec []byte
@@ -42,10 +56,57 @@ var (
 func main() {
 	flag.StringVar(&dbURL, "db", "", "The Database connection URL")
 	flag.IntVar(&port, "port", 5000, "The server port")
-
 	flag.BoolVar(&dev, "dev", false, "Set logger to development mode and enable Hot Reload on edit templates files")
-
+	flag.StringVar(&node, "node", "", "Node name identify (for database replication)")
+	flag.StringVar(&cdcID, "cdc-id", "", "CDC ID for replication (defaults to database filename)")
+	flag.StringVar(&natsConfig, "nats-config", "", "Embedded NATS configuration file path (overrides other NATS configs)")
+	flag.IntVar(&natsPort, "nats-port", 0, "Embedded NATS port for database replication")
+	flag.StringVar(&natsURL, "nats-url", "", "External NATS URL connect for database replication. Ex: nats://host:4222")
+	flag.BoolVar(&natsAsyncPub, "nats-async-pub", false, "Async publishes to NATS")
+	flag.BoolVar(&leaderRedirect, "leader-redirect", false, "Redirect POST/PUT/DELETE/PATCH requests to Leader")
+	flag.StringVar(&staticLeader, "leader-target", "", "Leader static target endoint")
+	flag.StringVar(&advertiseAddr, "advertise-addr", "", "Advertise address (ex: http://localhost:5000)")
 	flag.Parse()
+
+	hostname, _ := os.Hostname()
+	if hostname == "" {
+		hostname = "localhost"
+	}
+	if advertiseAddr == "" {
+		advertiseAddr = fmt.Sprintf("http://%s:%d", hostname, port)
+	}
+
+	if !strings.Contains(dbURL, "?") {
+		dbURL += "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous=NORMAL&_txlock=immediate"
+	}
+	dbURL += "&autoStart=false"
+	if node != "" {
+		dbURL += fmt.Sprintf("&name=%s", node)
+	}
+	if natsConfig != "" {
+		dbURL += fmt.Sprintf("&natsConfigFile=%s", natsConfig)
+	}
+	if natsPort > 0 {
+		dbURL += fmt.Sprintf("&natsPort=%d", natsPort)
+	}
+	if natsURL != "" {
+		dbURL += fmt.Sprintf("&replicationURL=%s", natsURL)
+	}
+	if natsAsyncPub {
+		dbURL += "&asyncPublisher=true"
+	}
+	if cdcID != "" {
+		dbURL += fmt.Sprintf("&cdcID=%s", cdcID)
+	}
+	if leaderRedirect {
+		if staticLeader != "" {
+			dbURL += fmt.Sprintf("&leaderProvider=static:%s", staticLeader)
+		} else {
+			dbURL += fmt.Sprintf("&leaderProvider=dynamic:%s", advertiseAddr)
+		}
+	}
+
+	dbURL = "file:" + strings.TrimPrefix(dbURL, "file:")
 
 	initLogger()
 
@@ -73,6 +134,22 @@ func run() error {
 		return fmt.Errorf("migration error: %w", err)
 	}
 
+	connector, ok := ha.LookupConnector(dbURL)
+	if ok {
+		err := connector.Start(db)
+		if err != nil {
+			return fmt.Errorf("failed to start connector: %w", err)
+		}
+	} else {
+		return fmt.Errorf("connector not found")
+	}
+
+	if leaderRedirect {
+		slog.Info("waiting for a leader")
+		<-connector.LeaderProvider().Ready()
+		slog.Info("leader elected", "target", connector.LeaderProvider().RedirectTarget())
+	}
+
 	mux := http.NewServeMux()
 	registerHandlers(mux, db)
 
@@ -86,9 +163,15 @@ func run() error {
 		return fmt.Errorf("frontend templates error: %w", err)
 	}
 
+	var handler http.Handler = mux
+	if leaderRedirect {
+		handler = connector.ForwardToLeader(forwardTimeout, "POST", "PUT", "PATCH", "DELETE")(handler)
+		handler = connector.ConsistentReader(forwardTimeout, "GET")(handler)
+	}
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
+		Handler: handler,
 		// Please, configure timeouts!
 	}
 
@@ -101,7 +184,7 @@ func run() error {
 		defer cancel()
 		server.Shutdown(ctx)
 	}()
-	slog.Info("Listening...", "port", port)
+	slog.Info("Listening...", "port", port, "service", serviceName)
 	return server.ListenAndServe()
 }
 
