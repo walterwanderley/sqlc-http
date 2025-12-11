@@ -16,6 +16,9 @@ import (
 func GroupByPath(pkg *metadata.Package) map[string][]*metadata.Service {
 	paths := make(map[string][]*metadata.Service)
 	for _, s := range pkg.Services {
+		if s.Skip() {
+			continue
+		}
 		path := HttpPath(s)
 		services, ok := paths[path]
 		if !ok {
@@ -486,6 +489,9 @@ func lookupService(def *metadata.Definition, method, path string) (*metadata.Ser
 	method = strings.ToUpper(method)
 	for _, pkg := range def.Packages {
 		for _, s := range pkg.Services {
+			if s.Skip() {
+				continue
+			}
 			if path == HttpPath(s) && method == HttpMethod(s) {
 				return s, true
 			}
