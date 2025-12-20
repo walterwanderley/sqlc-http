@@ -9,7 +9,12 @@
     </div>
     <div class="mb-3">
         <label for="bio" class="form-label">Bio</label>
-        <input id="bio"  name="bio" type="text"{{if .Data.Bio}} value="{{.Data.Bio}}"{{end}} class="form-control"/>
+        <select id="bio" name="bio" class="form-select">
+            <option value=""></option>
+            {{range .Data.Bio}}
+            <option value="{{.ID}}">{{.Text}}</option>
+            {{end}}
+        </select>
     </div>
     <div class="mb-3">
         <div class="col-sm-4 col-md-2">

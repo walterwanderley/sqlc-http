@@ -5,13 +5,20 @@ package books
 import "net/http"
 
 func (s *Service) RegisterHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("POST /books-by-tags", s.handleBooksByTags())
+
 	mux.HandleFunc("GET /books-by-title-year", s.handleBooksByTitleYear())
+
 	mux.HandleFunc("POST /author", s.handleCreateAuthor())
+
 	mux.HandleFunc("POST /book", s.handleCreateBook())
+
 	mux.HandleFunc("DELETE /book/{book_id}", s.handleDeleteBook())
+
 	mux.HandleFunc("GET /author/{author_id}", s.handleGetAuthor())
+
 	mux.HandleFunc("GET /book/{book_id}", s.handleGetBook())
+
 	mux.HandleFunc("PUT /book", s.handleUpdateBook())
+
 	mux.HandleFunc("PUT /book-isbn", s.handleUpdateBookISBN())
 }

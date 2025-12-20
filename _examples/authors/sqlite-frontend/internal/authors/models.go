@@ -14,3 +14,8 @@ type Author struct {
 	Bio       sql.NullString
 	BirthDate sql.NullTime
 }
+
+type Bio struct {
+	ID   int64
+	Text string
+}

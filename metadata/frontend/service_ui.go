@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/walterwanderley/sqlc-grpc/converter"
 	"github.com/walterwanderley/sqlc-grpc/metadata"
@@ -257,7 +258,7 @@ func (s *ServiceUI) HtmlInput() []string {
 				res = append(res, `<input type="hidden" name="offset" value="0"/>`)
 				continue
 			}
-			res = append(res, htmlInput(f.Name, f.Type, false)...)
+			res = append(res, s.htmlInput(f.Name, f.Type, false)...)
 		}
 	} else {
 		for i, inName := range s.InputNames {
@@ -270,7 +271,7 @@ func (s *ServiceUI) HtmlInput() []string {
 				res = append(res, `<input type="hidden" name="offset" value="0"/>`)
 				continue
 			}
-			res = append(res, htmlInput(inName, s.InputTypes[i], false)...)
+			res = append(res, s.htmlInput(inName, s.InputTypes[i], false)...)
 		}
 	}
 	res = append(res, `<div class="p-3">`)
@@ -341,7 +342,7 @@ func (s *ServiceUI) HtmlInputEdit() []string {
 				res = append(res, fmt.Sprintf(`<input type="hidden" name="%s" value="{{.Data.%s}}">`, param, f.Name))
 				continue
 			}
-			res = append(res, htmlInput(f.Name, f.Type, true)...)
+			res = append(res, s.htmlInput(f.Name, f.Type, true)...)
 		}
 	} else {
 		for i, name := range serviceUI.InputNames {
@@ -350,7 +351,7 @@ func (s *ServiceUI) HtmlInputEdit() []string {
 				res = append(res, fmt.Sprintf(`<input type="hidden" name="%s" value="{{.Data.%s}}">`, param, name))
 				continue
 			}
-			res = append(res, htmlInput(name, serviceUI.InputTypes[i], true)...)
+			res = append(res, s.htmlInput(name, serviceUI.InputTypes[i], true)...)
 		}
 	}
 	res = append(res, `<div class="p-3">`)
@@ -745,6 +746,48 @@ func (s *ServiceUI) HtmlOutput() []string {
 	return res
 }
 
+func (s *ServiceUI) ReferenceDataProviders() map[string]string {
+	ref, ok := s.CustomSpecs["ref"]
+	if !ok {
+		return nil
+	}
+	result := make(map[string]string)
+	for _, r := range ref {
+		parts := strings.Split(strings.TrimSpace(r), " ")
+		if len(parts) != 2 {
+			continue
+		}
+		result[strings.ToLower(parts[0])] = parts[1]
+	}
+	return result
+}
+
+func (s *ServiceUI) ReferenceDataResponseAttributes() []string {
+	res := make([]string, 0)
+	dataProviders := s.ReferenceDataProviders()
+	if dataProviders == nil {
+		return res
+	}
+	for attr, ref := range dataProviders {
+		for _, svc := range s.Package.Services {
+			if ref == svc.Name {
+				if svc.Output != "" {
+					res = append(res, fmt.Sprintf("%s %s", converter.UpperFirstCharacter(attr), svc.Output))
+				}
+			}
+		}
+	}
+	return res
+}
+
+func (s *ServiceUI) ReferenceDataProvider(attr string) string {
+	providers := s.ReferenceDataProviders()
+	if providers == nil {
+		return ""
+	}
+	return providers[strings.ToLower(attr)]
+}
+
 func (s *ServiceUI) editService() *ServiceUI {
 	if httpmetadata.HttpMethod(s.Service) != "GET" || s.HasArrayOutput() || s.EmptyOutput() {
 		return nil
@@ -770,4 +813,101 @@ func (s *ServiceUI) editService() *ServiceUI {
 		Service: service,
 		Package: s.Package,
 	}
+}
+
+func (s *ServiceUI) toHtmlType(typ string) string {
+	if strings.HasPrefix(typ, "*") {
+		return s.toHtmlType(typ[1:])
+	}
+	if strings.HasPrefix(typ, "[]") {
+		return s.toHtmlType(typ[2:])
+	}
+	switch typ {
+	case "bool", "sql.NullBool", "pgtype.Bool":
+		return "checkbox"
+	case "sql.NullInt32", "pgtype.Int4", "pgtype.Int2", "pgtype.Uint32", "int", "int64", "uint64", "int16", "int32", "uint16", "uint32":
+		return "number"
+	case "time.Time", "sql.NullTime", "pgtype.Date", "pgtype.Timestamp", "pgtype.Timestampz":
+		return "date"
+	default:
+		return "text"
+	}
+}
+
+func (s *ServiceUI) htmlInput(attr, typ string, fill bool) []string {
+	attrName := converter.ToPascalCase(attr)
+	required := !strings.Contains(typ, "*") && !strings.Contains(typ, "pgtype.") && !strings.Contains(typ, "sql.Null")
+	label := AddSpace(attrName)
+	if required {
+		label = label + " *"
+	}
+	referenceData := s.ReferenceDataProvider(attr)
+	if referenceData != "" {
+		typ = "select"
+	} else {
+		typ = s.toHtmlType(typ)
+	}
+	res := make([]string, 0)
+	attrFormName := converter.ToSnakeCase(attrName)
+	var requiredAttr string
+	if required {
+		requiredAttr = "required"
+	}
+	switch typ {
+	case "checkbox":
+		res = append(res, `<div class="form-check">`)
+		if fill {
+			res = append(res, fmt.Sprintf(`    <input id="%s" name="%s" type="checkbox" class="form-check-input" value="{{.Data.%s}}" {{if .Data.%s}}checked{{end}}/>`, attrFormName, attrFormName, attr, attr))
+		} else {
+			res = append(res, fmt.Sprintf(`    <input id="%s" name="%s" type="checkbox" class="form-check-input" value=""/>`, attrFormName, attrFormName))
+		}
+		res = append(res, fmt.Sprintf(`    <label class="form-check-label" for="%s">%s</label>`, attrFormName, label))
+		res = append(res, `</div>`)
+	case "date":
+		res = append(res, `<div class="mb-3">`)
+		res = append(res, `    <div class="col-sm-4 col-md-2">`)
+
+		if fill {
+			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="date" class="form-control"{{if .Data.%s}} value="{{.Data.%s.Format "%s"}}"{{end}}/>`, attrFormName, requiredAttr, attrFormName, attr, attr, time.DateOnly))
+		} else {
+			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="date" class="form-control"/>`, attrFormName, requiredAttr, attrFormName))
+		}
+		res = append(res, `    </div>`)
+		res = append(res, `</div>`)
+	case "select":
+		for _, svc := range s.Package.Services {
+			if referenceData == svc.Name {
+				if msg, ok := s.Package.Messages[strings.TrimPrefix(svc.Output, "[]")]; ok {
+					res = append(res, `<div class="mb-3">`)
+					res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+					res = append(res, fmt.Sprintf(`    <select id="%s" name="%s" class="form-select">`, attrFormName, attrFormName))
+					res = append(res, `        <option value=""></option>`)
+					res = append(res, fmt.Sprintf(`        {{range .Data.%s}}`, converter.UpperFirstCharacter(attr)))
+					res = append(res, fmt.Sprintf(`        <option value="{{.%s}}">{{.%s}}</option>`, msg.Fields[0].Name, msg.Fields[1].Name))
+					res = append(res, `        {{end}}`)
+					res = append(res, `    </select>`)
+					if fill {
+						//res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s"{{if .Data.%s}} value="{{.Data.%s}}"{{end}} class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ, attr, attr))
+					} else {
+						//res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s" class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ))
+					}
+					res = append(res, `</div>`)
+				}
+				break
+			}
+		}
+	default:
+		res = append(res, `<div class="mb-3">`)
+		res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
+		if fill {
+			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s"{{if .Data.%s}} value="{{.Data.%s}}"{{end}} class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ, attr, attr))
+		} else {
+			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s" class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ))
+		}
+		res = append(res, `</div>`)
+	}
+
+	return res
 }

@@ -18,6 +18,7 @@ var Funcs = template.FuncMap{
 	"AddSpace":      frontend.AddSpace,
 	"HasPagination": frontend.HasPagination,
 	"OutputUI":      frontend.OutputUI,
+	"ToServiceUI":   frontend.ToServiceUI,
 
 	"UpperCase": strings.ToUpper,
 	"LowerCase": strings.ToLower,

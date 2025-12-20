@@ -1,0 +1,7 @@
+{{define "content"}}
+{{template "hx-context.html" . -}}
+<h5>List Bios</h5>
+<div hx-trigger="load" hx-get="bios?limit=10&nested=true" hx-target="#response"></div>
+
+<div id="response"></div>
+{{end}}

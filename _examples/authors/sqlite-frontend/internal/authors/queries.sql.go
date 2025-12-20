@@ -25,6 +25,7 @@ type CreateAuthorParams struct {
 }
 
 // http: POST /authors
+// ref: bio listBios
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio, arg.BirthDate)
 }
@@ -46,6 +47,7 @@ WHERE id = ? LIMIT 1
 `
 
 // http: GET /authors/{id}
+// ref: bio listBios
 func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 	row := q.db.QueryRowContext(ctx, getAuthor, id)
 	var i Author
@@ -137,4 +139,31 @@ type UpdateAuthorBioParams struct {
 // http: PATCH /authors/{id}/bio
 func (q *Queries) UpdateAuthorBio(ctx context.Context, arg UpdateAuthorBioParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateAuthorBio, arg.Bio, arg.ID)
+}
+
+const listBios = `-- name: listBios :many
+SELECT id, text FROM bios
+`
+
+func (q *Queries) listBios(ctx context.Context) ([]Bio, error) {
+	rows, err := q.db.QueryContext(ctx, listBios)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Bio
+	for rows.Next() {
+		var i Bio
+		if err := rows.Scan(&i.ID, &i.Text); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

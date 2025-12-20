@@ -78,7 +78,7 @@ func run() error {
 			return err
 		}
 
-		err = otelsql.RegisterDBStatsMetrics(db, otelsql.WithAttributes(
+		_, err = otelsql.RegisterDBStatsMetrics(db, otelsql.WithAttributes(
 			semconv.DBSystemPostgreSQL,
 		))
 		if err != nil {

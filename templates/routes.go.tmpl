@@ -4,8 +4,9 @@ package {{.Package}}
 
 import "net/http"
 
-{{$pkg := .Package}}
+{{$pkg := .}}
 func (s *Service) RegisterHandlers(mux *http.ServeMux) {
-{{ range .Services }}mux.HandleFunc("{{. | HttpMethod}} {{. | HttpPath}}", s.handle{{.Name | UpperFirstCharacter}}())
-{{ end -}}
+{{ range .Services }}{{if not .Skip}}{{if $serviceUI := ToServiceUI $pkg . }}{{if $serviceUI.ReferenceDataProviders}}mux.HandleFunc("GET /app/{{$pkg.Package}}/{{ .Name | SnakeCase}}", s.handleApp{{.Name | UpperFirstCharacter}}()){{end}}{{end}}
+mux.HandleFunc("{{. | HttpMethod}} {{. | HttpPath}}", s.handle{{.Name | UpperFirstCharacter}}())
+{{end}}{{ end -}}
 }

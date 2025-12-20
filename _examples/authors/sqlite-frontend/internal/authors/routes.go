@@ -5,10 +5,18 @@ package authors
 import "net/http"
 
 func (s *Service) RegisterHandlers(mux *http.ServeMux) {
+	mux.HandleFunc("GET /app/authors/create_author", s.handleAppCreateAuthor())
 	mux.HandleFunc("POST /authors", s.handleCreateAuthor())
+
 	mux.HandleFunc("DELETE /authors/{id}", s.handleDeleteAuthor())
+	mux.HandleFunc("GET /app/authors/get_author", s.handleAppGetAuthor())
 	mux.HandleFunc("GET /authors/{id}", s.handleGetAuthor())
+
 	mux.HandleFunc("GET /authors", s.handleListAuthors())
+
 	mux.HandleFunc("PUT /authors/{id}", s.handleUpdateAuthor())
+
 	mux.HandleFunc("PATCH /authors/{id}/bio", s.handleUpdateAuthorBio())
+
+	mux.HandleFunc("GET /bios", s.handleListBios())
 }

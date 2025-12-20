@@ -15,49 +15,6 @@ type Service struct {
 	querier *Queries
 }
 
-func (s *Service) handleBooksByTags() http.HandlerFunc {
-	type request struct {
-		Dollar_1 []string `json:"dollar_1"`
-	}
-	type response struct {
-		BookID int32    `json:"book_id,omitempty"`
-		Title  string   `json:"title,omitempty"`
-		Name   *string  `json:"name,omitempty"`
-		Isbn   string   `json:"isbn,omitempty"`
-		Tags   []string `json:"tags,omitempty"`
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		req, err := server.Decode[request](r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
-		}
-		dollar_1 := req.Dollar_1
-
-		result, err := s.querier.BooksByTags(r.Context(), dollar_1)
-		if err != nil {
-			slog.Error("sql call failed", "error", err, "method", "BooksByTags")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		res := make([]response, 0)
-		for _, r := range result {
-			var item response
-			item.BookID = r.BookID
-			item.Title = r.Title
-			if r.Name.Valid {
-				item.Name = &r.Name.String
-			}
-			item.Isbn = r.Isbn
-			item.Tags = r.Tags
-			res = append(res, item)
-		}
-		server.Encode(w, r, http.StatusOK, res)
-	}
-}
-
 func (s *Service) handleBooksByTitleYear() http.HandlerFunc {
 	type request struct {
 		Title string `json:"title"`

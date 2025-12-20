@@ -273,43 +273,6 @@ paths:
               schema:
                 type: string  
     
-  /books-by-tags:
-    post:
-      tags:
-        - books
-      summary: BooksByTags
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: string
-                format: 
-          application/x-www-form-urlencoded:
-            schema:
-              type: array
-              items:
-                type: string
-                format: 
-      
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/booksBooksByTagsRow"
-          
-        "default":    
-          description: Error message
-          content:
-            text/plain:
-              schema:
-                type: string  
-    
   /books-by-title-year:
     get:
       tags:

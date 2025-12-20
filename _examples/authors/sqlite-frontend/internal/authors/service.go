@@ -53,6 +53,26 @@ func (s *Service) handleCreateAuthor() http.HandlerFunc {
 	}
 }
 
+func (s *Service) handleAppCreateAuthor() http.HandlerFunc {
+	type response struct {
+		Bio []Bio
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			res response
+			err error
+		)
+
+		res.Bio, err = s.querier.listBios(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		server.Encode(w, r, http.StatusOK, res)
+	}
+}
+
 func (s *Service) handleDeleteAuthor() http.HandlerFunc {
 	type request struct {
 		Id int64 `json:"id"`
@@ -120,6 +140,26 @@ func (s *Service) handleGetAuthor() http.HandlerFunc {
 		if result.BirthDate.Valid {
 			res.BirthDate = &result.BirthDate.Time
 		}
+		server.Encode(w, r, http.StatusOK, res)
+	}
+}
+
+func (s *Service) handleAppGetAuthor() http.HandlerFunc {
+	type response struct {
+		Bio []Bio
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			res response
+			err error
+		)
+
+		res.Bio, err = s.querier.listBios(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		server.Encode(w, r, http.StatusOK, res)
 	}
 }
@@ -277,5 +317,31 @@ func (s *Service) handleUpdateAuthorBio() http.HandlerFunc {
 		} else {
 			server.Success(w, r, http.StatusOK, fmt.Sprintf("Rows affected: %d", rowsAffected))
 		}
+	}
+}
+
+func (s *Service) handleListBios() http.HandlerFunc {
+	type response struct {
+		ID   int64  `json:"id,omitempty"`
+		Text string `json:"text,omitempty"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		result, err := s.querier.listBios(r.Context())
+		if err != nil {
+			slog.Error("sql call failed", "error", err, "method", "listBios")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		res := make([]response, 0)
+		for _, r := range result {
+			var item response
+			item.ID = r.ID
+			item.Text = r.Text
+			res = append(res, item)
+		}
+		server.Encode(w, r, http.StatusOK, res)
 	}
 }

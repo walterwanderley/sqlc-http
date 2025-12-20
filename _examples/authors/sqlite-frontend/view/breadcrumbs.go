@@ -39,6 +39,8 @@ func breadCrumbsFromRequest(r *http.Request) []breadCrumb {
 			return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Update Author")
 		case "/app/authors/update_author_bio":
 			return breadCrumbsFromStrings("Authors", "/", "List Authors", "/authors", "Update Author Bio")
+		case "/app/authors/list_bios":
+			return breadCrumbsFromStrings("Authors", "/", "List Bios")
 		}
 	}
 

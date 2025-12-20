@@ -1,11 +1,9 @@
 package frontend
 
 import (
-	"fmt"
 	"regexp"
 	"slices"
 	"strings"
-	"time"
 	"unicode"
 
 	"github.com/walterwanderley/sqlc-grpc/converter"
@@ -132,76 +130,8 @@ func OutputUI(s *metadata.Service) []string {
 	return res
 }
 
-func toHtmlType(typ string) string {
-	if strings.HasPrefix(typ, "*") {
-		return toHtmlType(typ[1:])
-	}
-	if strings.HasPrefix(typ, "[]") {
-		return toHtmlType(typ[2:])
-	}
-	switch typ {
-	case "bool", "sql.NullBool", "pgtype.Bool":
-		return "checkbox"
-	case "sql.NullInt32", "pgtype.Int4", "pgtype.Int2", "pgtype.Uint32", "int", "int64", "uint64", "int16", "int32", "uint16", "uint32":
-		return "number"
-	case "time.Time", "sql.NullTime", "pgtype.Date", "pgtype.Timestamp", "pgtype.Timestampz":
-		return "date"
-	default:
-		return "text"
-	}
-}
-
-func htmlInput(attr, typ string, fill bool) []string {
-	attrName := converter.ToPascalCase(attr)
-	required := !strings.Contains(typ, "*") && !strings.Contains(typ, "pgtype.") && !strings.Contains(typ, "sql.Null")
-	label := AddSpace(attrName)
-	if required {
-		label = label + " *"
-	}
-	typ = toHtmlType(typ)
-	res := make([]string, 0)
-	attrFormName := converter.ToSnakeCase(attrName)
-	var requiredAttr string
-	if required {
-		requiredAttr = "required"
-	}
-	switch typ {
-	case "checkbox":
-		res = append(res, `<div class="form-check">`)
-		if fill {
-			res = append(res, fmt.Sprintf(`    <input id="%s" name="%s" type="checkbox" class="form-check-input" value="{{.Data.%s}}" {{if .Data.%s}}checked{{end}}/>`, attrFormName, attrFormName, attr, attr))
-		} else {
-			res = append(res, fmt.Sprintf(`    <input id="%s" name="%s" type="checkbox" class="form-check-input" value=""/>`, attrFormName, attrFormName))
-		}
-		res = append(res, fmt.Sprintf(`    <label class="form-check-label" for="%s">%s</label>`, attrFormName, label))
-		res = append(res, `</div>`)
-	case "date":
-		res = append(res, `<div class="mb-3">`)
-		res = append(res, `    <div class="col-sm-4 col-md-2">`)
-
-		if fill {
-			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="date" class="form-control"{{if .Data.%s}} value="{{.Data.%s.Format "%s"}}"{{end}}/>`, attrFormName, requiredAttr, attrFormName, attr, attr, time.DateOnly))
-		} else {
-			res = append(res, fmt.Sprintf(`        <label for="%s" class="form-label">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`        <input id="%s" %s name="%s" type="date" class="form-control"/>`, attrFormName, requiredAttr, attrFormName))
-		}
-		res = append(res, `    </div>`)
-		res = append(res, `</div>`)
-	default:
-		res = append(res, `<div class="mb-3">`)
-		if fill {
-			res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s"{{if .Data.%s}} value="{{.Data.%s}}"{{end}} class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ, attr, attr))
-		} else {
-			res = append(res, fmt.Sprintf(`    <label for="%s" class="form-label">%s</label>`, attrFormName, label))
-			res = append(res, fmt.Sprintf(`    <input id="%s" %s name="%s" type="%s" class="form-control"/>`, attrFormName, requiredAttr, attrFormName, typ))
-
-		}
-		res = append(res, `</div>`)
-	}
-
-	return res
+func ToServiceUI(pkg *metadata.Package, s *metadata.Service) *ServiceUI {
+	return &ServiceUI{Service: s, Package: pkg}
 }
 
 func hasPathParam(s *metadata.Service) bool {

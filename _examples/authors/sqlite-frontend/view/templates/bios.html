@@ -1,0 +1,17 @@
+{{define "content"}}
+{{template "hx-context.html" .}}
+<div class="col-sm-12">
+    <table class="table table-hover">
+        <thead><tr>
+            <th>ID</th>
+            <th>Text</th>
+        </tr></thead>
+        <tbody>
+            {{range .Data}}<tr scope="row">
+            <td>{{.ID}}</td>
+            <td>{{.Text}}</td>
+            </tr>{{end}}
+        </tbody>
+    </table>
+    </div>
+    {{end}}

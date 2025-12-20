@@ -1,5 +1,6 @@
 /* name: GetAuthor :one */
 /* http: GET /authors/{id}*/
+/* ref: bio listBios */
 SELECT * FROM authors
 WHERE id = ? LIMIT 1;
 
@@ -9,8 +10,12 @@ SELECT * FROM authors
 ORDER BY name
 LIMIT ? OFFSET ?;
 
+-- name: listBios :many
+SELECT id, text FROM bios;
+
 /* name: CreateAuthor :execresult */
 /* http: POST /authors */
+/* ref: bio listBios */
 INSERT INTO authors (
   name, bio, birth_date
 ) VALUES (

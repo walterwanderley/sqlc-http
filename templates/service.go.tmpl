@@ -29,7 +29,8 @@ type Service struct {
 }
 
 {{$emitDbArgument := .EmitDbArgument}}
-{{ range .Services }}
+{{$pkg := .}}
+{{ range .Services }}{{if not .Skip}}
 func (s *Service) handle{{.Name | UpperFirstCharacter}}() http.HandlerFunc {
 	{{ range HandlerTypes . UI}}{{ .}}
 	{{end}}
@@ -54,4 +55,27 @@ func (s *Service) handle{{.Name | UpperFirstCharacter}}() http.HandlerFunc {
 		{{end -}}{{end -}}
 	}
 }
+{{$serviceUI := ToServiceUI $pkg . }}
+{{if $serviceUI.ReferenceDataProviders}}
+func (s *Service) handleApp{{.Name | UpperFirstCharacter}}() http.HandlerFunc {
+	type response struct {
+		{{range $serviceUI.ReferenceDataResponseAttributes}}{{.}}
+		{{end}}
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			res response
+			err error
+		)
+		{{range $attr, $method := $serviceUI.ReferenceDataProviders}}
+		res.{{$attr | UpperFirstCharacter}}, err = s.querier.{{$method}}(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		{{end}}		
+		server.Encode(w, r, http.StatusOK, res)
+	}
+}
+{{end}}{{end}}
 {{ end }}
