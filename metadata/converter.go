@@ -98,8 +98,7 @@ func BindStringToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
 		res = append(res, "return")
 		res = append(res, "} else {")
-		res = append(res, "vInt16 = int16(v)")
-		res = append(res, fmt.Sprintf("%s.%s = &vInt16 }", dst, attrName))
+		res = append(res, fmt.Sprintf("%s.%s = new(int16(v)) }", dst, attrName))
 		res = append(res, "}")
 	case "pgtype.Uint32":
 		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
@@ -107,8 +106,7 @@ func BindStringToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
 		res = append(res, "return")
 		res = append(res, "} else {")
-		res = append(res, "vUint32 = uint32(v)")
-		res = append(res, fmt.Sprintf("%s.%s = &vUint32 }", dst, attrName))
+		res = append(res, fmt.Sprintf("%s.%s = new(uint32(v)) }", dst, attrName))
 		res = append(res, "}")
 	case "sql.NullInt32", "pgtype.Int4":
 		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
@@ -116,8 +114,7 @@ func BindStringToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
 		res = append(res, "return")
 		res = append(res, "} else {")
-		res = append(res, "vInt32 = int32(v)")
-		res = append(res, fmt.Sprintf("%s.%s = &vInt32 }", dst, attrName))
+		res = append(res, fmt.Sprintf("%s.%s = new(int32(v)) }", dst, attrName))
 		res = append(res, "}")
 	case "sql.NullInt64", "pgtype.Int8":
 		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
@@ -133,8 +130,7 @@ func BindStringToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
 		res = append(res, "return")
 		res = append(res, "} else {")
-		res = append(res, "vFloat32 = float32(v)")
-		res = append(res, fmt.Sprintf("%s.%s = &vFloat32 }", dst, attrName))
+		res = append(res, fmt.Sprintf("%s.%s = new(float32(v)) }", dst, attrName))
 		res = append(res, "}")
 	case "sql.NullFloat64", "pgtype.Float8":
 		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
@@ -268,8 +264,7 @@ func BindToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, fmt.Sprintf("%s.%s = %s.%s.String()", dst, attrName, src, attrName))
 	case "pgtype.UUID":
 		res = append(res, fmt.Sprintf("if v, err := json.Marshal(%s.%s); err == nil {", src, attrName))
-		res = append(res, "str := string(v)")
-		res = append(res, fmt.Sprintf("%s.%s = &str", dst, attrName))
+		res = append(res, fmt.Sprintf("%s.%s = new(string(v))", dst, attrName))
 		res = append(res, "}")
 	case "int16":
 		res = append(res, fmt.Sprintf("%s.%s = %s.%s", dst, attrName, src, attrName))

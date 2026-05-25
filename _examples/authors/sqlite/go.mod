@@ -6,8 +6,8 @@ require (
 	github.com/benbjohnson/litestream v0.5.11
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b
 	github.com/go-playground/form/v4 v4.3.0
-	github.com/litesql/go-ha v0.11.10
-	github.com/litesql/go-sqlite-ha v0.11.11
+	github.com/litesql/go-ha v0.11.13
+	github.com/litesql/go-sqlite-ha v0.11.12
 	github.com/pressly/goose/v3 v3.27.1
 	go.uber.org/automaxprocs v1.6.0
 )
@@ -79,8 +79,8 @@ require (
 	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260504160031-60b97b32f348 // indirect
-	google.golang.org/grpc v1.81.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260511170946-3700d4141b60 // indirect
+	google.golang.org/grpc v1.81.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	modernc.org/libc v1.72.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
