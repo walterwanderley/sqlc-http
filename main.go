@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 
+	sqlc "github.com/sqlc-dev/sqlc/pkg/cli"
 	"golang.org/x/mod/modfile"
 
 	"github.com/walterwanderley/sqlc-grpc/config"
@@ -20,6 +21,7 @@ import (
 
 var (
 	gomodPath          string
+	configFile         string
 	module             string
 	ignoreQueries      string
 	migrationPath      string
@@ -28,6 +30,7 @@ var (
 	metric             bool
 	distributedTracing bool
 	generateFrontend   bool
+	skipSqlcGeneration bool
 	appendMode         bool
 	showVersion        bool
 	help               bool
@@ -36,6 +39,7 @@ var (
 func main() {
 	flag.BoolVar(&help, "h", false, "Help for this program")
 	flag.BoolVar(&showVersion, "v", false, "Show version")
+	flag.StringVar(&configFile, "file", "", "Specify an alternate sqlc config file")
 	flag.BoolVar(&appendMode, "append", false, "Enable append mode. Don't rewrite editable files")
 	flag.StringVar(&gomodPath, "go.mod", "go.mod", "Path to go.mod file")
 	flag.StringVar(&module, "m", "my-project", "Go module name if there are no go.mod")
@@ -46,6 +50,7 @@ func main() {
 	flag.BoolVar(&distributedTracing, "tracing", false, "Enable support to distributed tracing")
 	flag.BoolVar(&metric, "metric", false, "Enable support to metrics")
 	flag.BoolVar(&generateFrontend, "frontend", false, "Generate frontend")
+	flag.BoolVar(&skipSqlcGeneration, "skip-sqlc-generation", false, "Skip sqlc generation")
 	flag.Parse()
 
 	if help {
@@ -69,7 +74,7 @@ func main() {
 		}
 	}
 
-	cfg, err := config.Load()
+	cfg, err := config.Load(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,6 +98,17 @@ func main() {
 	args := strings.Join(os.Args, " ")
 	if !strings.Contains(args, " -append") {
 		args += " -append"
+	}
+
+	if !skipSqlcGeneration {
+		log.Println("Generating code with sqlc...")
+		args := []string{"generate"}
+		if configFile != "" {
+			args = append(args, "--file", configFile)
+		}
+		if res := sqlc.Run(args); res != 0 {
+			log.Fatal("sqlc generation failed")
+		}
 	}
 
 	def := metadata.Definition{

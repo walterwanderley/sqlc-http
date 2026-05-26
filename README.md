@@ -5,11 +5,7 @@ Create a **net/http Server** from the generated code by the awesome [sqlc](https
 ### Requirements
 
 - Go 1.26 or superior
-- [sqlc](https://sqlc.dev/)
 
-```sh
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-```
 
 ### Installation
 
@@ -83,13 +79,7 @@ sql:
       out: "internal/author"
 ```
 
-3. Execute sqlc
-
-```sh
-sqlc generate
-```
-
-4. Execute sqlc-http
+3. Execute sqlc-http
 
 ```sh
 sqlc-http -m "mymodule"
@@ -102,13 +92,13 @@ sqlc-http -m "mymodule" -frontend
 ```
 
 
-5. Run the generated server
+4. Run the generated server
 
 ```sh
 go run . -db [Database Connection URL] -dev
 ```
 
-6. Enjoy!
+5. Enjoy!
 
 If you do not generate the frontend in step 4?
 
@@ -146,10 +136,9 @@ WHERE id = $2;
 
 - It's safe to edit any generated code that doesn't have the `DO NOT EDIT` indication at the very first line.
 
-- After modify a SQL file, execute these commands below:
+- After modify a SQL file, execute the command below:
 
 ```sh
-sqlc generate
 go generate
 ```
 

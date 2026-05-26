@@ -9,9 +9,6 @@ The most productive and efficient stack of the world!
 ```sh
 go install github.com/walterwanderley/sqlc-http@latest
 ```
-```sh
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-```
 
 1. Create a directory to store SQL scripts.
 
@@ -91,12 +88,6 @@ sql:
     go:
       out: "internal/authors"
 " > sqlc.yaml
-```
-
-5. Execute sqlc
-
-```sh
-sqlc generate
 ```
 
 6. Execute sqlc-http
