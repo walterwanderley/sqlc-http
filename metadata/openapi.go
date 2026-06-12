@@ -444,7 +444,7 @@ func toOpenAPITypeAndFormat(typ string) (oasType string, oasFormat string) {
 		return "string", "binary"
 	case "bool", "sql.NullBool", "pgtype.Bool":
 		return "boolean", ""
-	case "sql.NullInt32", "pgtype.Int4", "pgtype.Int2", "pgtype.Uint32", "int16", "int32", "uint16", "uint32":
+	case "sql.NullInt16", "sql.NullInt32", "pgtype.Int4", "pgtype.Int2", "pgtype.Uint32", "int16", "int32", "uint16", "uint32":
 		return "integer", "int32"
 	case "int", "int64", "uint64", "sql.NullInt64", "pgtype.Int8":
 		return "integer", "int64"

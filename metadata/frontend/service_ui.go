@@ -825,7 +825,7 @@ func (s *ServiceUI) toHtmlType(typ string) string {
 	switch typ {
 	case "bool", "sql.NullBool", "pgtype.Bool":
 		return "checkbox"
-	case "sql.NullInt32", "pgtype.Int4", "pgtype.Int2", "pgtype.Uint32", "int", "int64", "uint64", "int16", "int32", "uint16", "uint32":
+	case "sql.NullInt16", "sql.NullInt32", "sql.NullInt64", "pgtype.Int4", "pgtype.Int2", "pgtype.Uint32", "int", "int64", "uint64", "int8", "int16", "int32", "uint16", "uint32":
 		return "number"
 	case "time.Time", "sql.NullTime", "pgtype.Date", "pgtype.Timestamp", "pgtype.Timestampz":
 		return "date"

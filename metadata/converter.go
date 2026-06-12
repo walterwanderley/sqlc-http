@@ -23,7 +23,9 @@ func toSerializableType(typ string) string {
 		return "bool"
 	case "sql.NullBool", "pgtype.Bool":
 		return "*bool"
-	case "sql.NullInt32", "pgtype.Int4", "pgtype.Int2":
+	case "sql.NullInt16", "pgtype.Int2":
+		return "*int16"
+	case "sql.NullInt32", "pgtype.Int4":
 		return "*int32"
 	case "pgtype.Uint32":
 		return "*uint32"
@@ -33,6 +35,8 @@ func toSerializableType(typ string) string {
 		return "int64"
 	case "uint64":
 		return "uint64"
+	case "int8":
+		return "int8"
 	case "int16":
 		return "int16"
 	case "int32":
@@ -92,7 +96,7 @@ func BindStringToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, "} else {")
 		res = append(res, fmt.Sprintf("%s.%s = &v }", dst, attrName))
 		res = append(res, "}")
-	case "pgtype.Int2":
+	case "sql.NullInt16", "pgtype.Int2":
 		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
 		res = append(res, "if v, err := strconv.ParseInt(str, 10, 16); err != nil {")
 		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
@@ -169,6 +173,14 @@ func BindStringToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, "}")
 	case "uuid.UUID", "net.HardwareAddr", "net.IP":
 		res = append(res, fmt.Sprintf("%s.%s = %s(\"%s\")", dst, attrName, src, converter.ToSnakeCase(attrName)))
+	case "int8":
+		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
+		res = append(res, "if v, err := strconv.ParseInt(str, 10, 8); err != nil {")
+		res = append(res, "http.Error(w, err.Error(), http.StatusBadRequest)")
+		res = append(res, "return")
+		res = append(res, "} else {")
+		res = append(res, fmt.Sprintf("%s.%s = int8(v) }", dst, attrName))
+		res = append(res, "}")
 	case "int16":
 		res = append(res, fmt.Sprintf("if str := %s(\"%s\"); str != \"\" {", src, converter.ToSnakeCase(attrName)))
 		res = append(res, "if v, err := strconv.ParseInt(str, 10, 16); err != nil {")
@@ -234,7 +246,7 @@ func BindToSerializable(src, dst, attrName, attrType string) []string {
 	case "sql.NullBool", "pgtype.Bool":
 		res = append(res, fmt.Sprintf("if %s.%s.Valid {", src, attrName))
 		res = append(res, fmt.Sprintf("%s.%s = &%s.%s.Bool }", dst, attrName, src, attrName))
-	case "pgtype.Int2":
+	case "sql.NullInt16", "pgtype.Int2":
 		res = append(res, fmt.Sprintf("if %s.%s.Valid {", src, attrName))
 		res = append(res, fmt.Sprintf("%s.%s = &%s.%s.Int16 }", dst, attrName, src, attrName))
 	case "pgtype.Uint32":
@@ -266,7 +278,7 @@ func BindToSerializable(src, dst, attrName, attrType string) []string {
 		res = append(res, fmt.Sprintf("if v, err := json.Marshal(%s.%s); err == nil {", src, attrName))
 		res = append(res, fmt.Sprintf("%s.%s = new(string(v))", dst, attrName))
 		res = append(res, "}")
-	case "int16":
+	case "int8", "int16":
 		res = append(res, fmt.Sprintf("%s.%s = %s.%s", dst, attrName, src, attrName))
 	default:
 		_, elementType := originalAndElementType(attrType)
@@ -289,7 +301,7 @@ func bindToGo(src, dst, attrName, attrType string, newVar bool) []string {
 		res = append(res, fmt.Sprintf("if %s.%s != nil {", src, attrName))
 		res = append(res, fmt.Sprintf("%s = %s{Valid: true, Bool: *%s.%s}", dst, attrType, src, attrName))
 		res = append(res, "}")
-	case "pgtype.Int2":
+	case "sql.NullInt16", "pgtype.Int2":
 		if newVar {
 			res = append(res, fmt.Sprintf("var %s %s", dst, attrType))
 		}
@@ -378,6 +390,12 @@ func bindToGo(src, dst, attrName, attrType string, newVar bool) []string {
 			res = append(res, fmt.Sprintf("%s := net.ParseIP(%s.%s)", dst, src, attrName))
 		} else {
 			res = append(res, fmt.Sprintf("%s = net.ParseIP(%s.%s)", dst, src, attrName))
+		}
+	case "int8":
+		if newVar {
+			res = append(res, fmt.Sprintf("%s := int8(%s.%s)", dst, src, attrName))
+		} else {
+			res = append(res, fmt.Sprintf("%s = int8(%s.%s)", dst, src, attrName))
 		}
 	case "int16":
 		if newVar {
